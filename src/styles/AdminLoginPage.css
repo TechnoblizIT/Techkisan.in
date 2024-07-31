@@ -1,0 +1,196 @@
+/* General container for the entire page */
+.admin-login-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+/* Content container that wraps both logo and login sections */
+.content {
+  display: flex;
+  width: 90%;
+  max-width: 1200px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Logo section styles */
+.logo-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to right, #bceee8, #eff1c6);
+  padding: 20px;
+  width: 50%;
+}
+
+/* Logo image style */
+.logo-image img {
+  width: 360px; /* Adjust width as needed */
+  height: auto;
+  margin-bottom: 40px; /* Adds space below the logo */
+}
+
+/* Brand text styles */
+.brand-tagline {
+  font-size: 2rem;
+  margin: 5px 0;
+  font-weight: 400;
+  color: #000000;
+}
+
+.brand-trust {
+  font-size: 2rem;
+  font-weight: 400;
+  margin: 5px 0;
+  color: #000000;
+}
+
+/* Admin login section styles */
+.admin-login-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50%;
+  background-color: #f7fcfb;
+  padding: 40px;
+  border-left: 1px solid #dcdcdc; /* Added border to separate sections */
+}
+
+/* Admin login box styling */
+.admin-login-box {
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  position: relative;
+}
+
+/* Header styles for the admin login section */
+.login-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  position: relative;
+  margin-top: 40px; /* Added margin to create space from "Need help?" */
+}
+
+.login-header h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #333333;
+}
+
+/* Help link style positioned at the top-right corner with corner space */
+.help-link {
+  color: #1a73e8;
+  text-decoration: none;
+  font-size: 0.9rem;
+  position: absolute;
+  right: 10px;  /* Added some margin from the right corner */
+  top: 10px;    /* Added some margin from the top corner */
+}
+
+/* Login form label styles aligned at start */
+.login-form label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+  color: #333333;
+  text-align: left; /* Align text to the start */
+}
+
+/* Input field styles */
+.login-form input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #dcdcdc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+/* Forgot password link style */
+.forgot-password {
+  color: #1a73e8;
+  text-decoration: none;
+  font-size: 0.9rem;
+  display: block;
+  text-align: right;
+  margin-bottom: 30px; /* Increased margin to ensure space from login button */
+}
+
+/* Login button style */
+.login-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #00bfa5;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.login-button:hover {
+  background-color: #009688;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .content {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .logo-section,
+  .admin-login-section {
+    width: 100%;
+    padding: 20px;
+  }
+
+  .admin-login-box {
+    width: 90%;
+    padding: 20px;
+  }
+
+  .login-header {
+    justify-content: center;
+    margin-bottom: 15px;
+    margin-top: 30px; /* Reduced for smaller screens */
+  }
+
+  .help-link {
+    right: 15px; /* Adjusted for smaller screens */
+    top: 15px;   /* Adjusted for smaller screens */
+  }
+
+  .login-form label {
+    font-size: 0.85rem;
+  }
+
+  .login-form input {
+    font-size: 0.95rem;
+    padding: 8px;
+  }
+
+  .forgot-password {
+    font-size: 0.85rem;
+    margin-bottom: 25px; /* Adjusted margin for smaller screens */
+  }
+
+  .login-button {
+    font-size: 0.95rem;
+  }
+}
