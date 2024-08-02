@@ -8,6 +8,7 @@ const employeeSchema=mongoose.Schema({
  	DOB :	Date,
  	Contact_No:	Number,
  	Email:	String ,
+	Password:    String ,
  	Address:	String ,
  	Sex :	String ,
  	Blood_Group	:String ,
