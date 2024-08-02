@@ -8,6 +8,7 @@ const expressSession = require('express-session');
 const db=require('./configs/mongoose-connection')
 const indexRoute=require("./routes/indexRoute")
 const employeesRoute=require("./routes/employeeRoute")
+const adminRoute=require("./routes/adminRoutes")
 require('dotenv').config()
 app.use(cors()); 
 app.use(express.json());
@@ -23,6 +24,7 @@ app.use(express.static(path.join(__dirname,"public")));
 
 app.use("/",indexRoute);
 app.use("/employees",employeesRoute);
+app.use("/admin",adminRoute);
 
 
 app.listen(8000);

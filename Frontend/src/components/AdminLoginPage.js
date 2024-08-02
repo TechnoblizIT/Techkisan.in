@@ -1,8 +1,40 @@
-import React from 'react';
+import React  from 'react';
 import '../styles/AdminLoginPage.css'; // Importing CSS for styling
 import logo from '../assets/logo1.png'; // Import the logo image with the correct path
-
+import { useNavigate} from 'react-router-dom';
+import { useState } from 'react';
 const AdminLoginPage = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const navigate = useNavigate();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch('http://localhost:8000/admin/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        console.log(data.message);
+        navigate('/admin-dashboard');
+      } else {
+        // Handle login failure
+        setError(data.message);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setError('An error occurred. Please try again later.');
+    }
+  };
   return (
     <div className="admin-login-page">
       <div className="content">
@@ -23,12 +55,14 @@ const AdminLoginPage = () => {
             <div className="login-header">
               <h2>Admin Login</h2>
             </div>
-            <form className="login-form">
+            {error && <div className="error-message">{error}</div>}
+            <form className="login-form" onSubmit={handleSubmit}>
               <label htmlFor="email">Email</label>
               <input
                 type="email"
                 id="email"
                 placeholder="joe@email.com"
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
 
@@ -37,6 +71,7 @@ const AdminLoginPage = () => {
                 type="password"
                 id="password"
                 placeholder="Enter your Password"
+                onChange={(e)=> setPassword(e.target.value)}
                 required
               />
 
