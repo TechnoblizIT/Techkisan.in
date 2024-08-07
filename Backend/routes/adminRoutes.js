@@ -13,7 +13,7 @@ router.post('/create', async(req, res) => {
       })
       await newadmin.save()
       console.log(newadmin)
-     res.send("Successfully created employee")
+     res.send("Successfully created Admin")
      })}catch(err){ console.log(err) }
      });
 

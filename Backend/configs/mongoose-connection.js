@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-mongoose.connect('mongodb://127.0.0.1:27017/TechkisanAutomation').then(function(connection) {
+mongoose.connect('mongodb+srv://praduman228:CjTmAHWAQFQwjNxT@tkn.g6ct4.mongodb.net/?retryWrites=true&w=majority&appName=TKN').then(function(connection) {
     console.log("Connected to MongoDB");
 })
 .catch(function(error) {
