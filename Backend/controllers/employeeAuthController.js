@@ -8,17 +8,17 @@ module.exports.loginUser = async function (req, res) {
         const employee = await employeeModel.findOne({ username: username });
 
         if (!employee) {
-            return res.json({ success: false, message: 'Invalid credentials' });
+            return res.json({ success: false, message: 'Invalid username credentials' });
         }
 
-        let isMatch = await bcrypt.compare(password, employee.Password);
+        let isMatch = await bcrypt.compare(password, employee.password);
 
         if (!isMatch) {
-            return res.json({ success: false, message: 'Invalid credentials' });
+            return res.json({ success: false, message: 'Invalid password credentials' });
         }
 
         const token = genrateToken(employee);
-        res.cookie("token", token);
+        res.cookie('token', token)
         res.json({ success: true, message: 'Login successful' });
     } catch (e) {
         console.log(e);

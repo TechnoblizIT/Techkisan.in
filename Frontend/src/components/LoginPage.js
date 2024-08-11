@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import '../styles/LoginPage.css'; // Importing CSS for styling
 import logo from '../assets/logo1.png'; // Import the logo image with the correct path
-import { useNavigate} from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+
 const LoginPage = () => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState(''); // Change email to username
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
   const navigate = useNavigate();
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -17,7 +19,8 @@ const LoginPage = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        credentials: 'include',
+        body: JSON.stringify({ username, password }), // Send username instead of email
       });
 
       const data = await response.json();
@@ -56,13 +59,13 @@ const LoginPage = () => {
             </div>
             {error && <div className="error-message">{error}</div>}
             <form className="login-form" onSubmit={handleSubmit}>
-              <label htmlFor="email">Email</label>
+              <label htmlFor="username">Username</label> {/* Change label to Username */}
               <input
-                type="email"
-                id="email"
-                placeholder="joe@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="text"
+                id="username"  // Change id to username
+                placeholder="Enter your username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)} // Handle username state change
                 required
               />
 
@@ -78,7 +81,7 @@ const LoginPage = () => {
 
               <div className="login-options">
                 <a href="#" className="forgot-password">
-                  forgot password?
+                  Forgot password?
                 </a>
               </div>
 

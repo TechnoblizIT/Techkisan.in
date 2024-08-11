@@ -1,5 +1,5 @@
 // src/components/EmployeeDashboard.js
-import React from 'react';
+import React,{useEffect, useState} from 'react';
 import NavigationBar from './NavigationBar';
 import '../styles/EmployeeDashboard.css';
 import profileimg from '../assets/img-dashboard.jpg';
@@ -7,6 +7,44 @@ import bdayimg from '../assets/P.jpg'
 import cakeimg from '../assets/cake-img.png'
 
 function EmployeeDashboard() {
+  const [employeedata, setemployeedata]=useState(null)
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+}
+  useEffect(() => {
+    const fetchEmployeeData = async () => {
+        try {
+          const token = getCookie('token');
+            if (!token) {
+                console.error('Token not found');
+                return;
+            }
+
+            const response = await fetch('http://localhost:8000/employees/empdata',{
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+            });
+            console.log(response.ok)
+            if (response.ok) {
+                const data = await response.json();
+                
+                setemployeedata(data);
+            } else {
+                console.error('Failed to fetch employee data');
+            }
+        } catch (error) {
+            console.error('Error fetching employee data:', error);
+        }
+    };
+
+    fetchEmployeeData();
+}, []);
+  
   return (
     <>
       <NavigationBar />
@@ -14,7 +52,7 @@ function EmployeeDashboard() {
         <div className="left-side">
           <div className="profile-section">
             <img  src={profileimg} alt="Profile Image" className="profile-image" />
-            <h2 className="employee-name">Emee Doe</h2>
+            <h2 className="employee-name">{employeedata ? employeedata.firstName+employeedata.lastName : 'Loading...'}</h2>
             <p className="employee-role">Software Developer</p>
             <div className="work-duration">
               <p>At work for: 1 year 3 months 8 days</p>
@@ -50,7 +88,7 @@ function EmployeeDashboard() {
                 <div className="details">
                   <h3><i className="fa-solid fa-pen"></i> &nbsp;Personal Details</h3>
                 </div>
-                <p>Name: Emee Doe</p>
+                <p>Name:{employeedata ? employeedata.firstName+employeedata.lastName : 'Loading...'}</p>
                 <hr />
                 <p>Father's Name: Robert Doe</p>
                 <hr />
@@ -58,7 +96,7 @@ function EmployeeDashboard() {
                 <hr />
                 <p>Gender: Male</p>
                 <hr />
-                <p>Email: Emee.doe@example.com</p>
+                <p>Email:{employeedata ? employeedata.email: 'Loading...'}</p>
                 <hr />
                 <p>Phone: 1234567890</p>
                 <hr />

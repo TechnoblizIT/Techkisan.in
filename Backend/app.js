@@ -10,10 +10,14 @@ const indexRoute=require("./routes/indexRoute")
 const employeesRoute=require("./routes/employeeRoute")
 const adminRoute=require("./routes/adminRoutes")
 require('dotenv').config()
-app.use(cors()); 
+app.use(cookieParser())
+app.use(cors({
+  origin: ['http://localhost:3000'], 
+  methods: ['POST,GET'],
+  credentials: true,               
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended:false }));
-app.use(cookieParser())
 app.use(expressSession({
   resave: false,
   saveUninitialized: false,

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import '../styles/AddEmployee.css';
 import avatarImage from '../assets/avtar.png';
 import uploadImage from '../assets/upload.png';
-import axios from 'axios';  // Import axios
+import axios from 'axios';  
 import { useNavigate} from 'react-router-dom';
 const AddEmployee = () => {
   const navigate = useNavigate();
@@ -66,10 +66,14 @@ const AddEmployee = () => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:8000/employees/create', formData);
+      console.log(response.status)
       if (response.status === 201) {
+        console.log("Employee added successfully!");
+        navigate('/');
+      }
         
           navigate('/employee-dashboard');
-      }
+      
       
     } catch (error) {
       console.error("There was an error adding the employee!", error);
