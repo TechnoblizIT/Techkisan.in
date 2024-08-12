@@ -39,7 +39,10 @@ const employeeSchema=mongoose.Schema({
 	postalCode: String,
 	biography: String,
 	welcomeEmail: Boolean,
-	loginDetails: Boolean
+	loginDetails: Boolean,
+	Image: Buffer, 
+	  
+	ImageType:String
 })
 
 module.exports = mongoose.model('Employee', employeeSchema)

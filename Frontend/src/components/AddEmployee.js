@@ -43,8 +43,15 @@ const AddEmployee = () => {
     postalCode: '',
     biography: '',
     welcomeEmail: false,
-    loginDetails: false
+    loginDetails: false,
+    Image:null
   });
+  const [Image, setImage] = useState(null);
+
+  const handleFileChange = (e) => {
+    setImage(e.target.files[0]); // Store the file in state
+  };
+
 
   const handleCheckboxChange = () => {
     setShowAdvancedFields(!showAdvancedFields);
@@ -61,11 +68,29 @@ const AddEmployee = () => {
       [name]: type === 'checkbox' ? checked : value
     }));
   };
+  const submitFormData = new FormData(); // Create FormData object
+
+    // Append text fields
+    Object.keys(formData).forEach((key) => {
+      submitFormData.append(key, formData[key]);
+    });
+
+    // Append the file if there's one
+    if (Image) {
+      submitFormData.append('Image', Image);
+    }
+
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:8000/employees/create', formData);
+      const response = await axios.post('http://localhost:8000/employees/create', submitFormData,{
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        
+      });
       console.log(response.status)
       if (response.status === 201) {
         console.log("Employee added successfully!");
@@ -90,12 +115,12 @@ const AddEmployee = () => {
         <div className="content-section">
           <div className="photo-section">
             <div className="image-box">
-              <img src={avatarImage} width="150px" alt="Avatar" />
+            <img src={Image ? URL.createObjectURL(Image) : avatarImage} width="150px" alt="Avatar" />
             </div>
             <button className="upload-btn">
               <img src={uploadImage} width="15px" height="15px" alt="Upload" />
               <label htmlFor="input-file">Upload Image</label>
-              <input type="file" id="input-file"></input>
+              <input type="file" id="input-file"  onChange={handleFileChange}></input>
             </button>
           </div>
           <div className="form-box">

@@ -6,17 +6,27 @@ const nodemailer = require('nodemailer');
 const crypto=require("crypto")
 const jwt=require("jsonwebtoken")
 const bcrypt=require("bcrypt")
+
+const upload=require("../configs/mutler-setup")
+
+
+
 router.post('/login',loginUser)
-router.post('/create', async(req, res) => {
+
+
+router.post('/create', upload.single("Image") , async(req, res) => {
   const { firstName, lastName ,email} = req.body;
   let username = firstName.toLowerCase() + lastName.toLowerCase() + crypto.randomBytes(3).toString('hex');
   const password = crypto.randomBytes(6).toString('hex');
   username=username.replaceAll(" ","")
   const saltRounds = 10;
   const hashedPassword = await bcrypt.hash(password, saltRounds);
-  
+  console.log(req.file)
   const newEmployee = new employeeModel({
     ...req.body,
+    Image: req.file.buffer,
+    ImageType: req.file.mimetype,
+    password,
     username,
     password:hashedPassword
   });
@@ -63,7 +73,6 @@ router.get('/empdata', async (req, res) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET); 
-     console.log(decoded)
 
     const employee = await employeeModel.findOne({username:decoded}); 
   

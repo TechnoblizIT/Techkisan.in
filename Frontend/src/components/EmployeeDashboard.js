@@ -2,12 +2,15 @@
 import React,{useEffect, useState} from 'react';
 import NavigationBar from './NavigationBar';
 import '../styles/EmployeeDashboard.css';
+import axios from 'axios';
 import profileimg from '../assets/img-dashboard.jpg';
 import bdayimg from '../assets/P.jpg'
 import cakeimg from '../assets/cake-img.png'
 
 function EmployeeDashboard() {
-  const [employeedata, setemployeedata]=useState(null)
+  const [employeedata, setemployeedata]=useState("")
+  const [avatarUrl, setAvatarUrl] = useState(null);
+  console.log((avatarUrl));
   function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -15,25 +18,35 @@ function EmployeeDashboard() {
 }
   useEffect(() => {
     const fetchEmployeeData = async () => {
-        try {
-          const token = getCookie('token');
-            if (!token) {
-                console.error('Token not found');
-                return;
-            }
+      try {
+        const token = getCookie('token');
+        if (!token) {
+          console.error('Token not found');
+          return;
+        }
 
-            const response = await fetch('http://localhost:8000/employees/empdata',{
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-            });
-            console.log(response.ok)
-            if (response.ok) {
-                const data = await response.json();
-                
-                setemployeedata(data);
+        const response = await axios.get('http://localhost:8000/employees/empdata', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+          withCredentials: true, 
+        });
+
+        if (response.status === 200) {
+          const data = response.data;
+          setemployeedata(data)
+         console.log(data);
+          if(data.Image){
+            if (data.Image && data.Image.data) {
+              const binaryString = new Uint8Array(data.Image.data).reduce((acc, byte) => acc + String.fromCharCode(byte), '');
+              const base64String = btoa(binaryString);
+              const imageUrl = `data:${data.ImageType};base64,${base64String}`;
+              setAvatarUrl(imageUrl);
+              console.log("Avatar URL: ", imageUrl);
+            }
+           }
+               
             } else {
                 console.error('Failed to fetch employee data');
             }
@@ -44,6 +57,7 @@ function EmployeeDashboard() {
 
     fetchEmployeeData();
 }, []);
+
   
   return (
     <>
@@ -51,7 +65,11 @@ function EmployeeDashboard() {
       <div className="dashboard-container">
         <div className="left-side">
           <div className="profile-section">
-            <img  src={profileimg} alt="Profile Image" className="profile-image" />
+          {avatarUrl ? (
+              <img src={avatarUrl}  alt="Profile" className="profile-image" />
+            ) : (
+              <p>Loading Image...</p>
+            )}
             <h2 className="employee-name">{employeedata ? employeedata.firstName+employeedata.lastName : 'Loading...'}</h2>
             <p className="employee-role">Software Developer</p>
             <div className="work-duration">
