@@ -21,7 +21,6 @@ router.post('/create', upload.single("Image") , async(req, res) => {
   username=username.replaceAll(" ","")
   const saltRounds = 10;
   const hashedPassword = await bcrypt.hash(password, saltRounds);
-  console.log(req.file)
   const newEmployee = new employeeModel({
     ...req.body,
     Image: req.file.buffer,

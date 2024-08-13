@@ -45,7 +45,8 @@ function EmployeeDashboard() {
               setAvatarUrl(imageUrl);
               console.log("Avatar URL: ", imageUrl);
             }
-           }
+
+             }
                
             } else {
                 console.error('Failed to fetch employee data');
@@ -57,6 +58,27 @@ function EmployeeDashboard() {
 
     fetchEmployeeData();
 }, []);
+const joiningDate = new Date(employeedata.dateOfHire);
+const currentDate = new Date();
+
+  const diffInTime = currentDate - joiningDate;
+
+  // Calculate the difference in years, months, and days
+  let diffInYears = currentDate.getFullYear() - joiningDate.getFullYear();
+  let diffInMonths = currentDate.getMonth() - joiningDate.getMonth();
+  let diffInDays = currentDate.getDate() - joiningDate.getDate();
+
+  // Adjust for negative days or months
+  if (diffInDays < 0) {
+    diffInMonths--;
+    const prevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0).getDate();
+    diffInDays += prevMonth;
+  }
+
+  if (diffInMonths < 0) {
+    diffInYears--;
+    diffInMonths += 12;
+  }
 
   
   return (
@@ -71,9 +93,9 @@ function EmployeeDashboard() {
               <p>Loading Image...</p>
             )}
             <h2 className="employee-name">{employeedata ? employeedata.firstName+employeedata.lastName : 'Loading...'}</h2>
-            <p className="employee-role">Software Developer</p>
+            <p className="employee-role">{employeedata ? employeedata.jobTitle : 'Loading'}</p>
             <div className="work-duration">
-              <p>At work for: 1 year 3 months 8 days</p>
+              <p> At work for: {diffInYears} year{diffInYears !== 1 && 's'} {diffInMonths} month{diffInMonths !== 1 && 's'} {diffInDays} day{diffInDays !== 1 && 's'}</p>
             </div>
             <hr />
             <div className="attendance-leaves-awards">
@@ -93,8 +115,17 @@ function EmployeeDashboard() {
             <div className="birthdays-section">
               <p><span><img className="cake-img" src={cakeimg} alt="" /></span> &nbsp; Birthdays</p>
               <div className="birthday-person">
-                <img src={bdayimg} alt="Birthday Person" className="birthday-image" />
-                <p><strong>Zannifer Doe</strong> has a birthday on</p>
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="Birthday Person" className="birthday-image" />
+                ) : (
+                <p>Loading Image...</p>
+              )}
+                <p><strong>{employeedata ? employeedata.firstName+" "+employeedata.lastName : 'Loading...'}</strong> has a birthday on {employeedata ? new Date(employeedata.dob).toLocaleDateString('en-GB', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: '2-digit'
+                              }) 
+                              : 'Loading...'}</p>
               </div>
             </div>
           </div>
@@ -106,17 +137,24 @@ function EmployeeDashboard() {
                 <div className="details">
                   <h3><i className="fa-solid fa-pen"></i> &nbsp;Personal Details</h3>
                 </div>
-                <p>Name:{employeedata ? employeedata.firstName+employeedata.lastName : 'Loading...'}</p>
+                <p>Name:{employeedata ? employeedata.firstName+" "+employeedata.lastName : 'Loading...'}</p>
                 <hr />
-                <p>Father's Name: Robert Doe</p>
+                <p>Father's Name:{employeedata ? employeedata.fatherName: 'Loading...'}</p>
                 <hr />
-                <p>Date of Birth: 01/01/2024</p>
+                <p>
+                    Date of Birth: {employeedata ? new Date(employeedata.dob).toLocaleDateString('en-GB', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: '2-digit'
+                              }) 
+                              : 'Loading...'}
+                            </p>
                 <hr />
-                <p>Gender: Male</p>
+                <p>Gender: {employeedata ? employeedata.gender : 'Loading...'}</p>
                 <hr />
                 <p>Email:{employeedata ? employeedata.email: 'Loading...'}</p>
                 <hr />
-                <p>Phone: 1234567890</p>
+                <p>Phone:{employeedata ? employeedata.mobile: 'Loading...'} </p>
                 <hr />
                 <p>Local Address: xyz</p>
                 <hr />
@@ -126,11 +164,11 @@ function EmployeeDashboard() {
                 <div className="details">
                   <h3><i className="fa-solid fa-briefcase"></i>&nbsp; Company Details</h3>
                 </div>
-                <p>Employee ID: E123456</p>
+                <p>Employee ID: {employeedata ? employeedata.employeeId: 'Loading...'}</p>
                 <hr ></hr>
-                <p>Department: IT</p>
+                <p>Department: {employeedata ? employeedata.department: 'Loading...'}</p>
                 <hr></hr>
-                <p>Designation: Software Developer</p>
+                <p>Designation: {employeedata ? employeedata.jobTitle : 'Loading'}</p>
               </div>
             </div>
             <div className="notice-board-upcoming-holidays">

@@ -6,6 +6,7 @@ function NavigationBar() {
   const toggleMenu = () => {
     document.querySelector('.nav-links').classList.toggle('active');
   };
+  
 
   return (
     <nav>
@@ -35,7 +36,7 @@ function NavigationBar() {
           <div className="dropdown-content">
             <a href="#">-</a>
             <a href="#">-</a>
-            <a href="#">-</a>
+            <a href="#" on style={{color:"red"}}>Logout</a>
           </div>
         </li>
       </ul>
