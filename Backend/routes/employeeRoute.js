@@ -1,6 +1,6 @@
 const express = require('express');
 const router=express.Router();
-const {loginUser}=require("../controllers/employeeAuthController")
+const {loginUser , logoutUser}=require("../controllers/employeeAuthController")
 const employeeModel=require("../models/employee-model")
 const nodemailer = require('nodemailer');
 const crypto=require("crypto")
@@ -12,6 +12,9 @@ const upload=require("../configs/mutler-setup")
 
 
 router.post('/login',loginUser)
+
+
+router.get('/logout',loginUser)
 
 
 router.post('/create', upload.single("Image") , async(req, res) => {
@@ -60,6 +63,7 @@ router.post('/create', upload.single("Image") , async(req, res) => {
 router.get('/empdata', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
+    
    
     if (!authHeader) {
         return res.status(401).json({ message: 'Authorization header missing' });
@@ -84,6 +88,47 @@ router.get('/empdata', async (req, res) => {
     res.status(401).json({ message: 'Unauthorized' });
 }
 });
+
+
+
+router.post("/changepassword", async(req, res) => {
+ const { currentPassword, newPassword } = req.body;
+ const authHeader = req.headers.authorization;
+
+ if (!authHeader) {
+     return res.status(401).json({ message: 'Authorization header missing' });
+ }
+
+ const token = authHeader.split(' ')[1];
+
+ if (!token) {
+     return res.status(401).json({ message: 'Token missing' });
+ }
+
+ const username = jwt.verify(token, process.env.JWT_SECRET);
+ 
+ const employee = await employeeModel.findOne({username: username });
+ 
+ if (!employee) {
+     return res.status(404).json({ message: 'Employee not found' });
+ }
+ bcrypt.compare(currentPassword, employee.password, (err, isMatch) => {
+  if (err) return res.status(err).json({ message:"Server error"});
+  if (isMatch) {
+    const saltRounds = 10;
+    bcrypt.hash(newPassword, saltRounds, (err, hashedPassword) => {
+      if (err) return res.status(err).json({ message: "Server error" });
+      employee.password = hashedPassword;
+      employee.save().then(() => {
+        res.json({ message: "Password changed successfully" });
+      });
+    });
+  }
+  else{
+    res.json({ message: "Incorrect current password" });
+  }
+}
+)})
 
 
   module.exports = router;

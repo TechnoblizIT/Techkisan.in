@@ -1,12 +1,47 @@
-// src/components/NavigationBar.js
 import React from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom'; 
 import '../styles/AdminDashboard.css';
 
 function NavigationBar() {
+  const navigate = useNavigate();
+
   const toggleMenu = () => {
     document.querySelector('.nav-links').classList.toggle('active');
   };
+
+  const handleLogout = async () => {
+    try {
+      const token = getCookie('token'); 
+      if (!token) {
+        console.error('Token not found');
+        return;
+      }
+
+      await axios.get(
+        'http://localhost:8000/employees/logout', 
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
   
+
+      navigate('/');
+
+    } catch (err) {
+      console.error('Error logging out:', err.response?.data?.message || 'Server error');
+    }
+  };
+
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
 
   return (
     <nav>
@@ -36,7 +71,7 @@ function NavigationBar() {
           <div className="dropdown-content">
             <a href="#">-</a>
             <a href="#">-</a>
-            <a href="#" on style={{color:"red"}}>Logout</a>
+            <a href="#" style={{ color: "red" }} onClick={handleLogout}>Logout</a>
           </div>
         </li>
       </ul>

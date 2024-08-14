@@ -25,3 +25,8 @@ module.exports.loginUser = async function (req, res) {
         res.status(500).send("Server Error");
     }
 };
+
+module.exports.logoutUser = function(req, res) {
+    res.clearCookie('token');
+    res.json({ success: true, message: 'Logged out' });
+}
