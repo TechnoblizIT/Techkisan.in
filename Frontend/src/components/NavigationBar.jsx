@@ -17,10 +17,10 @@ function NavigationBar() {
         console.error('Token not found');
         return;
       }
-
-      await axios.get(
+  
+      await axios.post(
         'http://localhost:8000/employees/logout', 
-        {},
+      
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -28,7 +28,7 @@ function NavigationBar() {
         }
       );
 
-  
+      document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
 
       navigate('/');
 
@@ -36,6 +36,21 @@ function NavigationBar() {
       console.error('Error logging out:', err.response?.data?.message || 'Server error');
     }
   };
+
+  const handleChangePassword = async () => {
+    try {
+      const token = getCookie('token'); 
+      if (!token) {
+        console.error('Token not found');
+        return;
+      }
+      navigate('/change-password');
+
+    } catch (err) {
+      console.error('Error logging out:', err.response?.data?.message || 'Server error');
+    }
+  };
+
 
   function getCookie(name) {
     const value = `; ${document.cookie}`;
@@ -70,7 +85,7 @@ function NavigationBar() {
           <a href="#" className="dropbtn">My Account <img src="assest/icons8-dropdown-30.png" width="10px" alt="" /></a>
           <div className="dropdown-content">
             <a href="#">-</a>
-            <a href="#">-</a>
+            <a href="#" onClick={handleChangePassword}>Change Password</a>
             <a href="#" style={{ color: "red" }} onClick={handleLogout}>Logout</a>
           </div>
         </li>

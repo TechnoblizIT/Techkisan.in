@@ -75,7 +75,7 @@ const AddEmployee = () => {
       submitFormData.append(key, formData[key]);
     });
 
-    // Append the file if there's one
+   
     if (Image) {
       submitFormData.append('Image', Image);
     }
@@ -92,9 +92,9 @@ const AddEmployee = () => {
         
       });
       console.log(response.status)
-      if (response.status === 201) {
-        console.log("Employee added successfully!");
+      if (response.status === 200) {
         navigate('/');
+        console.log("Employee added successfully!");
       }
         
           navigate('/employee-dashboard');

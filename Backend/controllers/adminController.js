@@ -1,31 +1,28 @@
-
-const adminModel=require("../models/admin-model")
+const adminModel = require("../models/admin-model");
 const bcrypt = require('bcrypt');
-const {genrateToken }=require("../utils/generateToken");
+const { genrateToken} = require("../utils/genrateTokenAdmin");
 
 module.exports.loginUser = async function (req, res) {
-    try{  
+  try {  
     let { email, password } = req.body;
     const admin = await adminModel.findOne({ Email: email });
 
     if (!admin) {
-        res.json({ success: false, message: 'Invalid credentials' });
+      return res.json({ success: false, message: 'Invalid credentials' });
     }
-    else{
 
     let isMatch = await bcrypt.compare(password, admin.Password);
 
     if (!isMatch) {
-        res.json({ success: false, message: 'Invalid credentials' });
+      return res.json({ success: false, message: 'Invalid credentials' });
     }
 
-    const tokken = genrateToken(admin);
-    res.cookie("tokken",tokken);
-    res.json({ success: true, message: 'Login successful'});
-}
-}catch(e) {
+    const token = genrateToken(admin);
+    res.cookie("token", token);
+    return res.json({ success: true, message: 'Login successful' });
+
+  } catch (e) {
     console.log(e);
-    res.status(500).send("Server Error");
-  
-}
-  };
+    return res.status(500).send("Server Error");
+  }
+};

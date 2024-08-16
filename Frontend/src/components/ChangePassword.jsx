@@ -29,8 +29,8 @@ const ChangePassword = () => {
 
     const token = getCookie('token');
     if (!token) {
-      setError('Token not found');
-      return;
+      navigate("/")
+       return;
     }
 
     try {

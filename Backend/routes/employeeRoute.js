@@ -14,7 +14,7 @@ const upload=require("../configs/mutler-setup")
 router.post('/login',loginUser)
 
 
-router.get('/logout',loginUser)
+router.post('/logout',loginUser)
 
 
 router.post('/create', upload.single("Image") , async(req, res) => {
@@ -56,8 +56,10 @@ router.post('/create', upload.single("Image") , async(req, res) => {
     }
     console.log('Email sent:', info.response);
   });
+  
 
     console.log(newEmployee)
+    res.status(200).json({message: 'Email sent and created employee successfully'})
 })
 
 router.get('/empdata', async (req, res) => {

@@ -1,6 +1,6 @@
 import React  from 'react';
-import '../styles/AdminLoginPage.css'; // Importing CSS for styling
-import logo from '../assets/logo1.png'; // Import the logo image with the correct path
+import '../styles/AdminLoginPage.css'; 
+import logo from '../assets/logo1.png'; 
 import { useNavigate} from 'react-router-dom';
 import { useState } from 'react';
 const AdminLoginPage = () => {
@@ -18,6 +18,7 @@ const AdminLoginPage = () => {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ email, password }),
       });
 
@@ -27,7 +28,7 @@ const AdminLoginPage = () => {
         console.log(data.message);
         navigate('/admin-dashboard');
       } else {
-        // Handle login failure
+        
         setError(data.message);
       }
     } catch (error) {
@@ -40,15 +41,15 @@ const AdminLoginPage = () => {
       <div className="content">
         <div className="logo-section">
           <div className="logo-image">
-            {/* Display the logo */}
+           
             <img src={logo} alt="Techkisan Automation Logo" />
           </div>
           <h2 className="brand-tagline">Techkisan Automation</h2>
           <h3 className="brand-trust">Trusted Brand</h3>
           <h2 className="brand-tagline">The Service You Need!</h2>
         </div>
-        <div className="admin-login-section"> {/* Updated class name for admin login */}
-          <div className="admin-login-box"> {/* Updated class name for admin login box */}
+        <div className="admin-login-section"> 
+          <div className="admin-login-box"> 
             <a href="#" className="help-link">
               Need help?
             </a>

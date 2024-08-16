@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import '../styles/LoginPage.css'; // Importing CSS for styling
-import logo from '../assets/logo1.png'; // Import the logo image with the correct path
+import '../styles/LoginPage.css'; 
+import logo from '../assets/logo1.png'; 
 import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
-  const [username, setUsername] = useState(''); // Change email to username
+  const [username, setUsername] = useState(''); 
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
@@ -20,7 +20,7 @@ const LoginPage = () => {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ username, password }), // Send username instead of email
+        body: JSON.stringify({ username, password }), 
       });
 
       const data = await response.json();
@@ -29,7 +29,7 @@ const LoginPage = () => {
         console.log(data.message);
         navigate('/employee-dashboard');
       } else {
-        // Handle login failure
+        
         setError(data.message);
       }
     } catch (error) {
@@ -59,13 +59,13 @@ const LoginPage = () => {
             </div>
             {error && <div className="error-message">{error}</div>}
             <form className="login-form" onSubmit={handleSubmit}>
-              <label htmlFor="username">Username</label> {/* Change label to Username */}
+              <label htmlFor="username">Username</label> 
               <input
                 type="text"
-                id="username"  // Change id to username
+                id="username"  
                 placeholder="Enter your username"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)} // Handle username state change
+                onChange={(e) => setUsername(e.target.value)}
                 required
               />
 

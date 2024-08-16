@@ -6,10 +6,11 @@ import axios from 'axios';
 import profileimg from '../assets/img-dashboard.jpg';
 import bdayimg from '../assets/P.jpg'
 import cakeimg from '../assets/cake-img.png'
-
+import { useNavigate } from 'react-router-dom';
 function EmployeeDashboard() {
   const [employeedata, setemployeedata]=useState("")
   const [avatarUrl, setAvatarUrl] = useState(null);
+  const navigate = useNavigate();
   console.log((avatarUrl));
   function getCookie(name) {
     const value = `; ${document.cookie}`;
@@ -21,7 +22,7 @@ function EmployeeDashboard() {
       try {
         const token = getCookie('token');
         if (!token) {
-          console.error('Token not found');
+          navigate("/")
           return;
         }
 
@@ -63,12 +64,12 @@ const currentDate = new Date();
 
   const diffInTime = currentDate - joiningDate;
 
-  // Calculate the difference in years, months, and days
+  
   let diffInYears = currentDate.getFullYear() - joiningDate.getFullYear();
   let diffInMonths = currentDate.getMonth() - joiningDate.getMonth();
   let diffInDays = currentDate.getDate() - joiningDate.getDate();
 
-  // Adjust for negative days or months
+  
   if (diffInDays < 0) {
     diffInMonths--;
     const prevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0).getDate();
@@ -90,7 +91,7 @@ const currentDate = new Date();
           {avatarUrl ? (
               <img src={avatarUrl}  alt="Profile" className="profile-image" />
             ) : (
-              <p>Loading Image...</p>
+              <img src={profileimg}  alt="Profile" className="profile-image" />
             )}
             <h2 className="employee-name">{employeedata ? employeedata.firstName+employeedata.lastName : 'Loading...'}</h2>
             <p className="employee-role">{employeedata ? employeedata.jobTitle : 'Loading'}</p>
