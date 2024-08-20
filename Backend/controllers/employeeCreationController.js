@@ -45,13 +45,13 @@ module.exports.createEmployee=async(req,res)=>{
         const transporter = nodemailer.createTransport({
           service: 'gmail',
           auth: {
-            user: 'praduman.228@gmail.com',
-            pass: 'fyig lxjy bscl qqkk'
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS
           }
         });
     
         const mailOptions = {
-          from: 'praduman.228@gmail.com',
+          from: process.env.EMAIL_USER,
           to: email,
           subject: 'Your Employee Account Details',
           text: `Hello ${firstName},\n\nYour account has been created. Here are your login details:\n\nUsername: ${username}\nPassword: ${password}\n\nPlease change your password after logging in for the first time.\n\nThank you!\n\nTechkisan Automation :)`
