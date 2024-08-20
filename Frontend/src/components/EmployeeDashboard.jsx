@@ -9,9 +9,9 @@ import cakeimg from '../assets/cake-img.png'
 import { useNavigate } from 'react-router-dom';
 function EmployeeDashboard() {
   const [employeedata, setemployeedata]=useState("")
-  const [avatarUrl, setAvatarUrl] = useState(null);
+  const [avatarUrl, setAvatarUrl] = useState("");
   const navigate = useNavigate();
-  console.log((avatarUrl));
+  
   function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -35,16 +35,15 @@ function EmployeeDashboard() {
         });
 
         if (response.status === 200) {
-          const data = response.data;
-          setemployeedata(data)
-         console.log(data);
-          if(data.Image){
-            if (data.Image && data.Image.data) {
-              const binaryString = new Uint8Array(data.Image.data).reduce((acc, byte) => acc + String.fromCharCode(byte), '');
+          const empdata = response.data;
+          setemployeedata(empdata.employee)
+
+          if(empdata.empimg[0]){
+            if (empdata.empimg) {
+              const binaryString = new Uint8Array(empdata.empimg[0].Image.data).reduce((acc, byte) => acc + String.fromCharCode(byte), '');
               const base64String = btoa(binaryString);
-              const imageUrl = `data:${data.ImageType};base64,${base64String}`;
+              const imageUrl = `data:${empdata.empimg[0].Imagetype};base64,${base64String}`;
               setAvatarUrl(imageUrl);
-              console.log("Avatar URL: ", imageUrl);
             }
 
              }
@@ -91,7 +90,7 @@ const currentDate = new Date();
           {avatarUrl ? (
               <img src={avatarUrl}  alt="Profile" className="profile-image" />
             ) : (
-              <img src={profileimg}  alt="Profile" className="profile-image" />
+              <p>Loading....</p>
             )}
             <h2 className="employee-name">{employeedata ? employeedata.firstName+employeedata.lastName : 'Loading...'}</h2>
             <p className="employee-role">{employeedata ? employeedata.jobTitle : 'Loading'}</p>

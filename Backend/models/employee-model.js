@@ -40,9 +40,11 @@ const employeeSchema=mongoose.Schema({
 	biography: String,
 	welcomeEmail: Boolean,
 	loginDetails: Boolean,
-	Image: Buffer, 
-	  
-	ImageType:String
+	Image: [{
+		type:mongoose.Types.ObjectId,
+		ref: 'empimg',
+		required: false,
+	},] 
 })
 
 module.exports = mongoose.model('Employee', employeeSchema)
