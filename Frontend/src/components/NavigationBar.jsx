@@ -2,6 +2,7 @@ import React from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; 
 import '../styles/AdminDashboard.css';
+import logo from '../assets/logo1.png'
 
 function NavigationBar() {
   const navigate = useNavigate();
@@ -60,7 +61,7 @@ function NavigationBar() {
 
   return (
     <nav>
-      <div className="logo">Logo</div>
+      <div className="logo"><img src={logo} alt="" srcset="" height={40} width={180} /></div>
       <ul className="nav-links">
         <li><a href="#" className="active">Home</a></li>
         <li className="dropdown">

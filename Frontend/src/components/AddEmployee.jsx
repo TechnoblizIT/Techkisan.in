@@ -44,7 +44,8 @@ const AddEmployee = () => {
     biography: '',
     welcomeEmail: false,
     loginDetails: false,
-    Image:null
+    Image:null,
+     manager: ''
   });
   const [Image, setImage] = useState(null);
 
@@ -68,9 +69,8 @@ const AddEmployee = () => {
       [name]: type === 'checkbox' ? checked : value
     }));
   };
-  const submitFormData = new FormData(); // Create FormData object
+  const submitFormData = new FormData(); 
 
-    // Append text fields
     Object.keys(formData).forEach((key) => {
       submitFormData.append(key, formData[key]);
     });
@@ -169,7 +169,7 @@ const AddEmployee = () => {
                     <option value="inactive">Inactive</option>
                   </select>
                 </div>
-                <div className="form-group">
+                 <div className="form-group">
                   <label htmlFor="end-date">Employee End Date</label>
                   <input type="date" id="end-date" name="endDate" value={formData.endDate} onChange={handleChange} />
                 </div>
@@ -178,6 +178,14 @@ const AddEmployee = () => {
                 <div className="form-group">
                   <label htmlFor="date-of-hire">Date of Hire</label>
                   <input type="date" id="date-of-hire" name="dateOfHire" value={formData.dateOfHire} onChange={handleChange} />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="manager">Manager</label>
+                  <select id="manager" name="manager" value={formData.manager} onChange={handleChange}>
+                    <option value="" disabled>- Select Manager -</option>
+                    <option value="test-manager-1">Test Manager 1</option>
+                    <option value="test-manager-2">Test Manager 2</option>
+                  </select>
                 </div>
               </div>
               <div className="form-row advanced">
@@ -336,6 +344,7 @@ const AddEmployee = () => {
                     <label htmlFor="postal-code">Postal Code</label>
                     <input type="text" id="postal-code" name="postalCode" value={formData.postalCode} onChange={handleChange} />
                   </div>
+             
                 </div>
               </div>
               <div className="biography">

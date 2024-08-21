@@ -44,7 +44,8 @@ const employeeSchema=mongoose.Schema({
 		type:mongoose.Types.ObjectId,
 		ref: 'empimg',
 		required: false,
-	},] 
+	},] ,
+	manager:String
 })
 
 module.exports = mongoose.model('Employee', employeeSchema)
