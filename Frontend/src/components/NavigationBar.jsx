@@ -1,14 +1,13 @@
 import React from 'react';
+import '../styles/EmployeeDashboard.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; 
-import '../styles/AdminDashboard.css';
+import { useState } from 'react';
 
-function NavigationBar() {
+function NavigationBar({ activeSection, onNavigate }) {
   const navigate = useNavigate();
 
-  const toggleMenu = () => {
-    document.querySelector('.nav-links').classList.toggle('active');
-  };
+  
 
   const handleLogout = async () => {
     try {
@@ -58,43 +57,76 @@ function NavigationBar() {
     if (parts.length === 2) return parts.pop().split(';').shift();
   }
 
+  const [isOpen, setIsOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState('');
+
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const handleLinkClick = (section) => {
+    onNavigate(section);
+    setIsOpen(false);
+    setOpenDropdown('');
+  };
+
+  const toggleDropdown = (section) => {
+    if (openDropdown === section) {
+      setOpenDropdown('');
+    } else {
+      setOpenDropdown(section);
+    }
+  };
+
   return (
-    <nav>
+    <nav className="navbar">
       <div className="logo">Logo</div>
-      <ul className="nav-links">
-        <li><a href="#" className="active">Home</a></li>
-        <li className="dropdown">
-          <a href="#" className="dropbtn">Leaves <img src="assest/icons8-dropdown-30.png" width="10px" alt="" /></a>
-          <div className="dropdown-content">
-            <a href="#">-</a>
-            <a href="#">-</a>
-            <a href="#">-</a>
-          </div>
-        </li>
-        <li className="dropdown">
-          <a href="#" className="dropbtn">Self <img src="assest/icons8-dropdown-30.png" width="10px" alt="" /></a>
-          <div className="dropdown-content">
-            <a href="#">-</a>
-            <a href="#">-</a>
-            <a href="#">-</a>
-          </div>
-        </li>
-        <li><a href="#">Job Vacancies</a></li>
-        <li><a href="#">Attendance</a></li>
-        <li className="dropdown">
-          <a href="#" className="dropbtn">My Account <img src="assest/icons8-dropdown-30.png" width="10px" alt="" /></a>
-          <div className="dropdown-content">
-            <a href="#">-</a>
-            <a href="#" onClick={handleChangePassword}>Change Password</a>
-            <a href="#" style={{ color: "red" }} onClick={handleLogout}>Logout</a>
-          </div>
-        </li>
-      </ul>
-      <div className="menu-icon" onClick={toggleMenu}>
+      <div className={`menu-icon ${isOpen ? 'open' : ''}`} onClick={toggleMenu}>
         <div className="bar"></div>
         <div className="bar"></div>
         <div className="bar"></div>
       </div>
+      <ul className={`nav-links ${isOpen ? 'open' : ''}`}>
+        <li>
+          <a
+            href="#"
+            className={activeSection === 'home' ? 'active' : ''}
+            onClick={() => handleLinkClick('home')}
+          >
+            Home
+          </a>
+        </li>
+        <li className={`dropdown ${openDropdown === 'leaves' ? 'open' : ''}`}>
+          <a
+            href="#"
+            className={activeSection === 'request' ? 'active' : ''}
+            onClick={() => toggleDropdown('leaves')}
+          >
+            Leaves
+          </a>
+          <div className="dropdown-content">
+            <a href="#" onClick={() => handleLinkClick('request')}>Request</a>
+            <a href="#" onClick={() => handleLinkClick('report')}>My Report</a>
+          </div>
+        </li>
+        <li>
+          <a
+            href="#"
+            className={activeSection === 'attendance' ? 'active' : ''}
+            onClick={() => handleLinkClick('attendance')}
+          >
+            Attendance
+          </a>
+        </li>
+        <li className="dropdown-content">
+          <a href="#" className="dropbtn">My Account <img src="assest/icons8-dropdown-30.png" width="10px" alt="" /></a>
+          <div className="dropdown-content">
+            <a href="#" onClick={handleChangePassword}>Change Password</a>
+            <a href="#" style={{ color: "red" }} onClick={handleLogout}>Logout</a>
+          </div>
+        </li>
+        
+      </ul>
     </nav>
   );
 }
