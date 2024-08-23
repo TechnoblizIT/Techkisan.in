@@ -2,7 +2,7 @@ import React from 'react';
 import '../styles/EmployeeDashboard.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; 
-import { useState } from 'react';
+import '../styles/AdminDashboard.css';
 
 function NavigationBar({ activeSection, onNavigate }) {
   const navigate = useNavigate();
@@ -79,22 +79,17 @@ function NavigationBar({ activeSection, onNavigate }) {
   };
 
   return (
-    <nav className="navbar">
+    <nav>
       <div className="logo">Logo</div>
-      <div className={`menu-icon ${isOpen ? 'open' : ''}`} onClick={toggleMenu}>
-        <div className="bar"></div>
-        <div className="bar"></div>
-        <div className="bar"></div>
-      </div>
-      <ul className={`nav-links ${isOpen ? 'open' : ''}`}>
-        <li>
-          <a
-            href="#"
-            className={activeSection === 'home' ? 'active' : ''}
-            onClick={() => handleLinkClick('home')}
-          >
-            Home
-          </a>
+      <ul className="nav-links">
+        <li><a href="#" className="active">Home</a></li>
+        <li className="dropdown">
+          <a href="#" className="dropbtn">Leaves <img src="assest/icons8-dropdown-30.png" width="10px" alt="" /></a>
+          <div className="dropdown-content">
+            <a href="#">-</a>
+            <a href="#">-</a>
+            <a href="#">-</a>
+          </div>
         </li>
         <li className={`dropdown ${openDropdown === 'leaves' ? 'open' : ''}`}>
           <a
