@@ -1,4 +1,4 @@
-import React from 'react';
+import React ,{useState} from 'react';
 import '../styles/EmployeeDashboard.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; 
@@ -82,7 +82,7 @@ function NavigationBar({ activeSection, onNavigate }) {
     <nav>
       <div className="logo">Logo</div>
       <ul className="nav-links">
-        <li><a href="#" className="active">Home</a></li>
+        <li><a href="/employee-dashboard" className="active">Home</a></li>
         <li className="dropdown">
           <a href="#" className="dropbtn">Leaves <img src="assest/icons8-dropdown-30.png" width="10px" alt="" /></a>
           <div className="dropdown-content">
