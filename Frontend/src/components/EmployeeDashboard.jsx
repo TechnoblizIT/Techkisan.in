@@ -2,6 +2,8 @@ import React,{useEffect, useState} from 'react';
 import NavigationBar from './NavigationBar';
 import '../styles/EmployeeDashboard.css';
 import axios from 'axios';
+import profileimg from '../assets/img-dashboard.jpg';
+import bdayimg from '../assets/P.jpg'
 import cakeimg from '../assets/cake-img.png'
 import { useNavigate } from 'react-router-dom';
 
@@ -97,7 +99,7 @@ const currentDate = new Date();
             ) : (
               <p>Loading....</p>
             )}
-            <h2 className="employee-name">{employeedata ? employeedata.firstName+" "+employeedata.lastName : 'Loading...'}</h2>
+            <h2 className="employee-name">{employeedata ? employeedata.firstName+employeedata.lastName : 'Loading...'}</h2>
             <p className="employee-role">{employeedata ? employeedata.jobTitle : 'Loading'}</p>
             <div className="work-duration">
               <p> At work for: {diffInYears} year{diffInYears !== 1 && 's'} {diffInMonths} month{diffInMonths !== 1 && 's'} {diffInDays} day{diffInDays !== 1 && 's'}</p>
@@ -234,8 +236,8 @@ const currentDate = new Date();
               <button onClick={() => setActiveRequestPage('on-duty')} className={activeRequestPage === 'on-duty' ? 'active' : ''}>On Duty/Work From Home</button>
               <button onClick={() => setActiveRequestPage('permission')} className={activeRequestPage === 'permission' ? 'active' : ''}>Permission</button>
             </nav>
-            <div className="request-content">
-            {activeRequestPage === 'leave' && (
+
+    <div className="request-content">{activeRequestPage === 'leave' && (
              <>
    
     <div className="content-wrapper">
@@ -515,6 +517,8 @@ const currentDate = new Date();
     </div>
   </div>
 )}
+
+
               {activeRequestPage === 'permission' && <h1>This is the Permission Page</h1>}
             </div>
           </div>
