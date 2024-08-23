@@ -2,6 +2,8 @@ import React,{useEffect, useState} from 'react';
 import NavigationBar from './NavigationBar';
 import '../styles/EmployeeDashboard.css';
 import axios from 'axios';
+import profileimg from '../assets/img-dashboard.jpg';
+import bdayimg from '../assets/P.jpg'
 import cakeimg from '../assets/cake-img.png'
 import { useNavigate } from 'react-router-dom';
 
@@ -9,13 +11,58 @@ function EmployeeDashboard() {
   const [employeedata, setemployeedata]=useState("")
   const [avatarUrl, setAvatarUrl] = useState("");
   const navigate = useNavigate(); 
+  const [isPunchedIn, setIsPunchedIn] = useState(false);
+  const [punchInTime, setPunchInTime] = useState(null);
+  const [punchOutTime, setPunchOutTime] = useState(null);
 
   const [activeSection, setActiveSection] = useState('home');
-  const [isPunchedIn, setIsPunchedIn] = useState(false);
+ 
   const [activeRequestPage, setActiveRequestPage] = useState('leave');
 
-  const handlePunchIn = () => setIsPunchedIn(true);
-  const handlePunchOut = () => setIsPunchedIn(false);
+  const handlePunchIn = async () => {
+    const currentTime = new Date();
+    setPunchInTime(currentTime);
+    setIsPunchedIn(true);
+  
+    // Send punch-in time to backend
+    try {
+      const token = getCookie('token');
+      await axios.post('http://localhost:8000/employees/punchIn', {
+        punchInTime: currentTime,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      });
+    } catch (error) {
+      console.error('Error punching in:', error);
+    }
+  };
+  
+  const handlePunchOut = async () => {
+    const currentTime = new Date();
+    setPunchOutTime(currentTime);
+    setIsPunchedIn(false);
+  
+    // Send punch-out time to backend
+    try {
+      const token = getCookie('token');
+      await axios.post('http://localhost:8000/employees/punchOut', {
+        punchOutTime: currentTime,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      });
+    } catch (error) {
+      console.error('Error punching out:', error);
+    }
+  };
+  
+
+
 
   function getCookie(name) {
     const value = `; ${document.cookie}`;
@@ -97,12 +144,12 @@ const currentDate = new Date();
             ) : (
               <p>Loading....</p>
             )}
-            <h2 className="employee-name">{employeedata ? employeedata.firstName+" "+employeedata.lastName : 'Loading...'}</h2>
+            <h2 className="employee-name">{employeedata ? employeedata.firstName+employeedata.lastName : 'Loading...'}</h2>
             <p className="employee-role">{employeedata ? employeedata.jobTitle : 'Loading'}</p>
             <div className="work-duration">
               <p> At work for: {diffInYears} year{diffInYears !== 1 && 's'} {diffInMonths} month{diffInMonths !== 1 && 's'} {diffInDays} day{diffInDays !== 1 && 's'}</p>
             </div>
-                <div className="button-section">
+            <div className="button-section">
                   <button
                     className="punch-button"
                     onClick={handlePunchIn}
@@ -117,7 +164,10 @@ const currentDate = new Date();
                   >
                     Punch Out
                   </button>
+                  {punchInTime && <p>Punched In At: {punchInTime.toLocaleTimeString()}</p>}
+                  {punchOutTime && <p>Punched Out At: {punchOutTime.toLocaleTimeString()}</p>}
                 </div>
+
                 <hr />
                 <div className="attendance-leaves-awards">
                   <div className="attendance-column">
@@ -234,8 +284,8 @@ const currentDate = new Date();
               <button onClick={() => setActiveRequestPage('on-duty')} className={activeRequestPage === 'on-duty' ? 'active' : ''}>On Duty/Work From Home</button>
               <button onClick={() => setActiveRequestPage('permission')} className={activeRequestPage === 'permission' ? 'active' : ''}>Permission</button>
             </nav>
-            <div className="request-content">
-            {activeRequestPage === 'leave' && (
+
+    <div className="request-content">{activeRequestPage === 'leave' && (
              <>
    
     <div className="content-wrapper">
@@ -515,6 +565,8 @@ const currentDate = new Date();
     </div>
   </div>
 )}
+
+
               {activeRequestPage === 'permission' && <h1>This is the Permission Page</h1>}
             </div>
           </div>
