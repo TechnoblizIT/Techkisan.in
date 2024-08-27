@@ -53,6 +53,11 @@ const employeeSchema=mongoose.Schema({
         punchOutTime: Date,
         workDuration: Number, 
     }],
+	leaves:[{
+		type: mongoose.Types.ObjectId,
+        ref: 'Leave',
+        required: false,
+	}]
 })
 
 module.exports = mongoose.model('Employee', employeeSchema)
