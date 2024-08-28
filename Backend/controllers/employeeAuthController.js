@@ -26,7 +26,53 @@ module.exports.loginUser = async function (req, res) {
     }
 };
 
+
+//logoout
 module.exports.logoutUser = function(req, res) {
     res.clearCookie('token');
     res.json({ success: true, message: 'Logged out' });
 }
+
+
+
+//change password
+
+
+module.exports.changePassword=async(req, res)=> {
+    const { currentPassword, newPassword } = req.body;
+    const authHeader = req.headers.authorization;
+   
+    if (!authHeader) {
+        return res.status(401).json({ message: 'Authorization header missing' });
+    }
+   
+    const token = authHeader.split(' ')[1];
+   
+    if (!token) {
+        return res.status(401).json({ message: 'Token missing' });
+    }
+   
+    const username = jwt.verify(token, process.env.JWT_SECRET);
+    
+    const employee = await employeeModel.findOne({username: username });
+    
+    if (!employee) {
+        return res.status(404).json({ message: 'Employee not found' });
+    }
+    bcrypt.compare(currentPassword, employee.password, (err, isMatch) => {
+     if (err) return res.status(err).json({ message:"Server error"});
+     if (isMatch) {
+       const saltRounds = 10;
+       bcrypt.hash(newPassword, saltRounds, (err, hashedPassword) => {
+         if (err) return res.status(err).json({ message: "Server error" });
+         employee.password = hashedPassword;
+         employee.save().then(() => {
+           res.json({ message: "Password changed successfully" });
+         });
+       });
+     }
+     else{
+       res.json({ message: "Incorrect current password" });
+     }
+   }
+   )}

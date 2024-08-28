@@ -8,16 +8,158 @@ import cakeimg from '../assets/cake-img.png'
 import { useNavigate } from 'react-router-dom';
 
 function EmployeeDashboard() {
+
+  const calculateDays = (fromDate, toDate) => {
+    const from = new Date(fromDate);
+    const to = new Date(toDate);
+    const diffTime = Math.abs(to - from);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Add 1 to include both start and end date
+    return diffDays;
+  };
+
+
+  let dateObj = new Date();
+
+let month = String(dateObj.getMonth() + 1)
+    .padStart(2, '0');
+    
+let day = String(dateObj.getDate())
+    .padStart(2, '0');
+
+let year = dateObj.getFullYear();
+let todayDate = day + '/' + month + '/' + year;
   const [employeedata, setemployeedata]=useState("")
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [leaves, setLeaves] = useState([]);
   const navigate = useNavigate(); 
+  const [isPunchedIn, setIsPunchedIn] = useState(false);
+  const [punchInTime, setPunchInTime] = useState(null);
+  const [punchOutTime, setPunchOutTime] = useState(null);
+  const [formData, setFormData] = useState({
+    leaveType: '',
+    fromDate: '',
+    toDate: '',
+    fromTime: 'FULL DAY', // Default value
+    toTime: 'FULL DAY',   // Default value
+    reason: '',
+    leaveStation: 'No',  // Default value
+    vacationAddress: '',
+    contactNumber: ''
+  });
+
 
   const [activeSection, setActiveSection] = useState('home');
-  const [isPunchedIn, setIsPunchedIn] = useState(false);
+ 
   const [activeRequestPage, setActiveRequestPage] = useState('leave');
 
-  const handlePunchIn = () => setIsPunchedIn(true);
-  const handlePunchOut = () => setIsPunchedIn(false);
+  const handlePunchIn = async () => {
+    const currentTime = new Date();
+    setPunchInTime(currentTime);
+    setIsPunchedIn(true);
+
+    try {
+      const token = getCookie('token');
+      const response=await axios.post('http://localhost:8000/employees/punchIn', {
+        punchInTime: currentTime,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      });
+     
+
+    } catch (error) {
+      console.error('Error punching in:', error);
+    }
+  };
+  
+  const handlePunchOut = async () => {
+    const currentTime = new Date();
+    setPunchOutTime(currentTime);
+    setIsPunchedIn(false);
+  
+    // Send punch-out time to backend
+    try {
+      const token = getCookie('token');
+      await axios.post('http://localhost:8000/employees/punchOut', {
+        punchOutTime: currentTime,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      });
+    } catch (error) {
+      console.error('Error punching out:', error);
+    }
+  };
+
+
+//leaves section
+
+
+
+  const token = getCookie('token'); // Replace this with the actual token, maybe from localStorage or cookies
+
+  // Handle input changes
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('http://localhost:8000/employees/addLeave', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // Include auth header
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.status === 200) {
+        window.location.reload();
+        console.log('Leave request submitted successfully!');
+      } else {
+        // Handle errors
+        console.error('Failed to submit leave request');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+//cancel leave
+
+const handleCancelLeave = async (leaveId) => {
+  try {
+    console.log('Leave request cancelled',leaveId)
+    const response = await axios.get(`http://localhost:8000/employees/deleteLeaves/${leaveId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    if(response.status === 200) {
+      setLeaves((prevLeaves) => prevLeaves.filter((leave) => leave._id !== leaveId));
+      window.location.reload()
+      console.log('Leave successfully canceled');
+    } else {
+      console.error('Failed to cancel leave');
+    }
+  } catch (error) {
+    console.error('Error canceling leave:', error);
+  }
+}
+
+
 
   function getCookie(name) {
     const value = `; ${document.cookie}`;
@@ -44,7 +186,8 @@ function EmployeeDashboard() {
         if (response.status === 200) {
           const empdata = response.data;
           setemployeedata(empdata.employee)
-
+          setLeaves(empdata.empleaves)
+     
           if(empdata.empimg[0]){
             if (empdata.empimg) {
               const binaryString = new Uint8Array(empdata.empimg[0].Image.data).reduce((acc, byte) => acc + String.fromCharCode(byte), '');
@@ -104,7 +247,7 @@ const currentDate = new Date();
             <div className="work-duration">
               <p> At work for: {diffInYears} year{diffInYears !== 1 && 's'} {diffInMonths} month{diffInMonths !== 1 && 's'} {diffInDays} day{diffInDays !== 1 && 's'}</p>
             </div>
-                <div className="button-section">
+            <div className="button-section">
                   <button
                     className="punch-button"
                     onClick={handlePunchIn}
@@ -119,7 +262,10 @@ const currentDate = new Date();
                   >
                     Punch Out
                   </button>
+                  {punchInTime && <p>Punched In At: {punchInTime.toLocaleTimeString()}</p>}
+                  {punchOutTime && <p>Punched Out At: {punchOutTime.toLocaleTimeString()}</p>}
                 </div>
+
                 <hr />
                 <div className="attendance-leaves-awards">
                   <div className="attendance-column">
@@ -244,83 +390,89 @@ const currentDate = new Date();
       <div className="left-block">
         <div className="date-section">
           <h4>Date:</h4>
-          <p>16/08/2024</p>
+          <p>{todayDate ? todayDate : "Loading.."}</p>
         </div>
         <div className="leave-contact-section">
           <h4>1st leave contact:</h4>
-          <p>14-Sankalp Dhekwar</p>
+          <p>{employeedata ? employeedata.manager :"loading....."}</p>
         </div>
         <div className="joining-date-section">
           <h4>Date of Joining:</h4>
-          <p>01/06/2020</p>
+          <p>{employeedata ? new Date(employeedata.dateOfHire).toLocaleDateString('en-GB', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: '2-digit'
+                              }):"loading.."}</p>
         </div>
       </div>
       <div className="right-block">
-        <form className="leave-form">
-          <div className="form-row">
-            <div className="form-group">
-              <label>Type of leave:</label>
-              <select>
-                <option>-Select-</option>
-                <option>Sick Leave</option>
-                <option>Casual Leave</option>
-                <option>Earned Leave</option>
-              </select>
-            </div>
-          </div>
-          <div className="form-row">
-            <div className="form-group">
-              <label>From Date:</label>
-              <input type="date" />
-            </div>
-            <div className="form-group">
-              <label>To Date:</label>
-              <input type="date" />
-            </div>
-          </div>
-          <div className="form-row">
-            <div className="form-group">
-              <select>
-                <option>FULL DAY</option>
-                <option>HALF DAY</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <select>
-                <option>FULL DAY</option>
-                <option>HALF DAY</option>
-              </select>
-            </div>
-          </div>
-          <div className="form-row">
-            <div className="form-group">
-              <label>Reason:</label>
-              <input type="text" />
-            </div>
-            <div className="form-group">
-              <label>Leave Station:</label>
-              <select>
-                <option>No</option>
-                <option>Out of Town</option>
-              </select>
-            </div>
-          </div>
-          <div className="form-row">
-            <div className="form-group">
-              <label>Vacation Address:</label>
-              <input type="text" />
-            </div>
-            <div className="form-group">
-              <label>Contact Number:</label>
-              <input type="text" />
-            </div>
-          </div>
-          <div className="form-row">
-            <div className="form-group">
-              <input className="add" type="submit" value="Add" />
-            </div>
-          </div>
-        </form>
+      <form className="leave-form" onSubmit={handleSubmit}>
+      <div className="form-row">
+        <div className="form-group">
+          <label>Type of leave:</label>
+          <select name="leaveType" value={formData.leaveType} onChange={handleChange}>
+            <option value="">-Select-</option>
+            <option value="Sick Leave">Sick Leave</option>
+            <option value="Casual Leave">Casual Leave</option>
+            <option value="Earned Leave">Earned Leave</option>
+          </select>
+        </div>
+      </div>
+      <div className="form-row">
+        <div className="form-group">
+          <label>From Date:</label>
+          <input type="date" name="fromDate" value={formData.fromDate} onChange={handleChange} />
+        </div>
+        <div className="form-group">
+          <label>To Date:</label>
+          <input type="date" name="toDate" value={formData.toDate} onChange={handleChange} />
+        </div>
+      </div>
+      <div className="form-row">
+        <div className="form-group">
+          <select name="fromTime" value={formData.fromTime} onChange={handleChange}>
+            <option value="FULL DAY">FULL DAY</option>
+            <option value="HALF DAY">HALF DAY</option>
+          </select>
+        </div>
+        <div className="form-group">
+          <select name="toTime" value={formData.toTime} onChange={handleChange}>
+            <option value="FULL DAY">FULL DAY</option>
+            <option value="HALF DAY">HALF DAY</option>
+          </select>
+        </div>
+      </div>
+      <div className="form-row">
+        <div className="form-group">
+          <label>Reason:</label>
+          <input type="text" name="reason" value={formData.reason} onChange={handleChange} />
+        </div>
+        <div className="form-group">
+          <label>Leave Station:</label>
+          <select name="leaveStation" value={formData.leaveStation} onChange={handleChange}>
+            <option value="No">No</option>
+            <option value="Out of Town">Out of Town</option>
+          </select>
+        </div>
+      </div>
+      <div className="form-row">
+        <div className="form-group">
+          <label>Vacation Address:</label>
+          <input type="text" name="vacationAddress" value={formData.vacationAddress} onChange={handleChange} />
+        </div>
+        <div className="form-group">
+          <label>Contact Number:</label>
+          <input type="text" name="contactNumber" value={formData.contactNumber} onChange={handleChange} />
+        </div>
+      </div>
+      <div className="form-row">
+        <div className="form-group">
+          <input className="add" type="submit" value="Add" />
+        </div>
+      </div>
+    </form>
+  
+
       </div>
     </div>
     <div className="previous-leaves-table">
@@ -340,28 +492,38 @@ const currentDate = new Date();
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td><button>Approved</button></td>
-            <td>08/01/2024</td>
-            <td>First Half</td>
-            <td>08/01/2024</td>
-            <td>First Half</td>
-            <td>0.5</td>
-            <td>Sick Leave</td>
-            <td></td>
-            <td><button className="cancel">Cancel</button></td>
-          </tr>
-          <tr>
-            <td><button>Approved</button></td>
-            <td>15/01/2024</td>
-            <td>Full Day</td>
-            <td>15/01/2024</td>
-            <td>Full Day</td>
-            <td>1</td>
-            <td>Casual Leave</td>
-            <td></td>
-            <td><button className="cancel">Cancel</button></td>
-          </tr>
+          
+          {leaves ? leaves.map((leave)=>{
+            return (
+              
+              <tr key={leave.id}>
+                <td>{leave.leaveStatus}</td>
+                <td>{leave.fromDate ? new Date(leave.fromDate).toLocaleDateString('en-GB', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: '2-digit'
+                              }):"no leave "}</td>
+                <td>{leave.fromTime}</td>
+                <td>{leave.toDate ? new Date(leave.toDate).toLocaleDateString('en-GB', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: '2-digit'
+                              }):"no leave "}</td>
+                <td>{leave.toTime}</td>
+                <td>{calculateDays(leave.fromDate, leave.toDate)}</td>
+                <td>{leave.typeofLeaves}</td>
+                <td>{leave.attachment}</td>
+                <td>
+                {leave.leaveStatus === 'Pending' && (
+                  <button className="cancel" onClick={() => handleCancelLeave(leave._id)}>
+                    Cancel
+                  </button>
+                )}
+              </td>
+              </tr>
+            )
+        }) : <p>No Leaves are not Present</p>}
+          
         </tbody>
       </table>
     </div>

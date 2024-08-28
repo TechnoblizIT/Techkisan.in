@@ -45,7 +45,19 @@ const employeeSchema=mongoose.Schema({
 		ref: 'empimg',
 		required: false,
 	},] ,
-	manager:String
+	manager:String,
+
+    punchRecords: [{
+        date: Date,
+        punchInTime: Date,
+        punchOutTime: Date,
+        workDuration: Number, 
+    }],
+	leaves:[{
+		type: mongoose.Types.ObjectId,
+        ref: 'Leave',
+        required: false,
+	}]
 })
 
 module.exports = mongoose.model('Employee', employeeSchema)
