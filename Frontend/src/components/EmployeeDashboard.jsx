@@ -9,6 +9,16 @@ import { useNavigate } from 'react-router-dom';
 
 function EmployeeDashboard() {
 
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString(); 
+  };
+  
+  const formatTime = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); 
+  };
   const calculateDays = (fromDate, toDate) => {
     const from = new Date(fromDate);
     const to = new Date(toDate);
@@ -32,6 +42,8 @@ let todayDate = day + '/' + month + '/' + year;
   const [avatarUrl, setAvatarUrl] = useState("");
   const [leaves, setLeaves] = useState([]);
   const navigate = useNavigate(); 
+  const [startDate,setstartDate]=useState("");
+  const [endDate,setEndDate]=useState("");
   const [isPunchedIn, setIsPunchedIn] = useState(false);
   const [punchInTime, setPunchInTime] = useState(null);
   const [punchOutTime, setPunchOutTime] = useState(null);
@@ -46,7 +58,8 @@ let todayDate = day + '/' + month + '/' + year;
     vacationAddress: '',
     contactNumber: ''
   });
-
+ 
+  const [punchRecord, setPunchRecord] = useState([])
 
   const [activeSection, setActiveSection] = useState('home');
  
@@ -99,6 +112,19 @@ let todayDate = day + '/' + month + '/' + year;
 //leaves section
 
 
+  const fetchLeaves = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/employees/getLeaves', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      setLeaves(response.data);
+    } catch (error) {
+      console.error('Error fetching leaves:', error);
+    }
+  };
+  
 
   const token = getCookie('token'); // Replace this with the actual token, maybe from localStorage or cookies
 
@@ -111,30 +137,33 @@ let todayDate = day + '/' + month + '/' + year;
     }));
   };
 
-  // Handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await fetch('http://localhost:8000/employees/addLeave', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Include auth header
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.status === 200) {
-        window.location.reload();
-        console.log('Leave request submitted successfully!');
-      } else {
-        // Handle errors
-        console.error('Failed to submit leave request');
+  //fetch leaves
+  
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      try {
+        const response = await fetch('http://localhost:8000/employees/addLeave', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`, // Include auth header
+          },
+          body: JSON.stringify(formData),
+        });
+  
+        if (response.status === 200) {
+          fetchLeaves()
+             
+          console.log('Leave request submitted successfully!');
+        } else {
+       
+          console.error('Failed to submit leave request');
+        }
+      } catch (error) {
+        console.error('Error:', error);
       }
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
+    };
+  // Handle form submission
 
 //cancel leave
 
@@ -149,7 +178,6 @@ const handleCancelLeave = async (leaveId) => {
     });
     if(response.status === 200) {
       setLeaves((prevLeaves) => prevLeaves.filter((leave) => leave._id !== leaveId));
-      window.location.reload()
       console.log('Leave successfully canceled');
     } else {
       console.error('Failed to cancel leave');
@@ -158,6 +186,35 @@ const handleCancelLeave = async (leaveId) => {
     console.error('Error canceling leave:', error);
   }
 }
+
+
+const handleStartDateChange=(event)=>{
+ setstartDate(event.target.value)
+}
+
+const handleEndDateChange=(event)=>{
+ setEndDate(event.target.value)
+}
+
+console.log(punchRecord)
+const filteredRecords = punchRecord.filter((record) => {
+  const recordDate = new Date(record.date);
+  const start = startDate ? new Date(startDate) : null;
+  const end = endDate ? new Date(endDate) : null;
+
+  // Check if record falls within the date range
+  if (start && end) {
+    return recordDate >= start && recordDate <= end;
+  } else if (start) {
+    return recordDate >= start;
+  } else if (end) {
+    return recordDate <= end;
+  } else {
+    return true; // If no date range is selected, show all records
+  }
+})
+.slice() // To create a shallow copy and avoid mutation
+.reverse(); // To show records in reverse order
 
 
 
@@ -187,6 +244,7 @@ const handleCancelLeave = async (leaveId) => {
           const empdata = response.data;
           setemployeedata(empdata.employee)
           setLeaves(empdata.empleaves)
+          setPunchRecord(empdata.employee.punchRecords)
      
           if(empdata.empimg[0]){
             if (empdata.empimg) {
@@ -535,8 +593,8 @@ const currentDate = new Date();
       {/* Search Block */}
       <div className="attendance-search-block">
         <div className="search-inputs">
-          <input type="date" placeholder="Start Date" />
-          <input type="date" placeholder="End Date" />
+          <input type="date" placeholder="Start Date" value={startDate}  onChange={(event) => handleStartDateChange(event)}/>
+          <input type="date" placeholder="End Date" value={endDate} onChange={(event) => handleEndDateChange(event)} />
           <button className="search-button">Search</button>
         </div>
         <button className="search-button-bottom">Search....</button>
@@ -544,72 +602,36 @@ const currentDate = new Date();
 
       {/* Attendance Records Table */}
       <div className="attendance-table-section">
-        <table>
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>In Date</th>
-              <th>In Time</th>
-              <th>Out Date</th>
-              <th>Out Time</th>
-              <th>Remarks</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>01/04/2024</td>
-              <td>01/04/2024</td>
-              <td>10:17</td>
-              <td>01/04/2024</td>
-              <td>21:05</td>
-              <td></td>
-              <td>-</td>
-              <td><button className="update-button">Update</button></td>
-            </tr>
-            <tr>
-              <td>02/04/2024</td>
-              <td>02/04/2024</td>
-              <td>09:00</td>
-              <td>02/04/2024</td>
-              <td>18:00</td>
-              <td></td>
-              <td>-</td>
-              <td><button className="update-button">Update</button></td>
-            </tr>
-            <tr>
-              <td>03/04/2024</td>
-              <td>03/04/2024</td>
-              <td>09:30</td>
-              <td>03/04/2024</td>
-              <td>17:30</td>
-              <td></td>
-              <td>-</td>
-              <td><button className="update-button">Update</button></td>
-            </tr>
-            <tr>
-              <td>04/04/2024</td>
-              <td>04/04/2024</td>
-              <td>09:15</td>
-              <td>04/04/2024</td>
-              <td>18:15</td>
-              <td></td>
-              <td>-</td>
-              <td><button className="update-button">Update</button></td>
-            </tr>
-            <tr>
-              <td>05/04/2024</td>
-              <td>05/04/2024</td>
-              <td>10:00</td>
-              <td>05/04/2024</td>
-              <td>19:00</td>
-              <td></td>
-              <td>-</td>
-              <td><button className="update-button">Update</button></td>
-            </tr>
-          </tbody>
-        </table>
+      <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>In Date</th>
+          <th>In Time</th>
+          <th>Out Date</th>
+          <th>Out Time</th>
+          <th>Remarks</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {filteredRecords.map((record) => (
+          <tr key={record._id}>
+            <td>{formatDate(record.date)}</td>
+            <td>{formatDate(record.punchInTime)}</td>
+            <td>{formatTime(record.punchInTime)}</td>
+            <td>{formatDate(record.punchOutTime)}</td>
+            <td>{formatTime(record.punchOutTime)}</td>
+            <td>{/* Add any remarks if needed */}</td>
+            <td>{/* Add status if needed */}</td>
+            <td>
+              <button className="update-button">Update</button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
         <div className="pagination">
           <p>Showing 1 to 10 of 51 entries</p>
           <div className="pagination-controls">
