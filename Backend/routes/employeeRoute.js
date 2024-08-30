@@ -9,7 +9,7 @@ const bcrypt=require("bcrypt")
 const empimageModel=require("../models/employeeimg-model")
 const upload=require("../configs/mutler-setup")
 const {punchIn,punchOut}=require("../controllers/employeePunchController")
-const mongoose=require("mongoose")
+const {addWfh}=require("../controllers/employeeWfhController")
 
 router.post('/login',loginUser)
 
@@ -51,6 +51,8 @@ router.get('/empdata', async (req, res) => {
     res.status(401).json({ message: 'Unauthorized' });
 }
 });
+
+router.post("/addWfh",addWfh)
 
 
 

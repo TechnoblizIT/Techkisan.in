@@ -12,7 +12,12 @@ const workFromHomeSchema =mongoose.Schema({
     endDate: {
         type: Date,
     },
+    inTime:String,
+    outTime:String,
     dayType:String,
     
+    remark:String
    
 })
+
+module.exports = mongoose.model('WorkFromHome', workFromHomeSchema);

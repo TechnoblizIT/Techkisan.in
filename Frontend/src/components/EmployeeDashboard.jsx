@@ -2,8 +2,8 @@ import React,{useEffect, useState} from 'react';
 import NavigationBar from './NavigationBar';
 import '../styles/EmployeeDashboard.css';
 import axios from 'axios';
-import profileimg from '../assets/img-dashboard.jpg';
-import bdayimg from '../assets/P.jpg'
+// import profileimg from '../assets/img-dashboard.jpg';
+// import bdayimg from '../assets/P.jpg'
 import cakeimg from '../assets/cake-img.png'
 import { useNavigate } from 'react-router-dom';
 
@@ -47,6 +47,12 @@ let todayDate = day + '/' + month + '/' + year;
   const [isPunchedIn, setIsPunchedIn] = useState(false);
   const [punchInTime, setPunchInTime] = useState(null);
   const [punchOutTime, setPunchOutTime] = useState(null);
+  const [startDate1, setStartDate1] = useState('');
+  const [endDate1, setEndDate1] = useState('');
+  const [dayType, setDayType] = useState('');
+  const [inTime, setInTime] = useState('');
+  const [outTime, setOutTime] = useState('');
+  const [remark, setRemark] = useState('');
   const [formData, setFormData] = useState({
     leaveType: '',
     fromDate: '',
@@ -72,7 +78,7 @@ let todayDate = day + '/' + month + '/' + year;
 
     try {
       const token = getCookie('token');
-      const response=await axios.post('http://localhost:8000/employees/punchIn', {
+      await axios.post('http://localhost:8000/employees/punchIn', {
         punchInTime: currentTime,
       }, {
         headers: {
@@ -127,6 +133,32 @@ let todayDate = day + '/' + month + '/' + year;
   
 
   const token = getCookie('token'); // Replace this with the actual token, maybe from localStorage or cookies
+//handling submit of work from home 
+  const handleSubmitwfh = async (event) => {
+    event.preventDefault(); // Prevent the default form submission behavior
+
+    const formData = {
+      startDate1,
+      endDate1,
+      dayType,
+      inTime,
+      outTime,
+      remark,
+    };
+
+    try {
+      // Send the form data to the backend using a POST request
+      const response = await axios.post('http://localhost:8000/employees/addWfh', formData , {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }});
+      console.log('Form data saved successfully:', response.data);
+      // Clear form fields or show success message as needed
+    } catch (error) {
+      console.error('Error saving form data:', error);
+    }
+  };
+
 
   // Handle input changes
   const handleChange = (e) => {
@@ -210,11 +242,11 @@ const filteredRecords = punchRecord.filter((record) => {
   } else if (end) {
     return recordDate <= end;
   } else {
-    return true; // If no date range is selected, show all records
+    return true; 
   }
 })
-.slice() // To create a shallow copy and avoid mutation
-.reverse(); // To show records in reverse order
+.slice() 
+.reverse(); 
 
 
 
@@ -645,61 +677,98 @@ const currentDate = new Date();
   </>
 )}
 {activeRequestPage === 'on-duty' && (
-  <div className="on-duty-container">
-    <div className="form-block">
-      <form>
-        <div className="input-row">
-          <div className="input-group">
-            <label htmlFor="start-date">Start Date</label>
-            <input type="date" id="start-date" name="start-date" />
-          </div>
-          <div className="input-group">
-            <label htmlFor="end-date">End Date</label>
-            <input type="date" id="end-date" name="end-date" />
-          </div>
-        </div>
 
-        <div className="input-row">
-          <div className="input-group day-type-group">
-            <label htmlFor="day-type">Day Type</label>
-            <select id="day-type" name="day-type">
-              <option value="">--Select--</option>
-              <option value="working">Working</option>
-              <option value="holiday">Holiday</option>
-              <option value="sick">Sick Leave</option>
-              <option value="half-day">Half Day</option>
-              <option value="other">Other</option>
-            </select>
+<div className="on-duty-container">
+      <div className="form-block">
+        <form onSubmit={handleSubmitwfh}>
+          {/* Input fields */}
+          <div className="input-row">
+            <div className="input-group">
+              <label htmlFor="start-date">Start Date</label>
+              <input
+                type="date"
+                id="start-date"
+                name="start-date"
+                value={startDate1}
+                onChange={(e) => setStartDate1(e.target.value)}
+              />
+            </div>
+            <div className="input-group">
+              <label htmlFor="end-date">End Date</label>
+              <input
+                type="date"
+                id="end-date"
+                name="end-date"
+                value={endDate1}
+                onChange={(e) => setEndDate1(e.target.value)}
+              />
+            </div>
           </div>
-        </div>
 
-        <div className="input-row">
-          <div className="input-group">
-            <label htmlFor="in-time">In Time</label>
-            <input type="time" id="in-time" name="in-time" />
+          <div className="input-row">
+            <div className="input-group day-type-group">
+              <label htmlFor="day-type">Day Type</label>
+              <select
+                id="day-type"
+                name="day-type"
+                value={dayType}
+                onChange={(e) => setDayType(e.target.value)}
+              >
+                <option value="">--Select--</option>
+                <option value="working">Working</option>
+                <option value="holiday">Holiday</option>
+                <option value="sick">Sick Leave</option>
+                <option value="half-day">Half Day</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
           </div>
-          <div className="input-group">
-            <label htmlFor="out-time">Out Time</label>
-            <input type="time" id="out-time" name="out-time" />
-          </div>
-        </div>
 
-        <div className="input-row">
-          <div className="input-group">
-            <label htmlFor="remark">Remark</label>
-            <input type="text" id="remark" name="remark" />
+          <div className="input-row">
+            <div className="input-group">
+              <label htmlFor="in-time">In Time</label>
+              <input
+                type="time"
+                id="in-time"
+                name="in-time"
+                value={inTime}
+                onChange={(e) => setInTime(e.target.value)}
+              />
+            </div>
+            <div className="input-group">
+              <label htmlFor="out-time">Out Time</label>
+              <input
+                type="time"
+                id="out-time"
+                name="out-time"
+                value={outTime}
+                onChange={(e) => setOutTime(e.target.value)}
+              />
+            </div>
           </div>
-        </div>
 
-        <div className="input-row">
-          <button type="submit" className="save-button">Save</button>
-        </div>
-      </form>
+          <div className="input-row">
+            <div className="input-group">
+              <label htmlFor="remark">Remark</label>
+              <input
+                type="text"
+                id="remark"
+                name="remark"
+                value={remark}
+                onChange={(e) => setRemark(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="input-row">
+            <button type="submit" className="save-button">
+              Save
+            </button>
+          </div>
+        </form>
+      </div>
+      <div className="no-record-block">No previous record found for current month.</div>
     </div>
-    <div className="no-record-block">
-      No previous record found for current month.
-    </div>
-  </div>
 )}
 
 
