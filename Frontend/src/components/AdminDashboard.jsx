@@ -78,17 +78,27 @@ const AdminDashboard = () => {
                 HR
               </a>
             </li>
-            <li>
+            {/* <li>
               <a href="#crm" onClick={() => handleNavClick("crm")}>
+                CRM
+              </a>
+            </li> */}
+            <li>
+              <a href="#sales" onClick={() => handleNavClick("sales")}>
                 Sales
               </a>
+            </li>
+            <li>
+              <a href="#purchase" onClick={() => handleNavClick("purchase")}>
+                Purchase
+                </a>
             </li>
             <li>
               <a
                 href="#accounting"
                 onClick={() => handleNavClick("accounting")}
               >
-                Purchasing
+                Accouting
               </a>
             </li>
             <li>
@@ -269,6 +279,19 @@ const AdminDashboard = () => {
               <h2>Sales Section</h2>
             </div>
           )}
+          {/* Sales */}
+          {activeSection === "sales" && (
+            <div id="sales" className="sales-section">
+              <h2>Sales</h2>
+            </div>
+          )}
+          {/* purchase Section */}
+          {activeSection==="purchase" &&(
+            <div id="purchase" className="purchase-section">
+              <h2>Purchase Section</h2>
+            </div>
+          )}
+          
           {/* Accounting section */}
           {activeSection === "accounting" && (
             <div id="accounting" className="accounting-section">
