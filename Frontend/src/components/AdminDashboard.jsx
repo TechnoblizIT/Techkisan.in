@@ -80,7 +80,7 @@ const AdminDashboard = () => {
             </li>
             <li>
               <a href="#crm" onClick={() => handleNavClick("crm")}>
-                CRM
+                Sales
               </a>
             </li>
             <li>
@@ -88,7 +88,7 @@ const AdminDashboard = () => {
                 href="#accounting"
                 onClick={() => handleNavClick("accounting")}
               >
-                Accounting
+                Purchasing
               </a>
             </li>
             <li>
@@ -266,13 +266,13 @@ const AdminDashboard = () => {
           {/* CRM section */}
           {activeSection === "crm" && (
             <div id="crm" className="crm-section">
-              <h2>CRM Section</h2>
+              <h2>Sales Section</h2>
             </div>
           )}
           {/* Accounting section */}
           {activeSection === "accounting" && (
             <div id="accounting" className="accounting-section">
-              <h2>Accounting Section</h2>
+              <h2>Purchase Section</h2>
             </div>
           )}
         </div>

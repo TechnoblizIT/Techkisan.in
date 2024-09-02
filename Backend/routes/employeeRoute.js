@@ -9,7 +9,7 @@ const bcrypt=require("bcrypt")
 const empimageModel=require("../models/employeeimg-model")
 const upload=require("../configs/mutler-setup")
 const {punchIn,punchOut}=require("../controllers/employeePunchController")
-
+const {addWfh}=require("../controllers/employeeWfhController")
 
 router.post('/login',loginUser)
 
@@ -52,6 +52,8 @@ router.get('/empdata', async (req, res) => {
 }
 });
 
+router.post("/addWfh",addWfh)
+
 
 
 router.post("/changepassword", changePassword)
@@ -61,6 +63,32 @@ router.post("/changepassword", changePassword)
 router.post("/punchIn",punchIn)
 
 router.post('/punchOut' , punchOut)
+
+
+router.get("/getLeaves",async(req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).json({ message: 'Authorization header missing' });
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ message: 'Token missing' });
+  }
+
+  const decoded = jwt.verify(token, process.env.JWT_SECRET); 
+
+  const employee = await employeeModel.findOne({username:decoded}); 
+
+  if (!employee) {
+    return res.status(404).json({ message: 'Employee not found' });
+  }
+
+  const empleaves = await leaveModel.find({ employeeId: employee._id });
+  res.json(empleaves);
+})
+
 
 router.post("/addLeave", async function(req, res){
   const {leaveType,fromDate,toDate,fromTime,toTime,reason,leaveStation,vacationAddress,contactNumber}=req.body
@@ -100,7 +128,8 @@ await leave.save();
 const leaveid=await leaveModel.findOne({employeeId: employee._id});
 
 employee.leaves.push(leaveid._id);
-res.json({ message: "Leave request sent successfully", leave });
+res.json({ message: "Leave request sent successfully",leave:leave}).status(200);
+
 
 })
 
