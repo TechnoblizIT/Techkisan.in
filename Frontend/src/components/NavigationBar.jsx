@@ -99,7 +99,7 @@ function NavigationBar({ activeSection, onNavigate }) {
         <li className={`dropdown ${openDropdown === 'leaves' ? 'open' : ''}`}>
           <a
             href="#"
-            className={activeSection === 'request' ? 'active' : ''}
+            className={activeSection === 'request' || activeSection === 'report' ? 'active' : ''}
             onClick={() => toggleDropdown('leaves')}
           >
             Leaves

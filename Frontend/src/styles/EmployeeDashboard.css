@@ -1033,3 +1033,666 @@ color: #d32f2f;
     font-size: 14px;
   }
 }
+
+
+/* start css for my-report page */
+.report-section {
+  padding: 20px;
+}
+
+.report-nav {
+  display: flex;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.report-nav button {
+  padding: 10px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 15px;
+  position: relative;
+  color: rgb(88, 73, 172);
+}
+
+.report-nav button.active::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 3px;
+  background-color: red;
+  border-radius: 2px;
+}
+
+.report-content h1 {
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .report-nav {
+    flex-direction: column;
+  }
+
+  .report-nav button {
+    margin-bottom: 10px;
+  }
+
+  .report-nav button.active::after {
+    bottom: -3px; 
+  }
+}
+
+
+/* css for my report==leave-balance section */
+
+.search-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+  padding-right: 20px;
+}
+
+.search-container input {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  background-color: #fff;
+  color: #666;
+  cursor: pointer;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s;
+}
+
+.leave-balance-table {
+  border-radius: 5px;
+  background-color: #f9f9f9; 
+}
+
+.leave-balance-table table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+}
+
+.leave-balance-table th,
+.leave-balance-table td {
+  padding: 8px;
+  text-align: left;
+  background-color: white;
+  border-radius: 5px;
+}
+
+.leave-balance-table th {
+  border: none;
+  font-size: 15px;
+  color: #555555;
+  background-color: transparent;
+}
+
+.leave-balance-table td {
+  border: 1px solid #eee;
+  background-color: #ffffff;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.leave-balance-table td .action-button {
+    padding: 8px 12px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-right: 8px;
+  }
+  
+  .leave-balance-table td .action-button:last-child {
+    margin-right: 0; 
+  }
+  
+  .leave-balance-table td .action-button:hover {
+    background-color: #218838;
+  }
+
+/* leave-balance -Pagination */
+.leave-balance-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.leave-balance-pagination p {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.leave-balance-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.leave-balance-pagination-controls span {
+  font-size: 16px;
+  color: #333;
+}
+
+.leave-balance-pagination-controls input[type="number"] {
+  width: 60px;
+  padding: 5px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* css for in out details section */
+
+
+
+.report-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.filter-block {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-block label {
+  margin-bottom: 5px;
+  text-align: left;
+}
+
+.filter-block input,select {
+  width: 100%;
+  padding: 10px; 
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  box-sizing: border-box; 
+}
+
+.button-block {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.searchleave-button,
+.export-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+ 
+}
+
+.searchleave-button {
+  background-color: orange;
+}
+
+.searchleave-button:hover {
+  background-color: darkorange;
+}
+
+.export-button {
+  background-color: rgb(40, 31, 78);
+}
+
+.export-button:hover {
+  background-color: rgb(108, 88, 223);
+}
+
+.table-container {
+  margin-top: 20px;
+}
+
+.search-btn {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+ 
+}
+
+.search-btn input {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  background-color: #fff;
+  color: #666;
+  cursor: pointer;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s;
+}
+
+.in-out-table-section {
+  margin-top: 30px;
+  background-color: transparent;
+}
+
+.in-out-details-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+}
+
+.in-out-details-table th,
+.in-out-details-table td {
+  padding: 8px;
+  text-align: left;
+  background-color: white;
+  border-radius: 5px;
+}
+
+.in-out-details-table th {
+  border: none;
+  font-size: 15px;
+  color: #555555;
+  background-color: transparent;
+}
+
+.in-out-details-table td {
+  border: 1px solid #eee;
+  background-color: #ffffff;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+/* inout-details Pagination */
+.inout-pagination{
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.inout-pagination p {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.inout-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.inout-pagination-controls span {
+  font-size: 16px;
+  color: #333;
+}
+
+.inout-pagination-controls input[type="number"] {
+  width: 60px;
+  padding: 5px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+
+/* css for leave details section */
+
+
+
+.leave-details-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.leave-details-block {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+}
+
+.leave-details-block label {
+  margin-bottom: 5px;
+  text-align: left;
+}
+
+.leave-details-block input,select {
+  width: 100%;
+  padding: 10px; 
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  box-sizing: border-box; 
+}
+
+.button-block {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.search-button,
+.download-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+ 
+}
+
+.search-button {
+  background-color: orange;
+}
+
+.search-button:hover {
+  background-color: darkorange;
+}
+
+.download-button {
+  background-color: rgb(40, 31, 78);
+}
+
+.download-button:hover {
+  background-color: rgb(108, 88, 223);
+}
+.table-block {
+  margin-top: 30px;
+  border-radius: 5px;
+}
+
+.leave-details-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+}
+
+.leave-details-table th,
+.leave-details-table td {
+  padding: 8px;
+  text-align: left;
+  background-color: white;
+  border-radius: 5px;
+}
+
+.leave-details-table th {
+  border: none;
+  font-size: 15px;
+  color: #555555;
+  background-color: transparent;
+}
+
+.leave-details-table td {
+  border: 1px solid #eee;
+  background-color: #ffffff;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.status-button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: white;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.status-button.approved {
+  background-color: #28a745; 
+}
+
+.status-button.approved:hover {
+  background-color: #218838; 
+}
+
+
+/* leave-details Pagination */
+.leave-details-pagination{
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.leave-details-pagination p {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.leave-details-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.leave-details-pagination-controls span {
+  font-size: 16px;
+  color: #333;
+}
+
+.leave-details-pagination-controls input[type="number"] {
+  width: 60px;
+  padding: 5px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* css for annual-attendance-summary */
+.first-block {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.first-block label {
+  margin-right: 10px;
+  font-size: 15px;
+}
+.first-block select{
+   width: 30%;
+   margin-right: 20px;
+}
+.first-block .srch-button, 
+.first-block .exprt-button {
+    color: white;
+    border: none;
+    padding:10px 100px ;
+    cursor: pointer;
+    border-radius: 5px;
+   
+}
+
+.first-block .srch-button {
+  background-color: orange;
+  color: white;
+  margin-right: 10px;
+}
+.first-block .srch-button:hover{
+  background-color: darkorange;
+}
+.first-block .exprt-button {
+  background-color: rgb(40, 31, 78);
+  color: white;
+}
+.first-block .exprt-button:hover{
+  background-color: rgb(108, 88, 223);
+}
+.attendance-table-section {
+  display: flex;
+  justify-content: center; 
+  width: 100%;
+}
+
+/* Table styling */
+.attendance-table {
+  width: 100%;
+  border-collapse: separate; 
+  border-spacing: 0 10px; 
+}
+
+/* Table headers and cells styling */
+.attendance-table th,
+.attendance-table td {
+  padding: 8px;
+  text-align: center;
+  background-color: white;
+  border-radius: 5px;
+}
+
+/* Table headers styling */
+.attendance-table th {
+  border: 1px solid #ddd;
+  font-size: 15px;
+  color: #555555;
+  background-color: transparent;
+}
+
+/* Table cells styling */
+.attendance-table td {
+  border: 1px solid #ddd;
+  background-color: #ffffff;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  font-size: 14px;
+}
+.attendance-table td.P {
+  background-color: rgb(99, 168, 99);
+  color: white;
+}
+
+.attendance-table td.A {
+  background-color: red;
+  color: white;
+}
+
+.attendance-table td.I {
+  background-color: rgb(204, 144, 204);
+  color: white;
+}
+
+.attendance-table td.SL,
+.attendance-table td.CL {
+  background-color: white;
+  color: black;
+}
+
+.attendance-table td.H {
+  background-color: pink;
+  color: black;
+}
+
+.attendance-table td.W {
+  background-color: grey;
+  color: white;
+}
+
+.attendance-table td.FH-SL-P {
+  background-color: #f5f5f5;
+  color: black;
+  font-weight: bold;
+}
+
+
+/* css for holidays  */
+
+
+.holidays-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.holidays-buttons {
+  display: flex;
+}
+
+.holidays-buttons button{
+  background-color: rgb(40, 31, 78);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin-right: 10px; 
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.holidays-buttons button:hover {
+  background-color: rgb(108, 88, 223);
+}
+
+.holidays-table-section {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.holidays-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+}
+
+.holidays-table th,
+.holidays-table td {
+  padding: 8px;
+  text-align: left;
+  background-color: white;
+  border-radius: 5px;
+}
+
+.holidays-table th {
+  border: none;
+  font-size: 15px;
+  color: #555555;
+  background-color: transparent;
+}
+
+.holidays-table td {
+  border: 1px solid #eee;
+  background-color: #ffffff;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  font-size: 14px;
+}
