@@ -14,7 +14,7 @@ function EmployeeDashboard() {
     const date = new Date(dateString);
     return date.toLocaleDateString(); 
   };
-  
+  const [entryconut,setentryconut]=useState(10)
   const formatTime = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); 
@@ -585,7 +585,7 @@ const currentDate = new Date();
         </thead>
         <tbody>
           
-          {leaves ? leaves.map((leave)=>{
+          {leaves ? leaves.slice(-3).map((leave)=>{
             return (
               
               <tr key={leave.id}>
@@ -650,7 +650,7 @@ const currentDate = new Date();
         </tr>
       </thead>
       <tbody>
-        {filteredRecords.map((record) => (
+        {filteredRecords.slice(-entryconut).map((record) => (
           <tr key={record._id}>
             <td>{formatDate(record.date)}</td>
             <td>{formatDate(record.punchInTime)}</td>
@@ -670,7 +670,7 @@ const currentDate = new Date();
           <p>Showing 1 to 10 of 51 entries</p>
           <div className="pagination-controls">
             <span>Show</span>
-            <input type="number" min="0" defaultValue="0" />
+            <input type="number" min="0" defaultValue="0" value={entryconut} onChange={(e)=>{setentryconut(e.target.value)}}/>
             <span>entries</span>
           </div>
         </div>
@@ -1045,11 +1045,11 @@ const currentDate = new Date();
                       </div>
                           <div className="leave-details-block">
                             <label htmlFor="from-date">From Date</label>
-                            <input type="date" id="from-date" name="from-date" />
+                            <input type="date" id="from-date" name="from-date" value={startDate1}  onChange={(e)=>{setStartDate1(e.target.value)}}/>
                           </div>
                           <div className="leave-details-block">
                             <label htmlFor="to-date">To Date</label>
-                            <input type="date" id="to-date" name="to-date" />
+                            <input type="date" id="to-date" name="to-date"  value={endDate1} onChange={(e)=>{setEndDate1(e.target.value)}}/>
                           </div>
                           <div className="button-block">
                             <button className="searchleave-button">Search</button>
@@ -1059,6 +1059,7 @@ const currentDate = new Date();
                         <div className="table-block">
                         <table className="leave-details-table">
                           <thead>
+                           
                             <tr>
                               <th>Status</th>
                               <th>From Date</th>
@@ -1071,44 +1072,33 @@ const currentDate = new Date();
                             </tr>
                           </thead>
                           <tbody>
-                            <tr>
-                              <td><button className="status-button approved">Approved</button></td>
-                              <td>12/07/2024</td>
-                              <td>Full Day</td>
-                              <td>12/07/2024</td>
-                              <td>Full Day</td>
-                            <td>1</td>
-                            <td>sick leave</td>
-                            <td></td>
-                          </tr>
-                          <tr>
-                              <td><button className="status-button approved">Approved</button></td>
-                              <td>15/07/2024</td>
-                              <td>Full Day</td>
-                              <td>15/07/2024</td>
-                              <td>Full Day</td>
-                            <td>1</td>
-                            <td>sick leave</td>
-                            <td></td>
-                          </tr>
-                          <tr>
-                              <td><button className="status-button approved">Approved</button></td>
-                              <td>18/07/2024</td>
-                              <td>Full Day</td>
-                              <td>18/07/2024</td>
-                              <td>Second half</td>
-                            <td>0.5</td>
-                            <td>Casual Leave</td>
-                            <td></td>
-                          </tr>
-                    
+                          {leaves.length > 0 ? (
+                            leaves.slice(-entryconut).map((leave) => (
+                        <tr key={leave._id}>
+                            <td><button className={`status-button ${leave.leaveStatus.toLowerCase()}`}>{leave.leaveStatus}</button></td>
+                            <td>{new Date(leave.fromDate).toLocaleDateString('en-GB')}</td>
+                            <td>{leave.fromTime}</td>
+                            <td>{new Date(leave.toDate).toLocaleDateString('en-GB')}</td>
+                            <td>{leave.toTime}</td>
+                            <td>{calculateDays(leave.fromDate, leave.toDate)}</td>
+                            <td>{leave.typeofLeaves}</td>
+                            <td>{leave.attachment}</td>
+                            
+                        </tr>
+                    ))
+                ) : (
+                    <tr>
+                        <td colSpan="9">No Leaves are Present</td>
+                    </tr>
+                )}
+                        
                       </tbody>
                     </table>
                     <div className="leave-details-pagination">
                           <p>Showing 1 to 3 of 3 entries</p>
                           <div className="leave-details-pagination-controls">
                           <span>Show</span>
-                          <input type="number" min="0" defaultValue="0" />
+                          <input type="number" value={entryconut} onChange={(e)=>{setentryconut(e.target.value)}} />
                           <span>entries</span>
                          </div>
                        </div>

@@ -25,6 +25,7 @@ module.exports.punchIn=async(req,res)=>{
         punchInTime: punchInTime,
         punchOutTime: null,
         workDuration: null,
+        status:"P"
       });
      console.log(employee.punchRecords);
       await employee.save();

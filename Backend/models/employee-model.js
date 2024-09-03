@@ -52,6 +52,7 @@ const employeeSchema=mongoose.Schema({
         punchInTime: Date,
         punchOutTime: Date,
         workDuration: Number, 
+		status: String,
     }],
 	leaves:[{
 		type: mongoose.Types.ObjectId,
