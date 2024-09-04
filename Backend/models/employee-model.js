@@ -1,5 +1,9 @@
 const mongoose = require('mongoose')
 
+const attendanceSchema = new mongoose.Schema({
+	date: { type: Date, required: true },
+	status: { type: String, enum: ['P', 'A','H','SL','CL'], required: true },
+  });
 
 const employeeSchema=mongoose.Schema({
 	firstName: String,
@@ -58,7 +62,8 @@ const employeeSchema=mongoose.Schema({
 		type: mongoose.Types.ObjectId,
         ref: 'Leave',
         required: false,
-	}]
+	}],
+	attendance:[attendanceSchema]
 })
 
 module.exports = mongoose.model('Employee', employeeSchema)

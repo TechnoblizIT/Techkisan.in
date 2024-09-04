@@ -5,7 +5,7 @@ import avatarImage from "../assets/avtar.png";
 import "../styles/AdminDashboard.css";
 import { useState, useEffect } from "react";
 import axios from "axios";
-
+import { jwtDecode } from "jwt-decode";
 function getCookie(name) {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
@@ -27,6 +27,11 @@ const AdminDashboard = () => {
 
         if (!token) {
           navigate("/admin-login");
+          return;
+        }
+        const decode =jwtDecode(token)
+        if (decode.role==="employee"){
+          navigate("/")
           return;
         }
 

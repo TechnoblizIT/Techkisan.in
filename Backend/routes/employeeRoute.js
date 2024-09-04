@@ -35,9 +35,8 @@ router.get('/empdata', async (req, res) => {
         return res.status(401).json({ message: 'Token missing' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET); 
-
-    const employee = await employeeModel.findOne({username:decoded}); 
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const employee = await employeeModel.findOne({username:decoded.user}); 
 
   
     if (!employee) {
@@ -79,7 +78,7 @@ router.get("/getLeaves",async(req, res) => {
 
   const decoded = jwt.verify(token, process.env.JWT_SECRET); 
 
-  const employee = await employeeModel.findOne({username:decoded}); 
+  const employee = await employeeModel.findOne({username:decoded.user}); 
 
   if (!employee) {
     return res.status(404).json({ message: 'Employee not found' });
@@ -105,7 +104,7 @@ if (!token) {
 
 const decoded = jwt.verify(token, process.env.JWT_SECRET); 
 
-const employee = await employeeModel.findOne({username:decoded}); 
+const employee = await employeeModel.findOne({username:decoded.user}); 
 
 if (!employee) {
     return res.status(404).json({ message: 'Employee not found' });

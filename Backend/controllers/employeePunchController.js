@@ -16,10 +16,21 @@ module.exports.punchIn=async(req,res)=>{
       if (!token) {
           return res.status(401).json({ message: 'Token missing' });
       }
-    
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); 
+  
       const decoded = jwt.verify(token, process.env.JWT_SECRET); 
     
       const employee = await employeeModel.findOne({username:decoded}); 
+
+      const alreadyPunchedIn = employee.punchRecords.some(
+        punch => new Date(punch).setHours(0, 0, 0, 0) === today.getTime()
+      );
+  
+      if (alreadyPunchedIn) {
+        return res.status(400).json({ message: 'Already punched in today' });
+      }
+  
       employee.punchRecords.push({
         date: new Date(),
         punchInTime: punchInTime,
@@ -27,6 +38,18 @@ module.exports.punchIn=async(req,res)=>{
         workDuration: null,
         status:"P"
       });
+     
+      const attendanceToday = employee.attendance.find(
+        record => new Date(record.date).setHours(0, 0, 0, 0) === today.getTime()
+      );
+  
+      if (attendanceToday) {
+        attendanceToday.status = 'Present';
+      } else {
+        employee.attendance.push({ date: today, status: 'Present' });
+      }
+  
+    
      console.log(employee.punchRecords);
       await employee.save();
     
