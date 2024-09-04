@@ -254,6 +254,10 @@ const AdminDashboard = () => {
               <h2>Employees</h2>
               <Link className="add-new" to="/add-employee">
                 Add New
+              </Link> <br />
+              <h2>Managers</h2>
+              <Link className="add-new" to="/add-manager">
+                Add New
               </Link>
             </div>
           )}
