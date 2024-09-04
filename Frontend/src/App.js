@@ -8,6 +8,7 @@ import EmployeeDashboard from './components/EmployeeDashboard';
 import AdminLoginPage from './components/AdminLoginPage';
 import AdminDashboard from './components/AdminDashboard';
 import AddEmployee from './components/AddEmployee';
+import AddManager from './components/AddManager';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/admin-login" element={<AdminLoginPage />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/add-employee" element={<AddEmployee />} />
+          <Route path="/add-manager" element={<AddManager />} />
         </Routes>
       </div>
     </Router>
