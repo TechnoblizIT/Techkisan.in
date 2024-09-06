@@ -9,6 +9,7 @@ const db=require('./configs/mongoose-connection')
 const indexRoute=require("./routes/indexRoute")
 const employeesRoute=require("./routes/employeeRoute")
 const adminRoute=require("./routes/adminRoutes")
+const managerRoute=require("./routes/managerRoutes")
 const cron = require('node-cron');
 const employeeModel=require("./models/employee-model")
 require('dotenv').config()
@@ -31,7 +32,7 @@ app.use(express.static(path.join(__dirname,"public")));
 app.use("/",indexRoute);
 app.use("/employees",employeesRoute);
 app.use("/admin",adminRoute);
-
+app.use("/manager",managerRoute);
 
 
 

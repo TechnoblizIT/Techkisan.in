@@ -5,16 +5,16 @@ const attendanceSchema = new mongoose.Schema({
 	status: { type: String, enum: ['P', 'A','H','SL','CL'], required: true },
   });
 
-const employeeSchema=mongoose.Schema({
+const managerSchema=mongoose.Schema({
 	firstName: String,
 	middleName: String,
 	lastName: String,
 	username:String,
 	password:String,
-	employeeId: String,
+	managerId: String,
 	email: String,
-	employeeType: String,
-	employeeStatus: String,
+	managerType: String,
+	managerStatus: String,
 	endDate: Date,
 	dateOfHire: Date,
 	department: String,
@@ -49,8 +49,11 @@ const employeeSchema=mongoose.Schema({
 		ref: 'empimg',
 		required: false,
 	},] ,
-	
-	manager:String,
+	employee:[{
+        type: mongoose.Types.ObjectId,
+        ref: 'Employee',
+        required: false,
+    }],
 
     punchRecords: [{
         date: Date,
@@ -67,4 +70,4 @@ const employeeSchema=mongoose.Schema({
 	attendance:[attendanceSchema]
 })
 
-module.exports = mongoose.model('Employee', employeeSchema)
+module.exports = mongoose.model('Manager', managerSchema)
