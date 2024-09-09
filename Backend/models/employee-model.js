@@ -50,7 +50,12 @@ const employeeSchema=mongoose.Schema({
 		required: false,
 	},] ,
 	
-	manager:String,
+	manager:{
+		type: mongoose.Types.ObjectId,
+        ref: 'Manager',
+        required: false,
+		
+	},
 
     punchRecords: [{
         date: Date,

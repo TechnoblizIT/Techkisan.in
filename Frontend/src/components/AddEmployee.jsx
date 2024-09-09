@@ -45,7 +45,6 @@ const AddEmployee = () => {
     welcomeEmail: false,
     loginDetails: false,
     Image:null,
-     manager: ''
   });
   const [Image, setImage] = useState(null);
 

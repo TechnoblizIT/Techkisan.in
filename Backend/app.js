@@ -39,8 +39,7 @@ app.use("/manager",managerRoute);
 cron.schedule('59 23 * * *', async () => {
   try {
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Set to start of day
-
+    today.setHours(0, 0, 0, 0); 
     const employees = await employeeModel.find();
 
     for (const employee of employees) {
@@ -49,6 +48,7 @@ cron.schedule('59 23 * * *', async () => {
       );
 
       if (!punchedInToday) {
+        if (employee.punchRecords.status !== 'CL'|| employee.punchRecords.status !== 'SL' || employee.punchRecords.status !== 'H')
         employee.attendance.push({ date: today, status: 'A' });
       } else {
         employee.attendance.push({ date: today, status: 'P' });
