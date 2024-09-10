@@ -54,7 +54,7 @@ module.exports.changePassword=async(req, res)=> {
    
     const username = jwt.verify(token, process.env.JWT_SECRET);
     
-    const employee = await employeeModel.findOne({username: username });
+    const employee = await employeeModel.findOne({username: username.user });
     
     if (!employee) {
         return res.status(404).json({ message: 'Employee not found' });

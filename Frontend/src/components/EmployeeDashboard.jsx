@@ -2,11 +2,9 @@ import React,{useEffect, useState} from 'react';
 import NavigationBar from './NavigationBar';
 import '../styles/EmployeeDashboard.css';
 import axios from 'axios';
-// import profileimg from '../assets/img-dashboard.jpg';
-// import bdayimg from '../assets/P.jpg'
 import cakeimg from '../assets/cake-img.png'
 import { useNavigate } from 'react-router-dom';
-
+import { jwtDecode } from 'jwt-decode';
 function EmployeeDashboard() {
 
 
@@ -23,7 +21,7 @@ function EmployeeDashboard() {
     const from = new Date(fromDate);
     const to = new Date(toDate);
     const diffTime = Math.abs(to - from);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Add 1 to include both start and end date
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; 
     return diffDays;
   };
 
@@ -45,6 +43,8 @@ let todayDate = day + '/' + month + '/' + year;
   const navigate = useNavigate(); 
   const [startDate,setstartDate]=useState("");
   const [endDate,setEndDate]=useState("");
+  const [startDate2,setstartDate2]=useState("");
+  const [endDate2,setEndDate2]=useState("");
   const [isPunchedIn, setIsPunchedIn] = useState(false);
   const [punchInTime, setPunchInTime] = useState(null);
   const [punchOutTime, setPunchOutTime] = useState(null);
@@ -117,7 +117,6 @@ let todayDate = day + '/' + month + '/' + year;
   };
 
 
-//leaves section
 
 
   const fetchLeaves = async () => {
@@ -134,10 +133,10 @@ let todayDate = day + '/' + month + '/' + year;
   };
   
 
-  const token = getCookie('token'); // Replace this with the actual token, maybe from localStorage or cookies
-//handling submit of work from home 
+  const token = getCookie('token'); 
+
   const handleSubmitwfh = async (event) => {
-    event.preventDefault(); // Prevent the default form submission behavior
+    event.preventDefault(); 
 
     const formData = {
       startDate1,
@@ -149,20 +148,20 @@ let todayDate = day + '/' + month + '/' + year;
     };
 
     try {
-      // Send the form data to the backend using a POST request
+      
       const response = await axios.post('http://localhost:8000/employees/addWfh', formData , {
         headers: {
           'Authorization': `Bearer ${token}`,
         }});
       console.log('Form data saved successfully:', response.data);
-      // Clear form fields or show success message as needed
+      
     } catch (error) {
       console.error('Error saving form data:', error);
     }
   };
 
 
-  // Handle input changes
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -171,7 +170,7 @@ let todayDate = day + '/' + month + '/' + year;
     }));
   };
 
-  //fetch leaves
+ 
   
     const handleSubmit = async (e) => {
       e.preventDefault();
@@ -180,7 +179,7 @@ let todayDate = day + '/' + month + '/' + year;
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`, // Include auth header
+            'Authorization': `Bearer ${token}`, 
           },
           body: JSON.stringify(formData),
         });
@@ -230,7 +229,13 @@ const handleEndDateChange=(event)=>{
  setEndDate(event.target.value)
 }
 
-console.log(punchRecord)
+const handleStartDateChange2=(event)=>{
+  setstartDate2(event.target.value)
+ }
+ 
+ const handleEndDateChange2=(event)=>{
+  setEndDate2(event.target.value)
+ }
 const filteredRecords = punchRecord.filter((record) => {
   const recordDate = new Date(record.date);
   const start = startDate ? new Date(startDate) : null;
@@ -250,7 +255,23 @@ const filteredRecords = punchRecord.filter((record) => {
 .slice() 
 .reverse(); 
 
+const filteredLeave=leaves.filter((leave) =>{
+  const recordDate2 = new Date(leave.date);
+  const start2 = startDate2 ? new Date(startDate2) : null;
+  const end2 = endDate2 ? new Date(endDate2) : null;
+  if (start2 && end2) {
+    return recordDate2 >= start2 && recordDate2 <= end2;
+  } else if (start2) {
+    return recordDate2 >= start2;
+  } else if (end2) {
+    return recordDate2 <= end2;
+  } else {
+    return true; 
+  }
 
+})
+.slice(-entryconut) 
+.reverse(); 
 
   function getCookie(name) {
     const value = `; ${document.cookie}`;
@@ -262,6 +283,11 @@ const filteredRecords = punchRecord.filter((record) => {
       try {
         const token = getCookie('token');
         if (!token) {
+          navigate("/")
+          return;
+        }
+        const decode =jwtDecode(token)
+        if (decode.role==="admin"){
           navigate("/")
           return;
         }
@@ -585,7 +611,7 @@ const currentDate = new Date();
         </thead>
         <tbody>
           
-          {leaves ? leaves.slice(-3).map((leave)=>{
+          {leaves.length>0 ? leaves.slice(-3).map((leave)=>{
             return (
               
               <tr key={leave.id}>
@@ -614,7 +640,10 @@ const currentDate = new Date();
               </td>
               </tr>
             )
-        }) : <p>No Leaves are not Present</p>}
+        }) :(
+         <tr>
+          <td colSpan="9">No Leaves are Present</td>
+      </tr>)}
           
         </tbody>
       </table>
@@ -1045,11 +1074,11 @@ const currentDate = new Date();
                       </div>
                           <div className="leave-details-block">
                             <label htmlFor="from-date">From Date</label>
-                            <input type="date" id="from-date" name="from-date" value={startDate1}  onChange={(e)=>{setStartDate1(e.target.value)}}/>
+                            <input type="date" id="from-date" name="from-date" value={startDate2}  onChange={(e)=>{handleStartDateChange2(e)}}/>
                           </div>
                           <div className="leave-details-block">
                             <label htmlFor="to-date">To Date</label>
-                            <input type="date" id="to-date" name="to-date"  value={endDate1} onChange={(e)=>{setEndDate1(e.target.value)}}/>
+                            <input type="date" id="to-date" name="to-date"  value={endDate2} onChange={(e)=>{handleEndDateChange2(e)}}/>
                           </div>
                           <div className="button-block">
                             <button className="searchleave-button">Search</button>
@@ -1072,8 +1101,8 @@ const currentDate = new Date();
                             </tr>
                           </thead>
                           <tbody>
-                          {leaves.length > 0 ? (
-                            leaves.slice(-entryconut).map((leave) => (
+                          {filteredLeave.length > 0 ? (
+                            filteredLeave.map((leave) => (
                         <tr key={leave._id}>
                             <td><button className={`status-button ${leave.leaveStatus.toLowerCase()}`}>{leave.leaveStatus}</button></td>
                             <td>{new Date(leave.fromDate).toLocaleDateString('en-GB')}</td>
