@@ -255,8 +255,14 @@ const filteredRecords = punchRecord.filter((record) => {
 .slice() 
 .reverse(); 
 
+
+
+
+//filtering the leaves 
+
+
 const filteredLeave=leaves.filter((leave) =>{
-  const recordDate2 = new Date(leave.date);
+  const recordDate2 = new Date(leave.fromDate);
   const start2 = startDate2 ? new Date(startDate2) : null;
   const end2 = endDate2 ? new Date(endDate2) : null;
   if (start2 && end2) {
@@ -971,66 +977,23 @@ const currentDate = new Date();
                                </tr>
                              </thead>
                              <tbody>
-                               <tr>
-                                 <td>47</td>
-                                 <td>xyz</td>
-                                 <td>11/08/2024</td>
-                                 <td>-</td>
-                                 <td>-</td>
-                                 <td>WeekOff</td>
-                                 <td>Weekoff</td>
-                                 <td>-</td>
-                                 <td>-</td>
-                                 <td>-</td>
-                                 <td>-</td>
-                                 <td>-</td>
-                                 <td>-</td>
+                             {filteredRecords.slice(-entryconut).map((record) => (
+                           <tr key={record._id}>
+                            <td>{employeedata.employeeId}</td>
+                            <td>{employeedata.firstName+" "+employeedata.lastName}</td>
+                            <td>{formatDate(record.date)}</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>{formatTime(record.punchInTime)}</td>
+                            <td>{formatTime(record.punchOutTime)}</td>
+                            <td>{(record.workDuration*10)}</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
                                </tr>
-                               <tr>
-                                 <td>47</td>
-                                 <td>xyz</td>
-                                 <td>12/08/2024</td>
-                                 <td>-</td>
-                                 <td>-</td>
-                                 <td>Unswiped</td>
-                                 <td>Unswiped</td>
-                                 <td>-</td>
-                                 <td>-</td>
-                                 <td>-</td>
-                                 <td>-</td>
-                                 <td>-</td>
-                                 <td>-</td>
-                               </tr>
-                               <tr>
-                                 <td>47</td>
-                                 <td>xyz</td>
-                                 <td>13/08/2024</td>
-                                 <td>-</td>
-                                 <td>-</td>
-                                 <td>WeekOff</td>
-                                 <td>Weekoff</td>
-                                 <td>-</td>
-                                 <td>-</td>
-                                 <td>-</td>
-                                 <td>-</td>
-                                 <td>-</td>
-                                 <td>-</td>
-                               </tr>
-                               <tr>
-                                 <td>47</td>
-                                 <td>xyz</td>
-                                 <td>14/08/2024</td>
-                                 <td>-</td>
-                                 <td>-</td>
-                                 <td>Holiday</td>
-                                 <td>Independance Day</td>
-                                 <td>-</td>
-                                 <td>-</td>
-                                 <td>-</td>
-                                 <td>-</td>
-                                 <td>-</td>
-                                 <td>-</td>
-                               </tr>
+                             ))}
                              </tbody>
                            </table>
                          </div>
@@ -1038,7 +1001,7 @@ const currentDate = new Date();
                           <p>Showing 1 to 5 of 5 entries</p>
                           <div className="inout-pagination-controls">
                           <span>Show</span>
-                          <input type="number" min="0" defaultValue="0" />
+                          <input type="number" min="0" defaultValue="0" value={entryconut} onChange={(e)=>setentryconut(e.target.value)} />
                           <span>entries</span>
                          </div>
                        </div>
