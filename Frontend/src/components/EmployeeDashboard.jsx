@@ -670,7 +670,7 @@ const currentDate = new Date();
       </div>
 
       {/* Attendance Records Table */}
-      <div className="attendance-table-section">
+      <div className="attendance-regularization-table-section">
       <table>
       <thead>
         <tr>
@@ -947,7 +947,7 @@ const currentDate = new Date();
                            <input type="date" id="to-date" name="to-date" />
                          </div>
                          <div className="button-block">
-                           <button className="search-button">Search</button>
+                           <button className="searchleave-button">Search</button>
                            <button className="export-button">Export to Excel</button>
                          </div>
                        </div>

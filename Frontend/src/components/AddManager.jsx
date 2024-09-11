@@ -208,9 +208,9 @@ const AddManager = () => {
                       </select>
                     </div>
                     <div className="form-group">
-                      <label htmlFor="reporting-to">Select Employee</label>
-                      <select id="reporting-to" name="reportingTo" value={formData.reportingTo} onChange={handleInputChange}>
-                        <option value="" disabled selected>- Select Employee -</option>
+                      <label htmlFor="reporting-to">Reporting To</label>
+                      <select id="reporting-to" name="reporting-to">
+                        <option value="" disabled selected>- Select Manager -</option>
                         <option value="john-doe">John Doe</option>
                         <option value="jane-smith">Jane Smith</option>
                         <option value="bob-johnson">Bob Johnson</option>
