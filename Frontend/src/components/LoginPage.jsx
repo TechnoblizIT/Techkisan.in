@@ -26,8 +26,10 @@ const LoginPage = () => {
       const data = await response.json();
 
       if (data.success) {
-        console.log(data.message);
+        if(data.message=="employee") {
         navigate('/employee-dashboard');
+        } else if(data.message=="manager") {
+        navigate('/manager-dashboard');}
       } else {
         
         setError(data.message);

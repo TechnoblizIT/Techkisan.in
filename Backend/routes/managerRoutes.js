@@ -4,7 +4,9 @@ const managerModel=require("../models/manager-model")
 const crypto = require("crypto")
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
-
+const jwt =require("jsonwebtoken")
+const leaveModel=require("../models/leave-model")
+const empimageModel=require("../models/employeeimg-model")
 router.post("/create",async(req,res)=>{
     try {
         const { firstName, lastName, email } = req.body;
@@ -74,6 +76,35 @@ router.post("/create",async(req,res)=>{
 }
 )
 
+router.get('/managerdata', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+   
+    if (!authHeader) {
+        return res.status(401).json({ message: 'Authorization header missing' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    
+    if (!token) {
+        return res.status(401).json({ message: 'Token missing' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const manager = await managerModel.findOne({username:decoded.user}); 
+  
+    if (!manager) {
+        return res.status(404).json({ message: 'Manager not found' });
+    }
+
+    const employeeImages = await empimageModel.find({ employee: manager._id });
+    console.log(employeeImages)
+    const empleaves = await leaveModel.find({ employeeId: manager._id });
+    res.status(200).json({ employee: manager, empimg:employeeImages ,empleaves:empleaves});
+} catch (error) {
+    res.status(401).json({ message: 'Unauthorized' });
+}
+});
 
 
 

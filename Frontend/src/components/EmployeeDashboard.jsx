@@ -293,7 +293,7 @@ const filteredLeave=leaves.filter((leave) =>{
           return;
         }
         const decode =jwtDecode(token)
-        if (decode.role==="admin"){
+        if (decode.role!=="employee") {
           navigate("/")
           return;
         }

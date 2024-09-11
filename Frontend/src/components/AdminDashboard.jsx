@@ -30,7 +30,7 @@ const AdminDashboard = () => {
           return;
         }
         const decode =jwtDecode(token)
-        if (decode.role==="employee"){
+        if (decode.role!=="admin"){
           navigate("/")
           return;
         }

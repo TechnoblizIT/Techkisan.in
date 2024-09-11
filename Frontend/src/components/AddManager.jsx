@@ -56,6 +56,17 @@ const AddManager = () => {
       [name]: type === 'checkbox' ? checked : value,
     });
   };
+  const submitFormData = new FormData(); 
+
+    Object.keys(formData).forEach((key) => {
+      submitFormData.append(key, formData[key]);
+    });
+
+   
+    if (Image) {
+      submitFormData.append('Image', Image);
+    }
+
 
   const handleCheckboxChange = () => {
     setShowAdvancedFields(!showAdvancedFields);
