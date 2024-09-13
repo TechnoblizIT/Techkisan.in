@@ -9,7 +9,8 @@ const bcrypt=require("bcrypt")
 const empimageModel=require("../models/employeeimg-model")
 const upload=require("../configs/mutler-setup")
 const {punchIn,punchOut}=require("../controllers/employeePunchController")
-const {addWfh}=require("../controllers/employeeWfhController")
+const {addWfh}=require("../controllers/employeeWfhController");
+const managerModel = require('../models/manager-model');
 
 router.post('/login',loginUser)
 
@@ -36,8 +37,8 @@ router.get('/empdata', async (req, res) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const employee = await employeeModel.findOne({username:decoded.user}); 
-
+    const employee = await employeeModel.findOne({username:decoded.user}).populate("manager")
+    
   
     if (!employee) {
         return res.status(404).json({ message: 'Employee not found' });
@@ -104,7 +105,7 @@ if (!token) {
 
 const decoded = jwt.verify(token, process.env.JWT_SECRET); 
 
-const employee = await employeeModel.findOne({username:decoded.user}); 
+const employee = await employeeModel.findOne({username:decoded.user}).populate("manager"); 
 
 if (!employee) {
     return res.status(404).json({ message: 'Employee not found' });
@@ -118,6 +119,7 @@ const leave = new leaveModel({
   fromTime: fromTime,
   toTime: toTime,
   reason: reason,
+  managerId: employee.manager._id,
   vocationalAddress: leaveStation,
   contactno: contactNumber
 })

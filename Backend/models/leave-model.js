@@ -8,6 +8,11 @@ const levaeSchema=mongoose.Schema({
         type:mongoose.Schema.ObjectId,
         ref: 'Employee',
     },
+    managerId:{
+        type:mongoose.Schema.ObjectId,
+        ref: 'Manager',
+        
+    },
     fromTime:String,
     toTime:String,
     reason:String,

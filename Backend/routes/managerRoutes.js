@@ -96,7 +96,7 @@ router.get('/managerdata', async (req, res) => {
     }
 
     const employeeImages = await empimageModel.find({ employee: manager._id });
-    console.log(employeeImages)
+   
     const empleaves = await leaveModel.find({ employeeId: manager._id });
     res.status(200).json({ employee: manager, empimg:employeeImages ,empleaves:empleaves});
 } catch (error) {
@@ -104,7 +104,37 @@ router.get('/managerdata', async (req, res) => {
 }
 });
 
+router.get("/pendingleaves", async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+   
+    if (!authHeader) {
+        return res.status(401).json({ message: 'Authorization header missing' });
+    }
 
+    const token = authHeader.split(' ')[1];
+    
+    if (!token) {
+        return res.status(401).json({ message: 'Token missing' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const manager = await managerModel.findOne({username:decoded.user}); 
+    
+    if (!manager) {
+        return res.status(404).json({ message: 'Manager not found' });
+    }
+    const pendingleaves = await leaveModel.find({ managerId: manager._id, leaveStatus: 'Pending' }).populate("employeeId").populate("managerId");
+    res.status(200).json(pendingleaves);
+  
+  
+  }
+    
+    catch(err) {
+      console.error("Error fetching leave details:", err);
+      res.status(500).json({ message: "Failed to fetch leave details" });
+    }
+})
 
 
 

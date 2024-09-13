@@ -31,7 +31,7 @@ const AdminDashboard = () => {
         }
         const decode =jwtDecode(token)
         if (decode.role!=="admin"){
-          navigate("/")
+          navigate("/admin-login")
           return;
         }
 

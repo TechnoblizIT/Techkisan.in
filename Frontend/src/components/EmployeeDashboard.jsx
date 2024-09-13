@@ -518,7 +518,7 @@ const currentDate = new Date();
         </div>
         <div className="leave-contact-section">
           <h4>1st leave contact:</h4>
-          <p>{employeedata ? employeedata.manager :"loading....."}</p>
+          <p>{employeedata ? employeedata.manager.firstName+" "+employeedata.manager.lastName :"loading....."}</p>
         </div>
         <div className="joining-date-section">
           <h4>Date of Joining:</h4>
