@@ -50,11 +50,33 @@ const currentDate = new Date();
     diffInYears--;
     diffInMonths += 12;
   }
-  function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-}
+
+
+const handleApprove = (leaveId) => {
+  
+  fetch(`http://localhost:8000/manager/leaves/${leaveId}/approve`, { method: 'POST' })
+    .then(response => response.json())
+    .then(data => {
+      fetchPendingLeaves()
+    })
+    .catch(error => {
+      console.error(error.message);
+    });
+};
+
+const handleDeny = (leaveId) => {
+  fetch(`http://localhost:8000/manager/leaves/${leaveId}/deny`, { method: 'POST' })
+    .then(response => response.json())
+    .then(data => {
+      fetchPendingLeaves()
+    })
+    .catch(error => {
+     console.error(error.message)
+    });
+};
+
+
+
 
 async function fetchPendingLeaves(){
   try {
@@ -1017,8 +1039,18 @@ async function fetchPendingLeaves(){
                                 {Math.ceil((new Date(leave.toDate) - new Date(leave.fromDate)) / (1000 * 60 * 60 * 24)) + 1}
                             </td>
                             <td>
-                                <button className="pending-approved-button">Approve</button>
-                                <button className="pending-cancel-button">Deny</button>
+                                                    <button
+                                className="pending-approved-button"
+                                onClick={() => handleApprove(leave._id)}
+                              >
+                                Approve
+                              </button>
+                              <button
+                                className="pending-cancel-button"
+                                onClick={() => handleDeny(leave._id)}
+                              >
+                                Deny
+      </button>
                             </td>
                         </tr>
                     ))

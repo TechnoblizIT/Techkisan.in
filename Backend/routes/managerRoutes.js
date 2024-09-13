@@ -135,7 +135,34 @@ router.get("/pendingleaves", async (req, res) => {
       res.status(500).json({ message: "Failed to fetch leave details" });
     }
 })
+//approve and denial of leaves
 
+router.post('/leaves/:id/approve', async (req, res) => {
+  try {
+    const leave = await leaveModel.findByIdAndUpdate(
+      req.params.id,
+      { leaveStatus: 'Approved' },
+      { new: true }
+    );
+    res.json(leave);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+router.post('/leaves/:id/deny', async (req, res) => {
+  try {
+    const leave = await leaveModel.findByIdAndUpdate(
+      req.params.id,
+      { leaveStatus: 'Denied' },
+      { new: true }
+    );
+    res.json(leave);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 
 module.exports=router;
