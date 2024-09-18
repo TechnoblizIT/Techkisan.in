@@ -135,6 +135,8 @@ router.get("/pendingleaves", async (req, res) => {
       res.status(500).json({ message: "Failed to fetch leave details" });
     }
 })
+
+
 //approve and denial of leaves
 
 router.post('/leaves/:id/approve', async (req, res) => {
