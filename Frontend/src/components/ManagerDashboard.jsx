@@ -6,26 +6,28 @@ import profileimg from '../assets/img-dashboard.jpg';
 import bdayimg from '../assets/P.jpg'
 import cakeimg from '../assets/cake-img.png'
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
+import { type } from '@testing-library/user-event/dist/type';
+
 
 function ManagerDashboard() {
   const [employeedata, setemployeedata]=useState("")
   const [avatarUrl, setAvatarUrl] = useState("");
   const navigate = useNavigate(); 
-
+   const [leaves, setLeaves] = useState([])
   const [activeSection, setActiveSection] = useState('home');
   const [isPunchedIn, setIsPunchedIn] = useState(false);
   const [activeRequestPage, setActiveRequestPage] = useState('leave');
   const [activeReportPage, setActiveReportPage] = useState('leave-balance');
-
+  const [punchRecord, setPunchRecord] = useState([])
+  const [pendingleaves, setPendingleaves] = useState([])
   const handlePunchIn = () => setIsPunchedIn(true);
   const handlePunchOut = () => setIsPunchedIn(false);
-
   function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop().split(';').shift();
 }
- 
    
 const joiningDate = new Date(employeedata.dateOfHire);
 const currentDate = new Date();
@@ -49,7 +51,120 @@ const currentDate = new Date();
     diffInMonths += 12;
   }
 
+
+const handleApprove = (leaveId) => {
+  
+  fetch(`http://localhost:8000/manager/leaves/${leaveId}/approve`, { method: 'POST' })
+    .then(response => response.json())
+    .then(data => {
+      fetchPendingLeaves()
+    })
+    .catch(error => {
+      console.error(error.message);
+    });
+};
+
+const handleDeny = (leaveId) => {
+  fetch(`http://localhost:8000/manager/leaves/${leaveId}/deny`, { method: 'POST' })
+    .then(response => response.json())
+    .then(data => {
+      fetchPendingLeaves()
+    })
+    .catch(error => {
+     console.error(error.message)
+    });
+};
+
+
+
+
+async function fetchPendingLeaves(){
+  try {
+    const token = getCookie('token');
+    if (!token) {
+      navigate("/")
+      return;
+    }
+    const decode = jwtDecode(token)
+    if (decode.role!=="manager") {
+      navigate("/")
+      return;
+    }
+
+    const response = await axios.get('http://localhost:8000/manager/pendingleaves', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      },
+      withCredentials: true, 
+    });
+  
+    if (response.status === 200) {
+      setPendingleaves(response.data)
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+  useEffect(() => {
+    
+    const fetchEmployeeData = async () => {
+      try {
+        const token = getCookie('token');
+        if (!token) {
+          navigate("/")
+          return;
+        }
+        const decode =jwtDecode(token)
+        if (decode.role!=="manager") {
+          navigate("/")
+          return;
+        }
+
+        const response = await axios.get('http://localhost:8000/manager/managerdata', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+          withCredentials: true, 
+        });
+      
+        if (response.status === 200) {
+          const empdata = response.data;
+          setemployeedata(empdata.employee)
+          setLeaves(empdata.empleaves)
+          setPunchRecord(empdata.employee.punchRecords)
+     
+          if(empdata.empimg[0]){
+            if (empdata.empimg) {
+              const binaryString = new Uint8Array(empdata.empimg[0].Image.data).reduce((acc, byte) => acc + String.fromCharCode(byte), '');
+              const base64String = btoa(binaryString);
+              const imageUrl = `data:${empdata.empimg[0].Imagetype};base64,${base64String}`;
+              setAvatarUrl(imageUrl);
+            }
+
+             }
+               
+            } else {
+                console.error('Failed to fetch employee data');
+            }
+        } catch (error) {
+            console.error('Error fetching employee data:', error);
+        }
+    };
+  
+   
+  
+  
+   
+    fetchEmployeeData();
+    fetchPendingLeaves()
+}, []);
+
+
+
   const renderSection = () => {
+    
     switch (activeSection) {
       case 'home':
         return (
@@ -1251,38 +1366,53 @@ const currentDate = new Date();
                 <div className="pending-leave-container">
                 <h4>Pending Leave</h4>
                 <table className="pending-leaves-table">
-                  <thead>
+            <thead>
+              
+                <tr>
+                    <th>Employee Name</th>
+                    <th>Leave Type</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Number of Days</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+              
+                { pendingleaves ? (
+                    pendingleaves.map((leave) => (
+                        <tr key={leave._id}>
+                            <td>{leave.employeeId.firstName+" "+leave.employeeId.lastName}</td>
+                            <td>{leave.typeofLeaves}</td>
+                            <td>{new Date(leave.fromDate).toLocaleDateString()}</td>
+                            <td>{new Date(leave.toDate).toLocaleDateString()}</td>
+                            <td>
+                                {Math.ceil((new Date(leave.toDate) - new Date(leave.fromDate)) / (1000 * 60 * 60 * 24)) + 1}
+                            </td>
+                            <td>
+                                                    <button
+                                className="pending-approved-button"
+                                onClick={() => handleApprove(leave._id)}
+                              >
+                                Approve
+                              </button>
+                              <button
+                                className="pending-cancel-button"
+                                onClick={() => handleDeny(leave._id)}
+                              >
+                                Deny
+      </button>
+                            </td>
+                        </tr>
+                    ))
+                ) : (
                     <tr>
-                      <th>Employee Name</th>
-                      <th>Leave Type</th>
-                      <th>Start Date</th>
-                      <th>End Date</th>
-                      <th>Number of Days</th>
-                      <th>Actions</th>
+                        <td colSpan="6">No pending leaves found</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                     
-                      <td>XYZ</td>
-                      <td>Sick Leave</td>
-                      <td>02/09/2024</td>
-                      <td>13/09/2024</td>
-                      <td>11</td>
-                      <td><button className="pending-approved-button">Approved</button>
-                      <button className="pending-cancel-button">Cancel</button></td>
-                    </tr>
-                    <tr>
-                      <td>ABC</td>
-                      <td>Casual Leave</td>
-                      <td>05/09/2024</td>
-                      <td>10/09/2024</td>
-                      <td>6</td>
-                      <td><button className="pending-approved-button">Approved</button>
-                      <button className="pending-cancel-button">Cancel</button></td>
-                    </tr>
-                  </tbody>
-                </table>
+                )}
+            </tbody>
+        </table>
+    
               </div>
               </div>
             );

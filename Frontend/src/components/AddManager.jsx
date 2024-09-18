@@ -3,6 +3,7 @@ import '../styles/AddManager.css';
 import avatarImage from '../assets/avtar.png';
 import uploadImage from '../assets/upload.png';
 import { useNavigate} from 'react-router-dom';
+import axios from 'axios';
 const AddManager = () => {
   const navigate = useNavigate();
   const [showAdvancedFields, setShowAdvancedFields] = useState(false);
@@ -47,15 +48,28 @@ const AddManager = () => {
   });
 
   const handleFileChange = (e) => {
-    setImage(e.target.files[0]); // Store the file in state
+    if (e.target.files && e.target.files[0]) {
+      setImage(e.target.files[0]); // Store the file in state
+    }
   };
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === 'checkbox' ? checked : value,
-    });
+    setFormData(prevState => ({
+      ...prevState,
+      [name]: type === 'checkbox' ? checked : value
+    }));
   };
+  const submitFormData = new FormData(); 
+
+    Object.keys(formData).forEach((key) => {
+      submitFormData.append(key, formData[key]);
+    });
+
+   
+    if (Image) {
+      submitFormData.append('Image', Image);
+    }
+
 
   const handleCheckboxChange = () => {
     setShowAdvancedFields(!showAdvancedFields);
@@ -67,25 +81,33 @@ const AddManager = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
+    // Create a new FormData instance inside handleSubmit
+    const submitFormData = new FormData(); 
+    Object.keys(formData).forEach((key) => {
+      submitFormData.append(key, formData[key]);
+    });
+  
+    if (Image) {
+      submitFormData.append('Image', Image);
+    }
+  
     try {
-      const response = await fetch('http://localhost:8000/manager/create', {
-        method: 'POST',
+      const response = await axios.post('http://localhost:8000/manager/create', submitFormData, {
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'multipart/form-data',
         },
-        body: JSON.stringify(formData),
       });
-      if (response.ok) {
-        navigate("/")
-        alert('Manager added successfully');
-      } else {
-        alert('Failed to add manager');
+      console.log(response.status)
+      if (response.status === 200) {
+        navigate('/');
+        console.log("Manager added successfully!");
       }
+      
     } catch (error) {
-      console.error('Error:', error);
+      console.error("There was an error adding the employee!", error);
     }
   };
-
   
   return (
     <div className='add-manager'>
@@ -135,12 +157,12 @@ const AddManager = () => {
                 <div className="form-group">
                   <label htmlFor="manager-type">Manager Type</label>
                   <select id="manager-type" name="managerType" value={formData.managerType} onChange={handleInputChange}>
-                    <option value="" disabled selected>- Select -</option>
+                    <option value="" disabled>- Select -</option>
                     <option value="full-time">Full-Time</option>
                     <option value="part-time">Part-Time</option>
                     <option value="contract">Contract</option>
                   </select>
-                </div>
+                                  </div>
               </div>
               <div className="form-row">
                 <div className="form-group">
@@ -159,7 +181,7 @@ const AddManager = () => {
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="date-of-hire" >Date of Hire</label>
-                  <input type="date" id="date-of-hire" name="datOfHire" value={formData.dateOfHire} onChange={handleInputChange}/>
+                  <input type="date" id="date-of-hire" name="dateOfHire" value={formData.dateOfHire} onChange={handleInputChange}/>
                 </div>
               </div>
               <div className="form-row advanced">
