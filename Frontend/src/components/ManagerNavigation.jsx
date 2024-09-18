@@ -79,7 +79,7 @@ function ManagerNavigation({ activeSection, onNavigate }) {
   };
 
   return (
-    <nav className="navbar">
+    <nav className="navigationbar">
       <div className="logo">Logo</div>
       <div className={`menu-icon ${isOpen ? 'open' : ''}`} onClick={toggleMenu}>
         <div className="bar"></div>

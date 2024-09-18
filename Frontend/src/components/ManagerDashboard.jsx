@@ -774,7 +774,7 @@ const currentDate = new Date();
              {activeReportPage === 'annual-attendance-summary' && (
   <div className="annual-attendance-summary">
     
-    <div className="first-block">
+    <div className="selectyear-block">
        <label htmlFor="year-select">Select Year: </label>
        <select id="year-select" name="year-select">
        <option value="2024">01/01/2024 - 31/12/2024</option>
@@ -790,13 +790,364 @@ const currentDate = new Date();
     </div>
 
     
+     {/* Second Block: Attendance Table */}
+     <div className="second-block">
+      <table className="manager-attendance-table">
+        <thead>
+          <tr>
+            <th>Month</th>
+            {[...Array(31).keys()].map(day => (
+              <th key={day}>{day + 1}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>January</td>
+            <td className="H">H</td>
+            <td className="CL">CL</td>
+            <td className="CL">CL</td>
+            <td className="CL">CL</td>
+            <td className="CL">CL</td>
+            <td className="W">W</td>
+            <td className="W">W</td>
+            <td className="fh-sl-p">FH-SL/P</td>
+            <td className="P">P</td>
+            <td className="I">I</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="A">A</td>
+            <td className="A">A</td>
+            <td className="A">A</td>
+            <td className="A">A</td>
+            <td className="A">A</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="SL">SL</td>
+            <td className="SL">SL</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="W">W</td>
+          </tr>
+          <tr>
+            <td>February</td>
+            <td className="A">A</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="I">I</td>
+            <td className="W">W</td>
+            <td className="CL">CL</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="A">A</td>
+            <td className="A">A</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="W">W</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="H">H</td>
+            <td className="A">A</td>
+            <td className="SL">SL</td>
+            <td className="SL">SL</td>
+            <td className="P">P</td>
+            <td className="I">I</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="CL">CL</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="A">A</td>
+            <td className="P">P</td>
+            <td className="W">W</td>
+            <td className="P">P</td>
+            <td className="A">A</td>
+          </tr>
+          <tr>
+            <td>March</td>
+            <td className="P">P</td>
+            <td className="A">A</td>
+            <td className="P">P</td>
+            <td className="SL">SL</td>
+            <td className="CL">CL</td>
+            <td className="P">P</td>
+            <td className="I">I</td>
+            <td className="A">A</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="H">H</td>
+            <td className="W">W</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="CL">CL</td>
+            <td className="SL">SL</td>
+            <td className="W">W</td>
+            <td className="P">P</td>
+            <td className="A">A</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="I">I</td>
+            <td className="W">W</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="A">A</td>
+            <td className="P">P</td>
+            <td className="SL">SL</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+          </tr>
+          <tr>
+            <td>April</td>
+            <td className="W">W</td>
+            <td className="H">H</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="I">I</td>
+            <td className="A">A</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="CL">CL</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="SL">SL</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="A">A</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="H">H</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="W">W</td>
+            <td className="P">P</td>
+            <td className="CL">CL</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="A">A</td>
+            <td className="SL">SL</td>
+            <td className="P">P</td>
+          </tr>
+          <tr>
+            <td>May</td>
+            <td className="CL">CL</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="I">I</td>
+            <td className="W">W</td>
+            <td className="P">P</td>
+            <td className="H">H</td>
+            <td className="P">P</td>
+            <td className="A">A</td>
+            <td className="SL">SL</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="A">A</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="CL">CL</td>
+            <td className="W">W</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="H">H</td>
+            <td className="P">P</td>
+            <td className="SL">SL</td>
+            <td className="P">P</td>
+            <td className="A">A</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+            <td className="P">P</td>
+          </tr>
+          <tr>
+            <td>August</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>September</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>October</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>November</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>December</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-
+  </div>
 )}
-
-
-
-              {activeReportPage === 'holidays' && (
+{activeReportPage === 'holidays' && (
                 <div className="holidays-page">
                   <div className="holidays-buttons">
                     <button className="print-button">Print</button>

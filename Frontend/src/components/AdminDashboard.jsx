@@ -15,6 +15,7 @@ const AdminDashboard = () => {
   const [activeSection, setActiveSection] = useState(null);
   const [showNavList, setShowNavList] = useState(false);
   const [showTopNav, setShowTopNav] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
   const [admindata, setAdmindata] = useState("");
   const [employeedata, setemployeedata] = useState("");
   const [employeeCount, setEmployeeCount] = useState();
@@ -69,58 +70,44 @@ const AdminDashboard = () => {
       setShowTopNav(false);
     }
 
-    setShowNavList(true);
+    setShowNavList(true); if (window.innerWidth <= 768) {
+      setIsSidebarOpen(false);
+    }
+  
+    console.log(`Navigating to ${section}`);
   };
+
+  // Toggle sidebar on mobile
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+  
 
   return (
     <div className="app">
-      <div className="sidebar">
-        <h2 id="dashboardHeading">Dashboard</h2>
-        <div id="navList" className="nav-list">
-          <ul>
-            <li>
-              <a href="#hr" onClick={() => handleNavClick("hr")}>
-                HR
-              </a>
-            </li>
-            {/* <li>
-              <a href="#crm" onClick={() => handleNavClick("crm")}>
-                CRM
-              </a>
-            </li> */}
-            <li>
-              <a href="#sales" onClick={() => handleNavClick("sales")}>
-                Sales
-              </a>
-            </li>
-            <li>
-              <a href="#purchase" onClick={() => handleNavClick("purchase")}>
-                Purchase
-                </a>
-            </li>
-            <li>
-              <a
-                href="#accounting"
-                onClick={() => handleNavClick("accounting")}
-              >
-                Accouting
-              </a>
-            </li>
-            <li>
-              <a href="">Company</a>
-            </li>
-            <li>
-              <a href="">Tools</a>
-            </li>
-            <li>
-              <a href="">Modules</a>
-            </li>
-            <li>
-              <a href="">Add-Ons</a>
-            </li>
-            <li>
-              <a href="">Setting</a>
-            </li>
+      
+    {/* Menu Button for Mobile */}
+    <div className="menu-heading">
+<button className={`menu-btn ${isSidebarOpen ? 'open' : ''}`} onClick={toggleSidebar}>
+  <span className="bar"></span>
+  <span className="bar"></span>
+  <span className="bar"></span>
+</button>
+<h2 className="dashboard-heading">Dashboard</h2>
+</div>
+    {/* Sidebar */}
+    <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
+      <h2 id="dashboardHeading">Dashboard</h2>
+      <div id="navList" className="nav-list">
+        <ul>
+            <li><a href="#hr" onClick={() => handleNavClick('hr')}>HR</a></li>
+            <li><a href="#crm" onClick={() => handleNavClick('crm')}>CRM</a></li>
+            <li><a href="#accounting" onClick={() => handleNavClick('accounting')}>Accounting</a></li>
+            <li><a href="">Company</a></li>
+            <li><a href="">Tools</a></li>
+            <li><a href="">Modules</a></li>
+            <li><a href="">Add-Ons</a></li>
+            <li><a href="">Setting</a></li>
           </ul>
         </div>
       </div>

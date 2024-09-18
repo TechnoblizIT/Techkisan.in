@@ -17,6 +17,7 @@
     display: flex;
     flex-wrap: wrap;
     padding: 30px;
+    padding-top: 80px;
   }
   
   .manager-left-side {
@@ -231,6 +232,7 @@
     .manager-dashboard-container {
       flex-direction: column;
       padding: 15px;
+      padding-top: 80px;
     }
   
     .manager-left-side {
@@ -278,6 +280,7 @@
   /* css for leaves- request section */
   .manager-request-section {
     padding: 20px;
+    padding-top: 80px;
   }
   
   .manager-request-nav{
@@ -321,13 +324,18 @@
     .manager-request-nav {
       flex-direction: column;
     }
-  
-    .manager-request-nav button {
+ 
+    /* .manager-request-nav button {
       margin-bottom: 10px;
-    }
-  
+    } */
+    .manager-request-nav button.active {
+      background-color: #007bff;
+      color: #fff;
+      border-radius: 10px;
+  }
     .manager-request-nav button.active::after {
-      bottom: -3px; 
+      /* bottom: -3px;  */
+      display: none;
     }
   }
   
@@ -427,7 +435,7 @@
     flex: 1;
   }
   .manager-leave-form select:first-of-type {
-    width: 50%; 
+    width: 100%; 
   }
   
   /* css for previous leaves */
@@ -507,7 +515,7 @@
   @media (max-width: 768px) {
     .manager-leave-form .manager-form-row {
         flex-direction: column;
-        gap: 5px; 
+        /* gap: 5px;  */
     }
     .manager-leave-form .manager-form-row .add-form {
         width: 100%; 
@@ -881,6 +889,7 @@
   /* start css for my-report page */
   .manager-report-section {
     padding: 20px;
+    padding-top: 80px;
   }
   
   .manager-report-nav {
@@ -920,13 +929,19 @@
       flex-direction: column;
     }
   
-    .manager-report-nav button {
+    /* .manager-report-nav button {
       margin-bottom: 10px;
-    }
+    } */
   
     .manager-report-nav button.active::after {
-      bottom: -3px; 
+      /* bottom: -3px;  */
+      display: none;
     }
+    .manager-report-nav button.active {
+      background-color: #007bff;
+      color: #fff;
+      border-radius: 10px;
+  }
   }
   
   
@@ -1196,8 +1211,11 @@
     border: 1px solid #ccc;
     border-radius: 4px;
   }
-  
-  
+  @media (max-width: 768px) {
+    .srch-btn input{
+         margin: auto;
+    }
+  }
   /* css for leave details section */
   .leave-details-fil{
     display: flex;
@@ -1348,9 +1366,14 @@
     border: 1px solid #ccc;
     border-radius: 4px;
   }
-  
+ @media (max-width: 768px){
+  .button-container{
+    margin: auto;
+  }
+ } 
+
   /* css for annual-attendance-summary */
-  .first-block {
+  .selectyear-block {
     display: flex;
     align-items: center;
     margin-bottom: 20px;
@@ -1360,16 +1383,16 @@
     padding: 20px;
   }
   
-  .first-block label {
+  .selectyear-block label {
     margin-right: 10px;
     font-size: 15px;
   }
-  .first-block select{
+  .selectyear-block select{
      width: 30%;
      margin-right: 20px;
   }
-  .first-block .srch-button, 
-  .first-block .exprt-button {
+  .selectyear-block .srch-button, 
+  .selectyear-block .exprt-button {
       color: white;
       border: none;
       padding:10px 100px ;
@@ -1378,37 +1401,59 @@
      
   }
   
-  .first-block .srch-button {
+  .selectyear-block .srch-button {
     background-color: orange;
     color: white;
     margin-right: 10px;
   }
-  .first-block .srch-button:hover{
+  .selectyear-block .srch-button:hover{
     background-color: darkorange;
   }
-  .first-block .exprt-button {
+  .selectyear-block .exprt-button {
     background-color: rgb(40, 31, 78);
     color: white;
   }
-  .first-block .exprt-button:hover{
+  .selectyear-block .exprt-button:hover{
     background-color: rgb(108, 88, 223);
   }
-  .attendance-table-section {
+  .manager-attendance-table-section {
     display: flex;
     justify-content: center; 
     width: 100%;
   }
+  @media (max-width: 768px) {
+ 
+    .selectyear-block {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+  
+    .selectyear-block select {
+      width: 100%;
+      margin-right: 0;
+      margin-bottom: 10px; 
+    }
+  
+    .selectyear-block .srch-button,
+    .selectyear-block .exprt-button {
+      width: 100%; 
+      padding: 10px;
+      text-align: center; 
+      margin-top: 5px;
+    }
+  }
   
   /* Table styling */
-  .attendance-table {
+  .manager-attendance-table {
     width: 100%;
     border-collapse: separate; 
     border-spacing: 0 10px; 
   }
   
   /* Table headers and cells styling */
-  .attendance-table th,
-  .attendance-table td {
+  .manager-attendance-table th,
+  .manager-attendance-table td {
     padding: 8px;
     text-align: center;
     background-color: white;
@@ -1416,7 +1461,7 @@
   }
   
   /* Table headers styling */
-  .attendance-table th {
+  .manager-attendance-table th {
     border: 1px solid #ddd;
     font-size: 15px;
     color: #555555;
@@ -1424,44 +1469,44 @@
   }
   
   /* Table cells styling */
-  .attendance-table td {
+  .manager-attendance-table td {
     border: 1px solid #ddd;
     background-color: #ffffff;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
     font-size: 14px;
   }
-  .attendance-table td.P {
+  .manager-attendance-table td.P {
     background-color: rgb(99, 168, 99);
     color: white;
   }
   
-  .attendance-table td.A {
+  .manager-attendance-table td.A {
     background-color: red;
     color: white;
   }
   
-  .attendance-table td.I {
+  .manager-attendance-table td.I {
     background-color: rgb(204, 144, 204);
     color: white;
   }
   
-  .attendance-table td.SL,
-  .attendance-table td.CL {
+  .manager-attendance-table td.SL,
+  .manager-attendance-table td.CL {
     background-color: white;
     color: black;
   }
   
-  .attendance-table td.H {
+  .manager-attendance-table td.H {
     background-color: pink;
     color: black;
   }
   
-  .attendance-table td.W {
+  .manager-attendance-table td.W {
     background-color: grey;
     color: white;
   }
   
-  .attendance-table td.FH-SL-P {
+  .manager-attendance-table td.FH-SL-P {
     background-color: #f5f5f5;
     color: black;
     font-weight: bold;
@@ -1534,6 +1579,7 @@
   /* Styles for the pending leave section */
    .pending-section{
     padding: 20px;
+    padding-top: 80px;
    }
   .pending-leave-container {
     margin-top: 30px;

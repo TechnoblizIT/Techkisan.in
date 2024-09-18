@@ -1,7 +1,57 @@
+
+/* General Styles */
 .app {
   display: flex;
+  height: 100vh;
+  position: relative;
 }
 
+.menu-heading{
+  display: none;
+}
+
+/* Menu Button for Mobile */
+.menu-btn {
+  display: none; 
+  background-color: #333;
+  color: #fff;
+  border: none;
+  padding: 5px 5px;
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 5px;
+  z-index: 2000;
+  position: fixed;
+  top: 15px;
+  left: 15px;
+}
+
+/* Menu Button Bars */
+.menu-btn .bar {
+  display: block;
+  width: 25px;
+  height: 2px;
+  background: #fff;
+  margin: 5px 0;
+  transition: all 0.3s;
+}
+
+/* Menu Button Cross Animation */
+.menu-btn.open .bar:nth-child(1) {
+  transform: rotate(45deg);
+  margin-top: 6px;
+}
+
+.menu-btn.open .bar:nth-child(2) {
+  opacity: 0;
+}
+
+.menu-btn.open .bar:nth-child(3) {
+  transform: rotate(-45deg);
+  margin-top: -6px;
+}
+
+/* Sidebar */
 .sidebar {
   width: 200px;
   background-color: #333;
@@ -11,31 +61,32 @@
   position: fixed;
   top: 0;
   left: 0;
+  transition: transform 0.3s ease;
+  z-index: 1000;
 }
 
+/* Sidebar Heading */
 .sidebar h2 {
-  margin-bottom: 20px;
-  cursor: pointer;
   font-size: 22px;
-  text-align: center;
+  color: #ecf0f1;
+  margin-bottom: 20px;
   border-bottom: 2px solid #ecf0f1;
   padding-bottom: 10px;
-  color: #ecf0f1;
+  text-align: center;
 }
 
 .sidebar h2:hover {
   color: #3498db;
 }
 
-.nav-list{
-  text-align: left;
-}
+/* Nav List */
 .nav-list ul {
   list-style: none;
   padding: 0;
   margin: 0;
 }
-.nav-list ul li{
+
+.nav-list ul li {
   padding: 7px 10px;
   margin-bottom: 10px;
   background-color: #222;
@@ -51,16 +102,83 @@
 .nav-list ul li a {
   color: #fff;
   text-decoration: none;
-  font-size: 16px;
   display: block;
   width: 100%;
+  font-size: 16px;
+  text-align: left;
 }
 
+/* Main Content */
+.main-content {
+  margin-left: 200px; 
+  padding: 20px;
+  flex: 1;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  
+  .menu-btn {
+    display: block;
+  }
+ 
+  .sidebar {
+    transform: translateX(-100%);
+    margin-top: 80px;
+   
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+    width: 100%;
+  }
+
+  .main-content {
+    margin-left: 0;
+    transition: margin-left 0.3s ease;
+  }
+
+  .menu-heading {
+    display: flex;
+    align-items: center;
+    position: fixed;
+    top: 20px;
+    left: 0;
+    width: 100%;
+    padding: 0 15px;
+    z-index: 2000;
+  }
+
+  /* Dashboard Heading beside Menu Button */
+  .dashboard-heading {
+    margin-left: 40px; 
+    font-size: 22px;
+    color: #333;
+    font-weight: bold;
+  }
+
+  .sidebar h2 {
+    display: none; 
+  }
+}
+
+/* @media (min-width: 769px) {
+  .menu-heading {
+    display: none; 
+  }
+} */
+
+
+
+
+
+/* css for top nav bar */
 .main-content {
   margin-left: 200px;
   padding: 20px;
   flex: 1;
 }
+
 
 .top-navbar {
   background-color: #fff;
@@ -106,6 +224,7 @@
   color: #fff;
   transform: scale(1.05);
 }
+
 .section-content{
   margin-top: 60px;
 }
@@ -260,7 +379,7 @@
   padding: 10px;
   background-color: #fff;
   text-align: center;
-  height: 200px; /* Placeholder height, replace with calendar component */
+  height: 200px;
 }
 .birthday-buddies ,
 .who-is-out ,
@@ -289,14 +408,13 @@
 .photo-item {
   display: flex;
   align-items: center;
-  gap: 5px; /* Space between image and icon */
+  gap: 5px; 
   padding: 20px;
 }
 
 .photo-item img {
-  width: 40px; /* Adjust size as needed */
-  height: 40px; /* Adjust size as needed */
-
+  width: 40px; 
+  height: 40px; 
 }
 
 .mail-icon {
@@ -336,5 +454,4 @@
   border: 1px solid #ccc;
   border-radius: 5px;
 }
-
 
