@@ -455,3 +455,1196 @@
   border-radius: 5px;
 }
 
+/* ---------------------------------------------------------------------------------------------------------- */
+
+.content-box {
+  width: 88%;
+  display: flex;
+  justify-content: center;
+}
+
+/* ---------------------------------------------------------------------------------------------------------- */
+.form-container {
+  margin: 0px;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  border: 1px solid #ccc;
+  background: linear-gradient(to right, #bceee8, #eff1c6);
+}
+
+.header-section {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.header-section h2 {
+  font-size: 24px;
+  color: #007bff;
+}
+
+h2 {
+  font-size: 24px;
+  color: #007bff;
+  margin-bottom: 10px;
+
+}
+
+.merged-top-sections {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  background-color: #fff;
+}
+
+.section-container {
+  flex: 1;
+  margin-right: 20px;
+}
+
+.section-container:last-child {
+  margin-right: 0;
+}
+
+.section-container h4 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: #007bff;
+}
+
+.form-row {
+  display: flex;
+  align-items: left;
+  margin-bottom: 10px;
+}
+
+.form-row label {
+  width: 130px;
+  font-weight: bold;
+  margin: 5px;
+  text-align: left;
+}
+
+.form-row input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  flex: 1;
+}
+
+.form-row .aligned-label {
+  margin-left: 40px;
+  margin-right: 10px;
+  width: 160px;
+}
+
+.input-wide {
+  flex: 2;
+}
+
+.info-sections {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.currency-section {
+  max-width: 39%;
+  flex: 1;
+  margin-right: 0px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+}
+.gst-vat-section {
+  max-width: 60%;
+  flex: 1;
+  margin-right: 0px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+}
+
+.currency-section h4, .gst-vat-section h4{
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: #007bff;
+}
+
+.currency-section:last-child {
+  margin-right: 0;
+}
+
+.copy-masters-section {
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+}
+
+.copy-masters-section h4 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: #007bff;
+}
+
+.radio-group {
+  display: flex;
+  gap: 40px; /* Space between the radio options */
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+}
+
+.radio-option input[type="radio"] {
+  margin-right: 8px; /* Consistent spacing between radio button and text */
+}
+
+.footer-buttons {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  gap: 20px;
+}
+
+.footer-buttons button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.save-button {
+  background-color: #28a745;
+  color: #fff;
+}
+
+.save-button:hover {
+  background-color: #218838;
+}
+
+.quit-button {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+.quit-button:hover {
+  background-color: #c82333;
+}
+
+/* --------------------------------------------------------------------------------------------------------- */
+
+.item-master-container {
+  margin: 0px;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  border: 1px solid #ccc;
+  background: linear-gradient(to right, #bceee8, #eff1c6);
+}
+
+.item-master-title {
+  text-align: center;
+  color: #007bff;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.main-container {
+  display: flex;
+  justify-content: space-between;
+  background: linear-gradient(to right, #bceee8, #eff1c6);
+}
+
+.grid-item {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #fff
+}
+
+h4 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: #007bff;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.row label {
+  font-weight: bold;
+  margin: auto;
+  width: 100px;
+  font-size: 14px;
+  text-align: left;
+}
+
+input[type="text"] {
+  width: calc(60% - 10px);
+  height: 30px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.item-master-title {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.main-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.left-container, .right-container {
+  width: 49%;
+  margin-bottom: 20px;
+}
+
+.grid-item {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.side-by-side {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0px;
+}
+
+.side-by-side h4{
+  margin-bottom: 20px;
+}
+
+.bordered-container {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.invisible-containers {
+  display: flex;
+  justify-content: space-between;
+}
+
+.invisible-containers .grid-item {
+  border: none;
+}
+
+.left-buttons {
+  display: flex;
+  justify-content: left;
+  margin-top: 10px;
+}
+
+.right-buttons {
+  display: flex;
+  justify-content: right;
+  margin-top: 10px;
+}
+
+.left-buttons button, .right-buttons button {
+  margin: 0 5px;
+}
+/* Styling for item8 */
+.grid-item.item8 {
+  border: 1px solid #ccc; /* Add border if needed */
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.grid-item.item8 h4 {
+  margin-bottom: 10px;
+}
+
+.grid-item.item8 textarea {
+  width: 100%; /* Ensures the textarea spans the width of the container */
+  padding: 10px;
+  box-sizing: border-box; /* Includes padding in the element's total width and height */
+  border: 1px solid #ccc;
+  font-size: 14px; /* Font size for the textarea */
+  resize: vertical; /* Allows vertical resizing only */
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .left-container, .right-container {
+    width: 100%;
+  }
+
+  .main-container {
+    flex-direction: column;
+  }
+
+  .left-buttons, .right-buttons {
+    flex-direction: column;
+  }
+
+  .left-buttons button, .right-buttons button {
+    margin: 5px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .item-master-title {
+    font-size: 20px;
+  }
+
+  input[type="text"] {
+    width: calc(50% - 10px);
+    height: 25px;
+  }
+
+  .grid-item {
+    padding: 5px;
+  }
+
+  .row {
+    flex-direction: column;
+  }
+}
+
+/* ---------------------------------------------------------------------------------------------------------- */
+
+.chart-menu {
+  background-color: #cae5ee;
+  padding: 10px;
+  width: 250px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(to right, #bceee8, #eff1c6);
+}
+
+.menu-item {
+  margin-bottom: 13px;
+  position: relative;
+  font-size: 14px;
+}
+
+.menu-title {
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.arrow {
+  margin-right: 10px;
+  transition: transform 0.3s ease;
+}
+
+.arrow.open {
+  transform: rotate(90deg);
+}
+
+/* Submenu with bullet points */
+.sub-menu {
+  list-style-type: disc; /* Adds bullet points to the list */
+  padding-top: 5px;
+  position: relative;
+}
+
+.sub-menu li {
+  position: relative;
+  margin-left: 20px; /* Add indentation for the bullet points */
+  text-align: left;
+}
+
+.sub-item {
+  margin: 5px 0;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.sub-item:hover {
+  text-decoration: underline;
+}
+
+.footer-buttons1 {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.footer-button1 {
+  padding: 5px;
+  font-size: 12px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.footer-button:hover {
+  background-color: #1d6141;
+}
+
+/* ------------------------------------------------------------------------------------------------------ */
+
+.superuser-container1 {
+  max-width: 500px;
+  margin: 20px;
+  padding: 20px;
+  background-color: #f7f7f7;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(to right, #bceee8, #eff1c6);
+}
+
+.superuser-container1 h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #333;
+}
+
+.form-group1 {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.form-group1 label {
+  width: 300px;
+  flex: 1;
+  text-align: left;
+  font-size: 16px;
+  color: #555;
+}
+
+.form-group1 input {
+  height: 35px;
+  flex: 2;
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.button-group1 {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.button-group1 button {
+  padding: 10px 20px;
+  margin: 0 10px;
+  font-size: 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-save1 {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.btn-save1:hover {
+  background-color: #45a049;
+}
+
+.btn-quit1 {
+  background-color: #f44336;
+  color: white;
+}
+
+.btn-quit1:hover {
+  background-color: #e53935;
+}
+
+@media (max-width: 600px) {
+  .superuser-container1 {
+    padding: 15px;
+  }
+
+  .form-group1 {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .form-group1 label, .form-group1 input, .button-group1 button {
+    width: 100%;
+    font-size: 14px;
+  }
+
+  .button-group1 {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .button-group1 button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+}
+
+/* ------------------------------------------------------------------------------------------------------ */
+
+.sales-voucher-container, .purchase-voucher-container {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 10px;
+  border: 1px solid #ccc;
+  background: linear-gradient(to right, #bceee8, #eff1c6);
+}
+
+.header {
+  margin-bottom: 10px;
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.aligned-item {
+  display: flex;
+  font-size: 14px;
+}
+
+.aligned-item label {
+  padding: 5px;
+  padding-right: 2px;
+}
+
+.aligned-item input,
+.aligned-item select {
+  height: 30px;
+  font-size: 14px;
+  width: 110px;
+}
+
+.aligned-item select {
+  height: 30px;
+  font-size: 14px;
+  width: 110px;
+  padding: 0px;
+}
+
+.party-section {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.party-section label {
+  padding: 5px;
+}
+
+.party-section input {
+  width: 41.8%;
+}
+
+.narration-section {
+  display: flex;
+  justify-content: left;
+  margin-bottom: 10px;
+}
+
+.narration-section input {
+  width: 100%;
+}
+
+.narration-section label {
+  padding: 5px;
+  font-size: 14px;
+}
+
+.table-section {
+  margin-bottom: 10px;
+  overflow-y: auto;
+  background-color: white;
+}
+
+.table-section table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-section th,
+.table-section td {
+  border: 1px solid #000;
+  text-align: left;
+  padding: 5px;
+}
+
+.table-section th {
+  background-color: #d3d3d3;
+}
+
+.table-section td input {
+  width: 100%;
+  border: none;
+  outline: none;
+  padding: 5px;
+  font-size: 14px;
+}
+
+.table-section td input:focus {
+  border: none;
+}
+
+.totals-section {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.gst-section {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.gst-summary,
+.bill-sundry {
+  width: 49%;
+}
+
+.gst-summary h4,
+.bill-sundry h4 {
+  margin: 0;
+  text-align: left;
+}
+
+.gst-summary table,
+.bill-sundry table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+
+}
+
+.gst-summary th,
+.gst-summary td,
+.bill-sundry th,
+.bill-sundry td {
+  border: 1px solid #000;
+  text-align: left;
+  padding: 5px;
+}
+
+.gst-summary td {
+  border: 1px solid #000;
+  text-align: left;
+  padding: 5px;
+  height: 150px;
+}
+
+.gst-summary th,
+.bill-sundry th {
+  border: 1px solid #000;
+  text-align: left;
+  padding: 5px;
+  background-color: #d3d3d3;
+}
+
+.gst-summary td input,
+.bill-sundry td input {
+  width: 100%;
+  border: none;
+  outline: none;
+  padding: 5px;
+  text-align: right;
+}
+
+.gst-summary td input:focus,
+.bill-sundry td input:focus {
+  border: none;
+}
+
+/* Limiting table rows with scroll functionality */
+.table-section table tbody {
+  display: block;
+  max-height: 420px; /* Adjust based on the desired height */
+  overflow-y: scroll;
+}
+
+.table-section thead {
+  display: table;
+  width: 98.2%;
+  table-layout: fixed;
+}
+ 
+.table-section tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+/* Adding scroll functionality to the Bill Sundry table */
+.bill-sundry table tbody {
+  display: block;
+  max-height: 210px; /* Adjust to show only 5 rows */
+  overflow-y: scroll;
+}
+
+.bill-sundry thead {
+  display: table;
+  width: 96.2%;
+  table-layout: fixed;
+}
+
+.bill-sundry tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+
+.hidden-row {
+  display: none;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+}
+
+.footer button {
+  padding: 5px;
+  margin-right: 5px;
+  font-size: 14px;
+}
+.table-section table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed; /* This ensures fixed column widths */
+}
+
+.table-section th,
+.table-section td {
+  border: 1px solid #000;
+  text-align: left;
+  padding: 5px;
+}
+
+/* Set column widths */
+.table-section th:nth-child(1), 
+.table-section td:nth-child(1) {
+  width: 5%; /* Adjust as needed */
+}
+
+.table-section th:nth-child(2), 
+.table-section td:nth-child(2) {
+  width: 30%; /* Adjust as needed */
+}
+
+.table-section th:nth-child(3), 
+.table-section td:nth-child(3) {
+  width: 8%; /* Adjust as needed */
+}
+
+.table-section th:nth-child(4), 
+.table-section td:nth-child(4) {
+  width: 8%; /* Adjust as needed */
+}
+
+.table-section th:nth-child(5), 
+.table-section td:nth-child(5) {
+  width: 10%; /* Adjust as needed */
+}
+
+.table-section th:nth-child(6), 
+.table-section td:nth-child(6) {
+  width: 10%; /* Adjust as needed */
+}
+
+/* Set column widths */
+.bill-sundry th:nth-child(1), 
+.bill-sundry td:nth-child(1) {
+  width: 6%; /* Adjust as needed */
+}
+
+.bill-sundry th:nth-child(2), 
+.bill-sundry td:nth-child(2) {
+  width: 20%; /* Adjust as needed */
+}
+
+.bill-sundry th:nth-child(3), 
+.bill-sundry td:nth-child(3) {
+  width: 7%; /* Adjust as needed */
+}
+
+.bill-sundry th:nth-child(4), 
+.bill-sundry td:nth-child(4) {
+  width: 12%; /* Adjust as needed */
+}
+
+.total-gst {
+  display: flex;
+  margin-top: 10px;
+  padding: 5px;
+  padding-right: 0px;
+  font-weight: bold;
+}
+
+.total-gst label {
+  padding: 5px;
+}
+
+.total-gst input {
+  border: 1px solid black;
+  margin-left: 5px;
+  border-radius: 0px;
+  text-align: right;
+}
+
+/* -------------------------------------------------------------------------------------------------------- */
+
+.monthlysummery-container {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 10px;
+  border: 1px solid #ccc;
+  background: linear-gradient(to right, #bceee8, #eff1c6);
+}
+
+.item-section {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.item-section input {
+  width: 10%;
+}
+
+.item-section label {
+  padding: 5px;
+  font-size: 14px;
+}
+
+.table-section-ms {
+
+  overflow-y: auto;
+  background-color: white;
+}
+
+.table-section-ms th,
+.table-section-ms td {
+  border: 1px solid #000;
+  text-align: left;
+  padding: 5px;
+}
+
+.table-section-ms th {
+  background-color: #d3d3d3;
+}
+
+.table-section-ms td input {
+  width: 100%;
+  border: none;
+  outline: none;
+  padding: 5px;
+  font-size: 14px;
+  text-align: right;
+}
+
+.table-section-ms td input:focus {
+  border: none;
+}
+
+.table-section-ms thead {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+ 
+.table-section-ms tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.table-section-ms tfoot tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.table-section-ms table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed; /* This ensures fixed column widths */
+}
+
+.table-section-ms th:nth-child(2), 
+.table-section-ms th:nth-child(3) {
+  text-align: right;
+}
+
+/* -------------------------------------------------------------------------------------------------------- */
+
+.stockstatus-container {
+  width: 60%;
+  margin: 20px;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ccc;
+  background: linear-gradient(to right, #bceee8, #eff1c6);
+} 
+
+.stockstatus-row {
+  display: flex;
+  align-items: left;
+  margin-bottom: 10px;
+}
+
+.stockstatus-row label {
+  width: 310px;
+  font-weight: bold;
+  margin: 5px;
+  margin-top: 7px;
+  text-align: left;
+}
+
+.stockstatus-row select {
+  width: 237px;
+  text-align: left;
+  padding: 0px;
+  padding-left: 4px;
+  height: 31px;
+}
+
+.stockstatus-row input {
+  padding: 8px;
+  width: 200px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  flex: 1;
+}
+
+.stockstatus-button {
+  width: 50px;
+  height: 25px;
+}
+
+/* ---------------------------------------------------------------------------------------------------------- */
+
+.inventory-container {
+  width: 100%;
+  padding: 10px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  border: 1px solid #ccc;
+  background: linear-gradient(to right, #bceee8, #eff1c6);
+}
+
+.merged-inventory-container {
+  width: 100%;
+  padding: 10px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  border: 1px solid #ccc;
+  background-color: white;
+}
+
+.inventory-header {
+  text-align: center;
+}
+
+.inventory-header h2 {
+  font-size: 24px;
+  color: #007bff;
+}
+
+.i-merged-top-sections {
+  display: flex;
+  justify-content: space-between;
+  border: 1px solid #ccc;
+  margin-bottom: 20px;
+  background-color: #fff;
+}
+
+.inventory-row {
+  display: flex;
+  margin-bottom: 10px;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.inventory-row label {
+  font-weight: bold;
+  text-align: left;
+}
+
+.inventory-row input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.i-checkbox {
+  margin-right: 10px;
+}
+
+.i-extra-label-1 {
+  font-size: 13px;
+  color: violet;
+  margin-right: 68px;
+}
+
+.i-extra-label-2 {
+  font-size: 13px;
+  color: violet;
+}
+
+.z-inventory-row {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.z-inventory-row label{
+  flex: 1;
+  text-align: left;
+  font-weight: bold;
+  margin: 5px;
+}
+
+.z-inventory-row input{
+  width: 120px;
+  font-weight: bold;
+  margin: 5px;
+  margin-right: 0px;
+  font-size: 13px;
+}
+
+.z-inventory-row button {
+  width: 100px;
+}
+
+.zx-inventory-row {
+  display: flex;
+  width: 100%;
+  justify-content: left;
+  font-size: 13px;
+}
+
+.zx-inventory-row label{
+  font-weight: bold;
+  flex: 1; 
+  margin-right: 0px;
+  text-align: left;
+  padding-left: 5px;
+}
+
+.zx-inventory-row input{
+  width: 120px;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.zx-inventory-row button {
+  width: 120px;
+  margin: 5px;
+  margin-top: 2.5px;
+  padding: 0px;
+  height: 25px;
+}
+
+.i-help-button {
+  height: 15px;
+  max-width: 15px;
+  font-size: 10px;
+  padding: 0px;
+  color: rgb(2, 6, 253);
+  font-weight: bold;
+  margin-top: 11px;
+  justify-content: end;
+}
+
+.i-input-button {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px; /* Space between input and button */
+}
+
+.i-help-button-extra {
+  width: 15px;
+  margin-top: 4px;
+  height: 15px;
+  color: rgb(2, 6, 253);
+  font-size: 10px;
+  padding: 0px;
+  font-weight: bold;
+}
+
+.i-input-button-double {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.zx-inventory-row button:last-child {
+  max-width: 15px;
+  height: 15px;
+  padding: 0px;
+  margin-right: 0px;
+  margin-left: 5px;
+  margin-top: 8px;
+}
+
+.i-end-bottons {
+  justify-content: right;
+}
+
+/* ------------------------------------------------------------------------------------------------------- */
+
+.right-buttons-container {
+  width: 10%; /* Fixed width for the right buttons container */
+  right: 10px;
+  background-color: #f8f8f8; /* Background color for better visibility */
+  padding: 10px; /* Some padding for the inner spacing */
+  border: 1px solid #ccc;
+  position: fixed;
+  right: 0;
+  top: 0;
+}
+
+.right-button-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ccc; /* Button background */
+  margin-bottom: 5px; /* Spacing between buttons */
+  height: 20px; /* Button height */
+  border: 1px solid #000; /* Border styling */
+  font-size: 14px; /* Text size */
+  font-family: Arial, sans-serif; /* Font family */
+  cursor: pointer;
+  border-radius: 2px;
+}
+
+.right-button-row:hover {
+  background-color: #aaa; /* Hover effect */
+}
+
+.right-button-tax {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 5px;
+  padding: 3px;
+  border: 1px solid #000; /* Border around the tax section */
+}
+
+.gst-text {
+  color: red; /* Red color for GST text */
+  font-weight: bold;
+}
+
+/* --------------------------------------------------------------------------------------------------------- */
+
