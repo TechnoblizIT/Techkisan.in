@@ -1,13 +1,15 @@
 /* Navigation bar styles */
 
-.navbar {
+.navigationbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 10px 20px;
     box-shadow: 0 2px 4px red;
-    position: relative;
+    position: fixed;
     background-color: #fff; 
+    width: 100%;
+    z-index: 1000;
   }
   
   .logo {

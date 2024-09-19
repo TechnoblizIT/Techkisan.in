@@ -18,8 +18,12 @@ body {
   align-items: center;
   padding: 10px 20px;
   box-shadow: 0 2px 4px red;
-  position: relative;
-  background-color: #fff; 
+  position: fixed;
+    background-color: #fff; 
+    width: 100%;
+    z-index: 1000;
+  
+ 
 }
 
 .logo {
@@ -205,6 +209,7 @@ body {
   display: flex;
   flex-wrap: wrap;
   padding: 30px;
+  padding-top: 80px;
 }
 
 .left-side {
@@ -419,6 +424,7 @@ hr {
   .dashboard-container {
     flex-direction: column;
     padding: 15px;
+    padding-top: 80px;
   }
 
   .left-side {
@@ -464,6 +470,7 @@ hr {
 /* css for leaves- request section */
 .request-section {
   padding: 20px;
+  padding-top: 80px;
 }
 
 .request-nav {
@@ -482,10 +489,7 @@ hr {
   color: rgb(88, 73, 172);
 }
 
-/* .request-nav button.active {
-  background-color: #007bff;
-  color: #fff;
-} */
+
 
 .request-nav button.active::after {
   content: '';
@@ -508,12 +512,18 @@ hr {
     flex-direction: column;
   }
 
-  .request-nav button {
+  /* .request-nav button {
     margin-bottom: 10px;
-  }
+  } */
 
   .request-nav button.active::after {
-    bottom: -3px; /* Adjust underline position for smaller screens */
+    /* bottom: -3px;  */
+    display: none;
+  }
+  .request-nav button.active {
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 10px;
   }
 }
 
@@ -1046,6 +1056,7 @@ hr {
 /* start css for my-report page */
 .report-section {
   padding: 20px;
+  padding-top: 80px;
 }
 
 .report-nav {
@@ -1063,7 +1074,11 @@ hr {
   position: relative;
   color: rgb(88, 73, 172);
 }
-
+/* .report-nav button.active {
+  background-color: #007bff;
+  color: #fff;
+  border-radius: 10px;
+} */
 .report-nav button.active::after {
   content: '';
   position: absolute;
@@ -1085,13 +1100,20 @@ hr {
     flex-direction: column;
   }
 
-  .report-nav button {
+  /* .report-nav button {
     margin-bottom: 10px;
-  }
+  } */
 
   .report-nav button.active::after {
-    bottom: -3px; 
+    /*  bottom: -3px;  */
+    display: none; 
+   
   }
+  .report-nav button.active {
+  background-color: #007bff;
+  color: #fff;
+  border-radius: 10px;
+}
 }
 
 
@@ -1364,7 +1386,12 @@ hr {
   border: 1px solid #ccc;
   border-radius: 4px;
 }
-
+/* media query for in-out details */
+@media (max-width: 768px){
+  .search-btn input{
+    margin: auto;
+  }
+}
 
 /* css for leave details section */
 
@@ -1522,6 +1549,13 @@ hr {
   border: 1px solid #ccc;
   border-radius: 4px;
 }
+/* media query for leave details */
+@media (max-width: 768px){
+  .button-block{
+    margin: auto;
+  }
+}
+
 
 /* css for annual-attendance-summary */
 .first-block {
@@ -1567,11 +1601,37 @@ hr {
 .first-block .exprt-button:hover{
   background-color: rgb(108, 88, 223);
 }
-.attendance-table-section {
+/* .attendance-table-section {
   display: flex;
   justify-content: center; 
   width: 100%;
+} */
+
+@media (max-width: 768px) {
+ 
+  .first-block {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+
+  .first-block select {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 10px; 
+  }
+
+  .first-block .srch-button,
+  .first-block .exprt-button {
+    width: 100%; 
+    padding: 10px;
+    text-align: center; 
+    margin-top: 5px;
+  }
 }
+
+
+
 
 /* Table styling */
 .attendance-table {
