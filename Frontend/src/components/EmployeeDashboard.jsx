@@ -241,7 +241,7 @@ const filteredRecords = punchRecord.filter((record) => {
   const start = startDate ? new Date(startDate) : null;
   const end = endDate ? new Date(endDate) : null;
 
-  // Check if record falls within the date range
+  
   if (start && end) {
     return recordDate >= start && recordDate <= end;
   } else if (start) {

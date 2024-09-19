@@ -1050,7 +1050,7 @@ async function fetchPendingLeaves(){
                                 onClick={() => handleDeny(leave._id)}
                               >
                                 Deny
-      </button>
+                              </button>
                             </td>
                         </tr>
                     ))
