@@ -130,20 +130,20 @@ const handleQuit = () => {
   return (
     <div className="app">
       
-    {/* Menu Button for Mobile */}
-    <div className="menu-heading">
-<button className={`menu-btn ${isSidebarOpen ? 'open' : ''}`} onClick={toggleSidebar}>
-  <span className="bar"></span>
-  <span className="bar"></span>
-  <span className="bar"></span>
-</button>
-<h2 className="dashboard-heading">Dashboard</h2>
-</div>
-    {/* Sidebar */}
-    <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-      <h2 id="dashboardHeading">Dashboard</h2>
-      <div id="navList" className="nav-list">
-        <ul>
+      {/* Menu Button for Mobile */}
+      <div className="menu-heading">
+        <button className={`menu-btn ${isSidebarOpen ? 'open' : ''}`} onClick={toggleSidebar}>
+          <span className="bar"></span>
+          <span className="bar"></span>
+          <span className="bar"></span>
+        </button>
+        <h2 className="dashboard-heading">Dashboard</h2>
+      </div>
+      {/* Sidebar */}
+      <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
+        <h2 id="dashboardHeading">Dashboard</h2>
+        <div id="navList" className="nav-list">
+          <ul>
             <li><a href="#hr" onClick={() => handleNavClick('hr')}>HR</a></li>
             <li><a href="#sales/purchase" onClick={() => handleNavClick('sales/purchase')}>Sales/Purchase</a></li>
             <li><a href="#accounting" onClick={() => handleNavClick('accounting')}>Accounting</a></li>

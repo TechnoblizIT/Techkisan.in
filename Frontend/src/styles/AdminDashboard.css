@@ -176,6 +176,7 @@
 .main-content {
   margin-left: 200px;
   padding: 20px;
+  margin-bottom: 10px;
   flex: 1;
 }
 
@@ -225,9 +226,6 @@
   transform: scale(1.05);
 }
 
-.section-content{
-  margin-top: 60px;
-}
 .employee-section {
  
   display: flex;
@@ -641,10 +639,13 @@ h2 {
 
 .item-master-container {
   margin: 0px;
+  margin-bottom: 20px;
   padding: 20px;
+  border-radius: 8px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   border: 1px solid #ccc;
   background: linear-gradient(to right, #bceee8, #eff1c6);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .item-master-title {
@@ -680,13 +681,12 @@ h4 {
 }
 .row label {
   font-weight: bold;
-  margin: auto;
   width: 100px;
   font-size: 14px;
   text-align: left;
 }
 
-input[type="text"] {
+.row input {
   width: calc(60% - 10px);
   height: 30px;
   font-size: 14px;
@@ -708,7 +708,6 @@ input[type="text"] {
 
 .left-container, .right-container {
   width: 49%;
-  margin-bottom: 20px;
 }
 
 .grid-item {
@@ -997,6 +996,9 @@ input[type="text"] {
   padding: 10px;
   border: 1px solid #ccc;
   background: linear-gradient(to right, #bceee8, #eff1c6);
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .header {
@@ -1309,6 +1311,9 @@ input[type="text"] {
   padding: 10px;
   border: 1px solid #ccc;
   background: linear-gradient(to right, #bceee8, #eff1c6);
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .item-section {
@@ -1440,6 +1445,9 @@ input[type="text"] {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   border: 1px solid #ccc;
   background: linear-gradient(to right, #bceee8, #eff1c6);
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .merged-inventory-container {
