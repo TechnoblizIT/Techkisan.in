@@ -1,17 +1,30 @@
 // src/components/AdminDashboard.js
-import React from "react";
+import React ,{ useRef }from "react";
 import { Link, useNavigate } from "react-router-dom";
 import avatarImage from "../assets/avtar.png";
 import "../styles/AdminDashboard.css";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import { useReactToPrint } from 'react-to-print';
+import logo from "../assets/logo1.png"
 function getCookie(name) {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
   if (parts.length === 2) return parts.pop().split(";").shift();
 }
+
 const AdminDashboard = () => {
+  
+ 
+    const componentRef = useRef(); 
+  
+    
+    const handlePrint = useReactToPrint({
+      content: () => componentRef.current, 
+      documentTitle: "Invoice",
+    });
+
   const [activeSection, setActiveSection] = useState(null);
   const [showNavList, setShowNavList] = useState(false);
   const [showTopNav, setShowTopNav] = useState(false);
@@ -21,8 +34,9 @@ const AdminDashboard = () => {
   const [employeeCount, setEmployeeCount] = useState();
   const navigate = useNavigate();
   const [openDropdown, setOpenDropdown] = useState(null);
-
+  
   useEffect(() => {
+   
     const fetchEmployeeData = async () => {
       try {
         const token = getCookie("token");
@@ -82,7 +96,7 @@ const AdminDashboard = () => {
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
-  
+
 // -----------------------------------------------------------------------------------------------------------//
 const [openMenu, setOpenMenu] = useState(null);
 
@@ -109,7 +123,8 @@ const handleQuit = () => {
   const handleRightBarClick = (item) => {
     setActiveItem(item); // Set the clicked item as active
   };
-
+  
+  
 // -----------------------------------------------------------------------------------------------------------//
 
   return (
@@ -841,8 +856,111 @@ const handleQuit = () => {
               {activeItem === 'add-receipt' && (
                 <div className="content-box">
                   <h2>Add-Reciept</h2>
-                  <p>This is the content for Add-Reciept</p>
-                </div>
+                  <div>
+   
+      <button className="print-button" onClick={handlePrint}>Print Invoice</button>
+
+      <div className="invoice-container" ref={componentRef}>
+      
+        <div className="invoice-header">
+         
+          <div className="logo-sectionlogoin">
+            <img src={logo} alt="Company Logo" className="logoin" />
+          </div>
+
+         
+          <div className="from-section">
+            <h3>From</h3>
+            <p>JK POWERGUARD,</p>
+            <p>Nagpur Godown: Suri Plaza...</p>
+            <p>Banking Details: Canara Bank...</p>
+            <p>PAN No.: AKBPS6073L</p>
+          </div>
+
+        
+          <div className="to-section">
+            <h3>To</h3>
+            <p>M/s Techisian Automation</p>
+            <p>1st Floor, House No 399...</p>
+            <p>GST No.: 27AAQTF9534N1ZS</p>
+          </div>
+
+         
+          <div className="invoice-info">
+            <p><strong>Invoice No.:</strong> JKP/24-25/5065</p>
+            <p><strong>Date of Issue:</strong> 14/08/2024</p>
+          </div>
+        </div>
+
+      
+        <table className="invoice-table">
+          <thead>
+            <tr>
+              <th>Sr.</th>
+              <th>Product Description</th>
+              <th>HSN</th>
+              <th>Qty</th>
+              <th>Rate</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>Ksolare 5.4KW 1Phase...</td>
+              <td>85044090</td>
+              <td>1</td>
+              <td>29,650/-</td>
+              <td>29,650/-</td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>Ksolare 5.4KW 1Phase...</td>
+              <td>85044090</td>
+              <td>1</td>
+              <td>29,650/-</td>
+              <td>29,650/-</td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>Ksolare 5.4KW 1Phase...</td>
+              <td>85044090</td>
+              <td>1</td>
+              <td>29,650/-</td>
+              <td>29,650/-</td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>Ksolare 5.4KW 1Phase...</td>
+              <td>85044090</td>
+              <td>1</td>
+              <td>29,650/-</td>
+              <td>29,650/-</td>
+            </tr>
+          </tbody>
+        </table>
+
+       
+        <div className="tax-section">
+          <p>SGST @ 6%: 1,779/-</p>
+          <p>CGST @ 6%: 1,779/-</p>
+          <p>Round Off: 0</p>
+          <h3>Total: 33,208/-</h3>
+        </div>
+
+        
+        <div className="footer-section">
+          <p><strong>Terms:</strong> Interest will be charged @24% per annum...</p>
+          <div className="signature-section">
+            <p>For JK POWERGUARD</p>
+            <p>Computer Generated Invoice</p>
+            <p>Signature</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+
               )}
 
               {activeItem === 'add-journal' && (
