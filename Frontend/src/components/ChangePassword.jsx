@@ -3,8 +3,9 @@ import axios from 'axios';
 import '../styles/ChangePassword.css';
 import logo from '../assets/logo1.png';
 import { useNavigate} from 'react-router-dom';
-
+import APIEndpoints  from "./endPoints"
 const ChangePassword = () => {
+  const Endpoints= new APIEndpoints()
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -35,7 +36,7 @@ const ChangePassword = () => {
 
     try {
       const response = await axios.post(
-        'http://localhost:8000/employees/changepassword',
+        Endpoints.EMPLOYEE_CHANGEPASSWORD,
         { currentPassword, newPassword }, 
         {
           headers: {

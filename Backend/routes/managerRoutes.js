@@ -139,7 +139,7 @@ router.get("/pendingleaves", async (req, res) => {
 
 //approve and denial of leaves
 
-router.post('/leaves/:id/approve', async (req, res) => {
+router.post('/leaves/approve/:id', async (req, res) => {
   try {
     const leave = await leaveModel.findByIdAndUpdate(
       req.params.id,
@@ -153,7 +153,7 @@ router.post('/leaves/:id/approve', async (req, res) => {
 });
 
 
-router.post('/leaves/:id/deny', async (req, res) => {
+router.post('/leaves/deny/:id', async (req, res) => {
   try {
     const leave = await leaveModel.findByIdAndUpdate(
       req.params.id,

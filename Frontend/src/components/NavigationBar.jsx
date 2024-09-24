@@ -3,9 +3,11 @@ import '../styles/EmployeeDashboard.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; 
 import { useState } from 'react';
+import APIEndpoints  from "./endPoints"
 
 function NavigationBar({ activeSection, onNavigate }) {
   const navigate = useNavigate();
+  const Endpoints= new APIEndpoints()
 
   
 
@@ -18,7 +20,7 @@ function NavigationBar({ activeSection, onNavigate }) {
       }
   
       await axios.post(
-        'http://localhost:8000/employees/logout', 
+        Endpoints.EMPLOYEE_LOGOUT, 
       
         {
           headers: {

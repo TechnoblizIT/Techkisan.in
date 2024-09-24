@@ -2,19 +2,19 @@ import React, { useState } from 'react';
 import '../styles/LoginPage.css'; 
 import logo from '../assets/logo1.png'; 
 import { useNavigate } from 'react-router-dom';
-
+import APIEndpoints  from "./endPoints"
 const LoginPage = () => {
   const [username, setUsername] = useState(''); 
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-
   const navigate = useNavigate();
-  
+  const Endpoints= new APIEndpoints()
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:8000/employees/login', {
+      const response = await fetch(Endpoints.EMPLOYEE_LOGIN, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

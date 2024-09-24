@@ -8,9 +8,11 @@ import cakeimg from '../assets/cake-img.png'
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import { type } from '@testing-library/user-event/dist/type';
-
+import APIEndpoints from './endPoints'
 
 function ManagerDashboard() {
+  const Endpoints= new APIEndpoints()
+
   const [employeedata, setemployeedata]=useState("")
   const [avatarUrl, setAvatarUrl] = useState("");
   const navigate = useNavigate(); 
@@ -54,7 +56,7 @@ const currentDate = new Date();
 
 const handleApprove = (leaveId) => {
   
-  fetch(`http://localhost:8000/manager/leaves/${leaveId}/approve`, { method: 'POST' })
+  fetch(`${Endpoints.MANAGER_APPROVE_LEAVE}/${leaveId}`, { method: 'POST' })
     .then(response => response.json())
     .then(data => {
       fetchPendingLeaves()
@@ -65,7 +67,7 @@ const handleApprove = (leaveId) => {
 };
 
 const handleDeny = (leaveId) => {
-  fetch(`http://localhost:8000/manager/leaves/${leaveId}/deny`, { method: 'POST' })
+  fetch(`${Endpoints.MANAGER_DENY_LEAVE}/${leaveId}`, { method: 'POST' })
     .then(response => response.json())
     .then(data => {
       fetchPendingLeaves()
@@ -91,7 +93,7 @@ async function fetchPendingLeaves(){
       return;
     }
 
-    const response = await axios.get('http://localhost:8000/manager/pendingleaves', {
+    const response = await axios.get(Endpoints.MANAGER_GET_PENDING_LEAVES, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'multipart/form-data',
@@ -121,7 +123,7 @@ async function fetchPendingLeaves(){
           return;
         }
 
-        const response = await axios.get('http://localhost:8000/manager/managerdata', {
+        const response = await axios.get(Endpoints.MANAGER_DASHBOARD, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'multipart/form-data',
@@ -1379,7 +1381,7 @@ async function fetchPendingLeaves(){
             </thead>
             <tbody>
               
-                { pendingleaves ? (
+                { pendingleaves.length>0 ? (
                     pendingleaves.map((leave) => (
                         <tr key={leave._id}>
                             <td>{leave.employeeId.firstName+" "+leave.employeeId.lastName}</td>

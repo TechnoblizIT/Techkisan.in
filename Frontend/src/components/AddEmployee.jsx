@@ -4,8 +4,12 @@ import avatarImage from '../assets/avtar.png';
 import uploadImage from '../assets/upload.png';
 import axios from 'axios';  
 import { useNavigate} from 'react-router-dom';
+import APIEndpoints  from "./endPoints"
+
 const AddEmployee = () => {
   const navigate = useNavigate();
+  const Endpoints= new APIEndpoints()
+
   const [showAdvancedFields, setShowAdvancedFields] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -84,7 +88,7 @@ const AddEmployee = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:8000/employees/create', submitFormData,{
+      const response = await axios.post(Endpoints.EMPLOYEE_CREATE, submitFormData,{
         headers: {
           'Content-Type': 'multipart/form-data',
         },

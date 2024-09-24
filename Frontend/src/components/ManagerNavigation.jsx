@@ -3,9 +3,11 @@ import '../styles/ManagerNavigation.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; 
 import { useState } from 'react';
+import APIEndpoints  from "./endPoints"
 
 function ManagerNavigation({ activeSection, onNavigate }) {
   const navigate = useNavigate();
+  const Endpoints= new APIEndpoints()
 
   
 
@@ -17,16 +19,7 @@ function ManagerNavigation({ activeSection, onNavigate }) {
         return;
       }
   
-      await axios.post(
-        'http://localhost:8000/employees/logout', 
       
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
       document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
 
       navigate('/');

@@ -4,7 +4,11 @@ import avatarImage from '../assets/avtar.png';
 import uploadImage from '../assets/upload.png';
 import { useNavigate} from 'react-router-dom';
 import axios from 'axios';
+import APIEndpoints  from "./endPoints"
+
 const AddManager = () => {
+  const Endpoints= new APIEndpoints()
+
   const navigate = useNavigate();
   const [showAdvancedFields, setShowAdvancedFields] = useState(false);
   const [Image, setImage] = useState(null);
@@ -93,7 +97,7 @@ const AddManager = () => {
     }
   
     try {
-      const response = await axios.post('http://localhost:8000/manager/create', submitFormData, {
+      const response = await axios.post(Endpoints.MANAGER_CREATE, submitFormData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

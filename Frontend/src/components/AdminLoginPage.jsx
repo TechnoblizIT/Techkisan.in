@@ -3,7 +3,9 @@ import '../styles/AdminLoginPage.css';
 import logo from '../assets/logo1.png'; 
 import { useNavigate} from 'react-router-dom';
 import { useState } from 'react';
+import APIEndpoints  from "./endPoints"
 const AdminLoginPage = () => {
+  const Endpoints= new APIEndpoints()
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -13,7 +15,7 @@ const AdminLoginPage = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:8000/admin/login', {
+      const response = await fetch(Endpoints.ADMIN_LOGIN, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -10,7 +10,7 @@ import AdminDashboard from './components/AdminDashboard';
 import AddEmployee from './components/AddEmployee';
 import AddManager from './components/AddManager';
 import ManagerDashboard from './components/ManagerDashboard';
-
+import {APIEndpoints} from "./components/endPoints"
 function App() {
   return (
     <Router>

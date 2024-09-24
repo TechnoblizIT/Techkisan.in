@@ -8,6 +8,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { useReactToPrint } from 'react-to-print';
 import logo from "../assets/logo1.png"
+import APIEndpoints  from "./endPoints"
 function getCookie(name) {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
@@ -16,7 +17,7 @@ function getCookie(name) {
 
 const AdminDashboard = () => {
   
- 
+  const Endpoints= new APIEndpoints()
     const componentRef = useRef(); 
   
     
@@ -34,7 +35,6 @@ const AdminDashboard = () => {
   const [employeeCount, setEmployeeCount] = useState();
   const navigate = useNavigate();
   const [openDropdown, setOpenDropdown] = useState(null);
-  
   useEffect(() => {
    
     const fetchEmployeeData = async () => {
@@ -52,7 +52,7 @@ const AdminDashboard = () => {
         }
 
         const response = await axios.get(
-          "http://localhost:8000/admin/admindata",
+          Endpoints.ADMIN_DASHBOARD,
           {
             headers: {
               Authorization: `Bearer ${token}`,

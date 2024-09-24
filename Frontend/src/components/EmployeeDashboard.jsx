@@ -5,9 +5,10 @@ import axios from 'axios';
 import cakeimg from '../assets/cake-img.png'
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
+import APIEndpoints  from "./endPoints"
 function EmployeeDashboard() {
 
-
+  const Endpoints= new APIEndpoints()
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString(); 
@@ -80,7 +81,7 @@ let todayDate = day + '/' + month + '/' + year;
 
     try {
       const token = getCookie('token');
-      await axios.post('http://localhost:8000/employees/punchIn', {
+      await axios.post(Endpoints.EMPLOYEE_PUNCH_IN, {
         punchInTime: currentTime,
       }, {
         headers: {
@@ -103,7 +104,7 @@ let todayDate = day + '/' + month + '/' + year;
     // Send punch-out time to backend
     try {
       const token = getCookie('token');
-      await axios.post('http://localhost:8000/employees/punchOut', {
+      await axios.post(Endpoints.EMPLOYEE_PUNCH_OUT, {
         punchOutTime: currentTime,
       }, {
         headers: {
@@ -121,7 +122,7 @@ let todayDate = day + '/' + month + '/' + year;
 
   const fetchLeaves = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/employees/getLeaves', {
+      const response = await axios.get(Endpoints.EMPLOYEE_GET_LEAVES, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -149,7 +150,7 @@ let todayDate = day + '/' + month + '/' + year;
 
     try {
       
-      const response = await axios.post('http://localhost:8000/employees/addWfh', formData , {
+      const response = await axios.post(Endpoints.EMPLOYEE_WFH, formData , {
         headers: {
           'Authorization': `Bearer ${token}`,
         }});
@@ -175,7 +176,7 @@ let todayDate = day + '/' + month + '/' + year;
     const handleSubmit = async (e) => {
       e.preventDefault();
       try {
-        const response = await fetch('http://localhost:8000/employees/addLeave', {
+        const response = await fetch(Endpoints.EMPLOYEE_ADD_LEAVE, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -203,7 +204,7 @@ let todayDate = day + '/' + month + '/' + year;
 const handleCancelLeave = async (leaveId) => {
   try {
     console.log('Leave request cancelled',leaveId)
-    const response = await axios.get(`http://localhost:8000/employees/deleteLeaves/${leaveId}`, {
+    const response = await axios.get(`${Endpoints.EMPLOYEE_DEL_LEAVE}/${leaveId}`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -298,7 +299,7 @@ const filteredLeave=leaves.filter((leave) =>{
           return;
         }
 
-        const response = await axios.get('http://localhost:8000/employees/empdata', {
+        const response = await axios.get(Endpoints.EMPLOYEE_DASHBOARD, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'multipart/form-data',
