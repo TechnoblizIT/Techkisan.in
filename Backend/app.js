@@ -15,8 +15,8 @@ const employeeModel=require("./models/employee-model")
 require('dotenv').config()
 app.use(cookieParser())
 app.use(cors({
-  origin: ['http://localhost:3000'], 
-  methods: ['POST,GET','DELETE'],
+  origin:[`${process.env.FRONTEND_URI}`], 
+  methods: ['POST','GET','DELETE'],
   credentials: true,               
 }));
 app.use(express.json());
