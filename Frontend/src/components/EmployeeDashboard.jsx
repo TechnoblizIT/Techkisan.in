@@ -602,6 +602,7 @@ const currentDate = new Date();
     </div>
     <div className="previous-leaves-table">
       <h4>Previous Leaves</h4>
+      <div className='div-table'>
       <table>
         <thead>
           <tr>
@@ -654,6 +655,7 @@ const currentDate = new Date();
           
         </tbody>
       </table>
+      </div>
     </div>
   </>
 )}
@@ -1087,6 +1089,7 @@ const currentDate = new Date();
                         
                       </tbody>
                     </table>
+                    </div>
                     <div className="leave-details-pagination">
                           <p>Showing 1 to 3 of 3 entries</p>
                           <div className="leave-details-pagination-controls">
@@ -1096,7 +1099,7 @@ const currentDate = new Date();
                          </div>
                        </div>
 </div>
-                   </div>
+                  
                 )}
                  {activeReportPage === 'annual-attendance-summary' && (
   <div className="annual-attendance-summary">
@@ -1479,8 +1482,8 @@ const currentDate = new Date();
               {activeReportPage === 'holidays' && (
                 <div className="holidays-page">
                   <div className="holidays-buttons">
-                    <button className="print-button">Print</button>
-                    <button className="excel-button">Export to Excel</button>
+                    <button className="print-btn">Print</button>
+                    <button className="excel-btn">Export to Excel</button>
                   </div>
 
                   <div className="holidays-table-section">

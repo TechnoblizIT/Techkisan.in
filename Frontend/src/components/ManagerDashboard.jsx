@@ -404,6 +404,7 @@ async function fetchPendingLeaves(){
     </div>
     <div className="previous-leaves">
       <h4>Previous Leaves</h4>
+      <div className='table-div'>
       <table>
         <thead>
           <tr>
@@ -443,6 +444,7 @@ async function fetchPendingLeaves(){
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
   </>
 )}
@@ -513,7 +515,7 @@ async function fetchPendingLeaves(){
 )}
 {activeRequestPage === 'on-duty' && (
   <div className="on-duty-section">
-    <div className="form-container">
+    <div className="on-duty-form-container">
       <form>
         <div className="row-input">
           <div className="group-input">
@@ -908,7 +910,7 @@ async function fetchPendingLeaves(){
 
     
      {/* Second Block: Attendance Table */}
-     <div className="second-block">
+     <div className="manager-second-block">
       <table className="manager-attendance-table">
         <thead>
           <tr>
@@ -1265,14 +1267,14 @@ async function fetchPendingLeaves(){
   </div>
 )}
 {activeReportPage === 'holidays' && (
-                <div className="holidays-page">
-                  <div className="holidays-buttons">
-                    <button className="print-button">Print</button>
-                    <button className="excel-button">Export to Excel</button>
+                <div className="manager-holidays-page">
+                  <div className="manager-holidays-buttons">
+                    <button className="managerprint-button">Print</button>
+                    <button className="managerexcel-button">Export to Excel</button>
                   </div>
 
-                  <div className="holidays-table-section">
-                    <table className="holidays-table">
+                  <div className="manager-holidays-table-section">
+                    <table className="manager-holidays-table">
                       <thead>
                         <tr>
                           <th>Date</th>
@@ -1367,6 +1369,7 @@ async function fetchPendingLeaves(){
                 <div className="pending-section">
                 <div className="pending-leave-container">
                 <h4>Pending Leave</h4>
+                <div className='div-pending-table'>
                 <table className="pending-leaves-table">
             <thead>
               
@@ -1414,6 +1417,7 @@ async function fetchPendingLeaves(){
                 )}
             </tbody>
         </table>
+        </div>
     
               </div>
               </div>
