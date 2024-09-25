@@ -2,14 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "*.js",  // Entry point of your backend
+      "src": "*.js",  
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
-      "src": "/(.*)",  // API routes to handle requests like /api/*
-      "dest": "/"  // Destination of the handler (adjust based on your file structure)
+      "src": "/(.*)",  
+      "dest": "/" 
     }
   ]
 }
