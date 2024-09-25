@@ -1,103 +1,49 @@
-// src/components/AdminDashboard.js
-import React ,{ useRef }from "react";
-import { Link, useNavigate } from "react-router-dom";
-import avatarImage from "../assets/avtar.png";
-import "../styles/AdminDashboard.css";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom'; 
+import { useRef }from "react";
+// import { BrowserRouter as Router } from 'react-router-dom';
+import '../styles/AdminDashboard.css'
+import avatarImage from '../assets/avtar.png';
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
+// import { jwtDecode } from "jwt-decode";
 import { useReactToPrint } from 'react-to-print';
 import logo from "../assets/logo1.png"
-import APIEndpoints  from "./endPoints"
-function getCookie(name) {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(";").shift();
-}
 
 const AdminDashboard = () => {
-  
-  const Endpoints= new APIEndpoints()
-    const componentRef = useRef(); 
+  const [activeSection, setActiveSection] = useState('');
+  const [activePage, setActivePage] = useState('');
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [topMenuOpen, setTopMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  const sections = ['HR', 'Sales/Purchase', 'Accounting','Company','Tools','Modules','Add-Ons','Setting'];
+  const hrLinks = ['Overview', 'Employees', 'Departments', 'Designation', 'Announcement', 'Reports', 'Management', 'Help'];
+
+  const handleSectionClick = (section) => {
+    setActiveSection(section);
+    setActivePage('');
+    setTopMenuOpen(isMobile && section === 'HR' ? false : true);
+    setMenuOpen(false);
+  };
+
+  const handleLinkClick = (link) => {
+    setActivePage(link);
+    setTopMenuOpen(false);
+  };
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+// -----------------------------------------------------------------------------------------------------------//
+const componentRef = useRef(); 
   
     
-    const handlePrint = useReactToPrint({
-      content: () => componentRef.current, 
-      documentTitle: "Invoice",
-    });
-
-  const [activeSection, setActiveSection] = useState(null);
-  const [showNavList, setShowNavList] = useState(false);
-  const [showTopNav, setShowTopNav] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
-  const [admindata, setAdmindata] = useState("");
-  const [employeedata, setemployeedata] = useState("");
-  const [employeeCount, setEmployeeCount] = useState();
-  const navigate = useNavigate();
-  const [openDropdown, setOpenDropdown] = useState(null);
-  useEffect(() => {
-   
-    const fetchEmployeeData = async () => {
-      try {
-        const token = getCookie("token");
-
-        if (!token) {
-          navigate("/admin-login");
-          return;
-        }
-        const decode =jwtDecode(token)
-        if (decode.role!=="admin"){
-          navigate("/admin-login")
-          return;
-        }
-
-        const response = await axios.get(
-          Endpoints.ADMIN_DASHBOARD,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "multipart/form-data",
-            },
-            withCredentials: true,
-          }
-        );
-
-        if (response.status === 200) {
-          const data = response.data;
-          setemployeedata(data.employee);
-          setEmployeeCount(data.employeeCount);
-        } else {
-          console.error("Failed to fetch employee data");
-        }
-      } catch (error) {
-        console.error("Error fetching employee data:", error);
-      }
-    };
-    fetchEmployeeData();
-  }, []);
-
-  const handleNavClick = (section) => {
-    setActiveSection(section);
-
-    if (section === "hr") {
-      setShowTopNav(true);
-    } else {
-      setShowTopNav(false);
-    }
-
-    setShowNavList(true); if (window.innerWidth <= 768) {
-      setIsSidebarOpen(false);
-    }
-  
-    console.log(`Navigating to ${section}`);
-  };
-
-  // Toggle sidebar on mobile
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
-// -----------------------------------------------------------------------------------------------------------//
+const handlePrint = useReactToPrint({
+  content: () => componentRef.current, 
+  documentTitle: "Invoice",
+});
 const [openMenu, setOpenMenu] = useState(null);
 
 const toggleMenu = (index) => {
@@ -126,122 +72,95 @@ const handleQuit = () => {
   
   
 // -----------------------------------------------------------------------------------------------------------//
-
+  
   return (
-    <div className="app">
+    
+    <div className="admindashboard-container">
       
-      {/* Menu Button for Mobile */}
-      <div className="menu-heading">
-        <button className={`menu-btn ${isSidebarOpen ? 'open' : ''}`} onClick={toggleSidebar}>
-          <span className="bar"></span>
-          <span className="bar"></span>
-          <span className="bar"></span>
-        </button>
-        <h2 className="dashboard-heading">Dashboard</h2>
-      </div>
       {/* Sidebar */}
-      <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-        <h2 id="dashboardHeading">Dashboard</h2>
-        <div id="navList" className="nav-list">
-          <ul>
-            <li><a href="#hr" onClick={() => handleNavClick('hr')}>HR</a></li>
-            <li><a href="#sales/purchase" onClick={() => handleNavClick('sales/purchase')}>Sales/Purchase</a></li>
-            <li><a href="#accounting" onClick={() => handleNavClick('accounting')}>Accounting</a></li>
-            <li><a href="">Company</a></li>
-            <li><a href="">Tools</a></li>
-            <li><a href="">Modules</a></li>
-            <li><a href="">Add-Ons</a></li>
-            <li><a href="">Setting</a></li>
-          </ul>
+      <div className={`sidebar ${menuOpen ? 'menu-open' : ''}`}>
+        <div className='head-menu'>
+        <h2>Dashboard</h2>
+        <button className="menu-icon" onClick={() => setMenuOpen(!menuOpen)}>
+          {menuOpen ? '✖' : '☰'}
+        </button>
         </div>
+
+        <ul>
+          {sections.map((section) => (
+            <li key={section} onClick={() => handleSectionClick(section)}>
+              {section}
+            </li>
+          ))}
+        </ul>
       </div>
 
+      {/* Main Content */}
       <div className="main-content">
-        {showTopNav && (
+        {/* Top Navbar when HR is clicked */}
+        {activeSection === 'HR' && (
           <div className="top-navbar">
-            <div className="title">
-              <i class="fa-solid fa-users"></i> &nbsp;<h1>HR</h1>
+            <div className="navbar-left">
+              <i className="fa-solid fa-users"></i><h3>HR</h3>
             </div>
-            <div className="nav-links">
-              <a
-                href="#overview"
-                onClick={() => setActiveSection("overview")}
-                className={activeSection === "overview" ? "active" : ""}
-              >
-                Overview
-              </a>
-              <a
-                href="#employee"
-                onClick={() => setActiveSection("employee")}
-                className={activeSection === "employee" ? "active" : ""}
-              >
-                Employees
-              </a>
-              <a
-                href="#department"
-                onClick={() => setActiveSection("department")}
-                className={activeSection === "department" ? "active" : ""}
-              >
-                Department
-              </a>
-              <a href="#">Designations</a>
-              <a href="#">Announcement</a>
-              <a href="#">Reports</a>
-              <a href="#">Leave Management</a>
-              <a href="#">Help</a>
+            <div className="navbar-right">
+              <button className="topmenu-icon" onClick={() => setTopMenuOpen(!topMenuOpen)}>
+                {topMenuOpen ? '✖' : '☰'}
+              </button>
+              {(isMobile && topMenuOpen) || !isMobile ? (
+                <ul className={`hr-links ${topMenuOpen ? 'show-links' : ''}`}>
+                  {hrLinks.map((link) => (
+                    <li 
+                      key={link} 
+                      onClick={() => handleLinkClick(link)}
+                      className={activePage === link ? 'active' : ''}
+                    >
+                      {link}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
             </div>
           </div>
         )}
 
-        <div className="section-content">
-          {activeSection === "overview" && (
+        {/* Page Content */}
+        <div className="page-content">
+          {/* Overview page */}
+          {activeSection === 'HR' && activePage === 'Overview' && (
             <div id="overview" className="overview-section">
               <h1>HR Management</h1>
+              <div className="sections-wrapper">
               <div className="left-section">
-                <div className="info-overview">
+                <div className='info-overview'>
                   <div className="info-block">
-                    <h1>{employeeCount ? employeeCount : "loading..."}</h1>
+                    <h1>50</h1>
                     <h2>Employee</h2>
-                    <Link className="view-link" to="#">
-                      View Employees
-                    </Link>
+                    <Link className="view-link" to="#">View Employees</Link>
                   </div>
                   <div className="info-block">
                     <h1>6</h1>
                     <h2>Department</h2>
-                    <Link className="view-link" to="#">
-                      View Departments
-                    </Link>
+                    <Link className="view-link" to="#">View Departments</Link>
                   </div>
                   <div className="info-block">
                     <h1>13</h1>
                     <h2>Designation</h2>
-                    <Link className="view-link" to="#">
-                      View Designations
-                    </Link>
+                    <Link className="view-link" to="#">View Designations</Link>
                   </div>
                 </div>
                 {/* Latest Announcement Section */}
                 <div className="latest-announcement">
-                  <h3>
-                    <i class="fa-solid fa-microphone"></i> Latest Announcement
-                  </h3>
+                  <h3><i className="fa-solid fa-microphone"></i> Latest Announcement</h3>
                   <hr />
                   <div className="announcement-content">
-                    <h1>
-                      Merry Christmas <span className="vertical-line"></span>
-                      <span className="announcement-date">10-18-2018</span>
-                    </h1>
-                    <p>
-                      The office will remain closed on 25th December, Tuesday.
-                    </p>
+                    <h1>Merry Christmas <span className="vertical-line"></span><span className='announcement-date'>10-18-2018</span></h1>
+                    <p>The office will remain closed on 25th December, Tuesday.</p>
                   </div>
                 </div>
                 {/* My Leave Calendar Section */}
                 <div className="leave-calendar">
-                  <h3>
-                    <i class="fa-regular fa-calendar"></i> My Leave Calendar
-                  </h3>
+                  <h3><i className="fa-regular fa-calendar"></i> My Leave Calendar</h3>
                   <hr />
                   <div className="calendar">
                     <p>Calendar Placeholder</p>
@@ -251,36 +170,30 @@ const handleQuit = () => {
               <div className="right-section">
                 {/* Birthday Buddies Block */}
                 <div className="birthday-buddies">
-                  <h3>
-                    <i class="fa-solid fa-cake-candles"></i> Birthday Buddies
-                  </h3>
+                  <h3><i className="fa-solid fa-cake-candles"></i> Birthday Buddies</h3>
                   <hr />
                   <p>Today's Birthday</p>
                   <div className="photo-upload">
                     <div className="photo-item">
-                      <img src={avatarImage} alt="Avatar" />
+                      <img src={avatarImage} alt="Avatar" /> 
                       <i className="fa-regular fa-envelope mail-icon"></i>
                     </div>
                     <div className="photo-item">
-                      <img src={avatarImage} alt="Avatar" />
+                      <img src={avatarImage} alt="Avatar" /> 
                       <i className="fa-regular fa-envelope mail-icon"></i>
                     </div>
                   </div>
                 </div>
                 {/* Who is Out Block */}
                 <div className="who-is-out">
-                  <h3>
-                    <i className="fa-solid fa-paper-plane"></i> Who is out
-                  </h3>
+                  <h3><i className="fa-solid fa-paper-plane"></i> Who is out</h3>
                   <hr />
                   <p>This Month</p>
                   <p>Next Month</p>
                 </div>
                 {/* Attendance Status Block */}
                 <div className="attendance-status">
-                  <h3>
-                    <i class="fa-solid fa-chart-pie"></i> Attendance Status
-                  </h3>
+                  <h3><i className="fa-solid fa-chart-pie"></i> Attendance Status</h3>
                   <hr />
                   <p className="no-data">Not enough data</p>
                   <div className="filter">
@@ -293,28 +206,35 @@ const handleQuit = () => {
                 </div>
               </div>
             </div>
-          )}
-          {/* Employee page */}
-          {activeSection === "employee" && (
-            <div id="employee" className="employee-section">
-              <h2>Employees</h2>
-              <Link className="add-new" to="/add-employee">
-                Add New
-              </Link> <br />
-              <h2>Managers</h2>
-              <Link className="add-new" to="/add-manager">
-                Add New
-              </Link>
             </div>
           )}
-          {/* Department page */}
-          {activeSection === "department" && (
-            <div id="department" className="department-section">
-              <p>This is the department page.</p>
-            </div>
-          )}
-          {/* CRM section */}
-          {activeSection === "sales/purchase" && (
+
+       
+
+
+{/* Employee page */}
+{activeSection === 'HR' && activePage === 'Employees' && (
+  <div id="employee" className="employee-section">
+    <div className="employee-row">
+      <div className="employee-block">
+        <h2>Employees</h2>
+        <Link className="add-new" to="/add-employee">Add New</Link>
+      </div>
+      <div className="manager-block">
+        <h2>Managers</h2>
+        <Link className="add-new" to="/add-manager">Add New</Link>
+      </div>
+    </div>
+  </div>
+)}
+
+
+
+          {activeSection === 'HR' && activePage === 'Designation' && <p>This is the designation page.</p>}
+          {activeSection === 'HR' && activePage === 'Departments' && <p>This is the departments page.</p>}
+          {activeSection === 'HR' && activePage === 'Help' && <p>This is the help page.</p>}
+         {/* sales and purchase section */}
+       {activeSection === "Sales/Purchase" && (
             <div id="sales/purchase" className="sales-purchase-section">
             <div className="right-buttons-container">
               <a href="#help-section" onClick={() => handleRightBarClick('help')} className="right-button-row">Help</a>
@@ -855,7 +775,7 @@ const handleQuit = () => {
 
               {activeItem === 'add-receipt' && (
                 <div className="content-box">
-                  <h2>Add-Reciept</h2>
+                  {/* <h2>Add-Reciept</h2> */}
                   <div>
    
       <button className="print-button" onClick={handlePrint}>Print Invoice</button>
@@ -1885,16 +1805,15 @@ const handleQuit = () => {
             </div>
           </div>
           )}
-          {/* Accounting section */}
-          {activeSection === "accounting" && (
-            <div id="accounting" className="accounting-section">
-              <h2>Purchase Section</h2>
-            </div>
-          )}
+         {/* accounting section */}
+          {activeSection === 'Accounting' &&  <p>This is the Accounting page.</p>}
+          
         </div>
       </div>
     </div>
+  
   );
-};
+  
+}
 
 export default AdminDashboard;

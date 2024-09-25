@@ -655,7 +655,10 @@ hr {
 .previous-leaves-table td button.cancel {
   background-color: #dc3545;
 }
-
+.previous-leaves-table .div-table{
+ 
+  overflow: auto;
+}
 /* Responsive styles */
 @media (max-width: 1024px) {
   .content-wrapper {
@@ -697,6 +700,7 @@ hr {
   .previous-leaves-table td {
       padding: 6px;
   }
+ 
 }
 
 /* css for attendance-regularization section */
@@ -762,6 +766,7 @@ hr {
   margin-top: 30px;
   padding: 20px;
   border-radius: 5px;
+  overflow: auto;
 
 }
 
@@ -1141,6 +1146,7 @@ hr {
 .leave-balance-table {
   border-radius: 5px;
   background-color: #f9f9f9; 
+  overflow: auto;
 }
 
 .leave-balance-table table {
@@ -1224,7 +1230,11 @@ hr {
   border: 1px solid #ccc;
   border-radius: 4px;
 }
-
+@media (max-width: 768px){
+  .search-container input{
+    margin: auto;
+  }
+}
 /* css for in out details section */
 
 
@@ -1322,12 +1332,14 @@ hr {
 .in-out-table-section {
   margin-top: 30px;
   background-color: transparent;
+  overflow: auto;
 }
 
 .in-out-details-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0 10px;
+ 
 }
 
 .in-out-details-table th,
@@ -1391,6 +1403,7 @@ hr {
   .search-btn input{
     margin: auto;
   }
+  
 }
 
 /* css for leave details section */
@@ -1466,6 +1479,7 @@ hr {
 .table-block {
   margin-top: 30px;
   border-radius: 5px;
+  overflow: auto;
 }
 
 .leave-details-table {
@@ -1634,6 +1648,9 @@ hr {
 
 
 /* Table styling */
+.second-block{
+  overflow: auto;
+}
 .attendance-table {
   width: 100%;
   border-collapse: separate; 
@@ -1705,12 +1722,12 @@ hr {
 /* css for holidays  */
 
 
-.holidays-header {
+/* .holidays-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-}
+} */
 
 .holidays-buttons {
   display: flex;
