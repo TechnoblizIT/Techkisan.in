@@ -1,0 +1,17 @@
+{
+  "files": {
+    "main.css": "/static/css/main.3ee29128.css",
+    "main.js": "/static/js/main.4d29eebc.js",
+    "static/media/logo1.png": "/static/media/logo1.c29c92f308b8b7a65670.png",
+    "static/media/img-dashboard.jpg": "/static/media/img-dashboard.554ee15f2ab3848a7bf3.jpg",
+    "static/media/P.jpg": "/static/media/P.edb8600c3b4613f3ee65.jpg",
+    "static/media/avtar.png": "/static/media/avtar.a23391037426a4a31798.png",
+    "index.html": "/index.html",
+    "main.3ee29128.css.map": "/static/css/main.3ee29128.css.map",
+    "main.4d29eebc.js.map": "/static/js/main.4d29eebc.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.3ee29128.css",
+    "static/js/main.4d29eebc.js"
+  ]
+}

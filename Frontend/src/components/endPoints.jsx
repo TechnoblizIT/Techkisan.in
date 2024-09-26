@@ -1,8 +1,8 @@
 class APIEndpoints {
     constructor() {
-        console.log('hello',process.env.REACT_APP_SERVER_URL)
       this.BASE_URL = process.env.REACT_APP_SERVER_URL;
-  
+      
+     
       // Admin Endpoints
       this.ADMIN_LOGIN = `${this.BASE_URL}/admin/login`;
       this.ADMIN_DASHBOARD = `${this.BASE_URL}/admin/admindata`;

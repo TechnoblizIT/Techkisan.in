@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express =require('express');
 
 const app = express();
@@ -12,10 +13,12 @@ const adminRoute=require("./routes/adminRoutes")
 const managerRoute=require("./routes/managerRoutes")
 const cron = require('node-cron');
 const employeeModel=require("./models/employee-model")
-require('dotenv').config()
 app.use(cookieParser())
+const origin = process.env.ORIGIN
+? process.env.ORIGIN.split(",").map((origin) => origin.trim())
+: "*";
 app.use(cors({
-  origin:[`${process.env.FRONTEND_URI}`], 
+  origin: origin, 
   methods: ['POST','GET','DELETE'],
   credentials: true,               
 }));
@@ -65,4 +68,4 @@ cron.schedule('59 23 * * *', async () => {
 
 
 
-app.listen(8000);
+app.listen(process.env.PORT||8000);
