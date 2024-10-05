@@ -288,7 +288,7 @@ const filteredLeave=leaves.filter((leave) =>{
 useEffect(() => {
   const fetchEmployeeData = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = getCookie("token");
       if (!token) {
         navigate("/");
         return;
