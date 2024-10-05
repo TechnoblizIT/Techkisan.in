@@ -1,6 +1,6 @@
 class APIEndpoints {
     constructor() {
-      this.BASE_URL = process.env.REACT_APP_SERVER_URL;
+      this.BASE_URL ="http://tknb.us-east-1.elasticbeanstalk.com";
       
      
       // Admin Endpoints

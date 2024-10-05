@@ -285,54 +285,53 @@ const filteredLeave=leaves.filter((leave) =>{
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop().split(';').shift();
 }
-  useEffect(() => {
-    const fetchEmployeeData = async () => {
-      try {
-        const token = getCookie('token');
-        if (!token) {
-          navigate("/")
-          return;
+useEffect(() => {
+  const fetchEmployeeData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate("/");
+        return;
+      }
+
+      const decode = jwtDecode(token);
+      if (decode.role !== "employee") {
+        navigate("/");
+        return;
+      }
+
+      const response = await axios.get(Endpoints.EMPLOYEE_DASHBOARD, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+        withCredentials: true,
+      });
+
+      if (response.status === 200) {
+        const empdata = response.data;
+        setemployeedata(empdata.employee);
+        setLeaves(empdata.empleaves);
+        setPunchRecord(empdata.employee.punchRecords);
+
+        if (empdata.empimg && empdata.empimg[0]) {
+          const binaryString = new Uint8Array(empdata.empimg[0].Image.data)
+            .reduce((acc, byte) => acc + String.fromCharCode(byte), '');
+
+          const base64String = btoa(binaryString);
+          const imageUrl = `data:${empdata.empimg[0].Imagetype};base64,${base64String}`;
+          setAvatarUrl(imageUrl);
         }
-        const decode =jwtDecode(token)
-        if (decode.role!=="employee") {
-          navigate("/")
-          return;
-        }
+      } else {
+        console.error('Failed to fetch employee data');
+      }
+    } catch (error) {
+      console.error('Error fetching employee data:', error);
+    }
+  };
 
-        const response = await axios.get(Endpoints.EMPLOYEE_DASHBOARD, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
-          },
-          withCredentials: true, 
-        });
-
-        if (response.status === 200) {
-          const empdata = response.data;
-          setemployeedata(empdata.employee)
-          setLeaves(empdata.empleaves)
-          setPunchRecord(empdata.employee.punchRecords)
-     
-          if(empdata.empimg[0]){
-            if (empdata.empimg) {
-              const binaryString = new Uint8Array(empdata.empimg[0].Image.data).reduce((acc, byte) => acc + String.fromCharCode(byte), '');
-              const base64String = btoa(binaryString);
-              const imageUrl = `data:${empdata.empimg[0].Imagetype};base64,${base64String}`;
-              setAvatarUrl(imageUrl);
-            }
-
-             }
-               
-            } else {
-                console.error('Failed to fetch employee data');
-            }
-        } catch (error) {
-            console.error('Error fetching employee data:', error);
-        }
-    };
-
-    fetchEmployeeData();
-}, []);
+  fetchEmployeeData();
+}, [navigate]);
 const joiningDate = new Date(employeedata.dateOfHire);
 const currentDate = new Date();
 
