@@ -1,16 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState ,useEffect} from 'react';
 import '../styles/AddEmployee.css';
 import avatarImage from '../assets/avtar.png';
 import uploadImage from '../assets/upload.png';
 import axios from 'axios';  
 import { useNavigate} from 'react-router-dom';
 import APIEndpoints  from "./endPoints"
-
+import { jwtDecode } from 'jwt-decode';
 const AddEmployee = () => {
   const navigate = useNavigate();
   const Endpoints= new APIEndpoints()
 
   const [showAdvancedFields, setShowAdvancedFields] = useState(false);
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
+  useEffect(() => {
+    try {
+      const token = getCookie('token'); 
+      if (!token) {
+        navigate('/admin-login'); 
+        return;
+      }
+
+      const decode = jwtDecode(token); 
+      if (decode.role !== 'admin') {
+        navigate('/admin-login'); 
+        return;
+      }
+    } catch (err) {
+      console.error('Error in admin dashboard:', err.message || 'Server error');
+    }
+  }, [navigate]); 
   const [formData, setFormData] = useState({
     firstName: '',
     middleName: '',
@@ -53,7 +75,7 @@ const AddEmployee = () => {
   const [Image, setImage] = useState(null);
 
   const handleFileChange = (e) => {
-    setImage(e.target.files[0]); // Store the file in state
+    setImage(e.target.files[0]); 
   };
 
 

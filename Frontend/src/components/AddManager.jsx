@@ -1,17 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState ,useEffect} from 'react';
 import '../styles/AddManager.css';
 import avatarImage from '../assets/avtar.png';
 import uploadImage from '../assets/upload.png';
 import { useNavigate} from 'react-router-dom';
 import axios from 'axios';
 import APIEndpoints  from "./endPoints"
+import { jwtDecode } from 'jwt-decode';
 
 const AddManager = () => {
   const Endpoints= new APIEndpoints()
 
   const navigate = useNavigate();
+
   const [showAdvancedFields, setShowAdvancedFields] = useState(false);
   const [Image, setImage] = useState(null);
+
+
+
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
+  useEffect(() => {
+    try {
+      const token = getCookie('token'); // Get token from cookie
+      if (!token) {
+        navigate('/admin-login'); 
+        return;
+      }
+
+      const decode = jwtDecode(token); // Decode the token
+      if (decode.role !== 'admin') {
+        navigate('/admin-login'); // Navigate to login page if not an admin
+        return;
+      }
+    } catch (err) {
+      console.error('Error in admin dashboard:', err.message || 'Server error');
+    }
+  }, [navigate])
   const [formData, setFormData] = useState({
     firstName: '',
     middleName: '',

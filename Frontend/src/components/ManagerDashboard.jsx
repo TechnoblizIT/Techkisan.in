@@ -19,18 +19,22 @@ function ManagerDashboard() {
    const [leaves, setLeaves] = useState([])
   const [activeSection, setActiveSection] = useState('home');
   const [isPunchedIn, setIsPunchedIn] = useState(false);
+  const [punchInTime, setPunchInTime] = useState(null);
+  const [punchOutTime, setPunchOutTime] = useState(null);
   const [activeRequestPage, setActiveRequestPage] = useState('leave');
   const [activeReportPage, setActiveReportPage] = useState('leave-balance');
   const [punchRecord, setPunchRecord] = useState([])
   const [pendingleaves, setPendingleaves] = useState([])
-  const handlePunchIn = () => setIsPunchedIn(true);
-  const handlePunchOut = () => setIsPunchedIn(false);
+
   function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop().split(';').shift();
 }
    
+
+
+
 const joiningDate = new Date(employeedata.dateOfHire);
 const currentDate = new Date();
 
@@ -52,6 +56,52 @@ const currentDate = new Date();
     diffInYears--;
     diffInMonths += 12;
   }
+
+
+  const handlePunchIn = async () => {
+    const currentTime = new Date();
+    setPunchInTime(currentTime);
+    setIsPunchedIn(true);
+
+    try {
+      const token = getCookie('token');
+      await axios.post(Endpoints.EMPLOYEE_PUNCH_IN, {
+        punchInTime: currentTime,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      });
+     
+
+    } catch (error) {
+      console.error('Error punching in:', error);
+    }
+  };
+  
+  const handlePunchOut = async () => {
+    const currentTime = new Date();
+    setPunchOutTime(currentTime);
+    setIsPunchedIn(false);
+  
+    // Send punch-out time to backend
+    try {
+      const token = getCookie('token');
+      await axios.post(Endpoints.EMPLOYEE_PUNCH_OUT, {
+        punchOutTime: currentTime,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      });
+    } catch (error) {
+      console.error('Error punching out:', error);
+    }
+  };
+
+
 
 
 const handleApprove = (leaveId) => {
@@ -158,6 +208,8 @@ async function fetchPendingLeaves(){
    
   
   
+  
+  
    
     fetchEmployeeData();
     fetchPendingLeaves()
@@ -198,6 +250,8 @@ async function fetchPendingLeaves(){
                   >
                     Punch Out
                   </button>
+                  {punchInTime && <p>Punched In At: {punchInTime.toLocaleTimeString()}</p>}
+                  {punchOutTime && <p>Punched Out At: {punchOutTime.toLocaleTimeString()}</p>}
                 </div>
                 <hr />
                 <div className="attendance-awards">
@@ -396,7 +450,7 @@ async function fetchPendingLeaves(){
           </div>
           <div className="manager-form-row">
             <div className="manager-form-group">
-              <input className="form-add" type="submit" value="Add" />
+              <input className="form-add" type="submit" value="Add" disabled/>
             </div>
           </div>
         </form>

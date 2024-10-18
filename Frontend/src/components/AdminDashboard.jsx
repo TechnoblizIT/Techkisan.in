@@ -4,34 +4,56 @@ import { useRef }from "react";
 // import { BrowserRouter as Router } from 'react-router-dom';
 import '../styles/AdminDashboard.css'
 import avatarImage from '../assets/avtar.png';
-import axios from "axios";
-// import { jwtDecode } from "jwt-decode";
+// import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 import { useReactToPrint } from 'react-to-print';
 import logo from "../assets/logo1.png"
+import { useNavigate } from 'react-router-dom';
 
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+}
 const AdminDashboard = () => {
   const [activeSection, setActiveSection] = useState('');
   const [activePage, setActivePage] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
   const [topMenuOpen, setTopMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
+  const navigate = useNavigate(); 
+  
   const sections = ['HR', 'Sales/Purchase', 'Accounting','Company','Tools','Modules','Add-Ons','Setting'];
   const hrLinks = ['Overview', 'Employees', 'Departments', 'Designation', 'Announcement', 'Reports', 'Management', 'Help'];
-
+  
   const handleSectionClick = (section) => {
     setActiveSection(section);
     setActivePage('');
     setTopMenuOpen(isMobile && section === 'HR' ? false : true);
     setMenuOpen(false);
   };
-
+  
   const handleLinkClick = (link) => {
     setActivePage(link);
     setTopMenuOpen(false);
   };
-
+  
   useEffect(() => {
+      try {
+        const token = getCookie("token");
+        if (!token) {
+          navigate("/");
+          return;
+        }
+    
+        const decode = jwtDecode(token);
+        if (decode.role !== "admin") {
+          navigate("/admin-login");
+          return;
+        }}
+        catch(err) {
+          console.error('Error in admin dashboard:', err.message || 'Server error');
+     }
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
