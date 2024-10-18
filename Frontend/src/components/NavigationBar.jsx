@@ -13,23 +13,12 @@ function NavigationBar({ activeSection, onNavigate }) {
 
   const handleLogout = async () => {
     try {
-      const token = getCookie('token'); 
+      const token = localStorage.getItem('token'); 
       if (!token) {
         console.error('Token not found');
         return;
       }
-  
-      await axios.post(
-        Endpoints.EMPLOYEE_LOGOUT, 
-      
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      localStorage.removeItem('token');
 
       navigate('/');
 
@@ -117,7 +106,7 @@ function NavigationBar({ activeSection, onNavigate }) {
             className={activeSection === 'attendance' ? 'active' : ''}
             onClick={() => handleLinkClick('attendance')}
           >
-            Attendance
+            Chats With Teams
           </a>
         </li>
         <li className="dropdown-content">

@@ -11,14 +11,14 @@ const AddEmployee = () => {
   const Endpoints= new APIEndpoints()
 
   const [showAdvancedFields, setShowAdvancedFields] = useState(false);
-  function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-  }
+  // function getCookie(name) {
+  //   const value = `; ${document.cookie}`;
+  //   const parts = value.split(`; ${name}=`);
+  //   if (parts.length === 2) return parts.pop().split(';').shift();
+  // }
   useEffect(() => {
     try {
-      const token = getCookie('token'); 
+      const token = localStorage.getItem('token'); 
       if (!token) {
         navigate('/admin-login'); 
         return;
@@ -182,6 +182,7 @@ const AddEmployee = () => {
                     <option value="full-time">Full-Time</option>
                     <option value="part-time">Part-Time</option>
                     <option value="contract">Contract</option>
+                    <option value="Intern">Intern</option>
                   </select>
                 </div>
               </div>

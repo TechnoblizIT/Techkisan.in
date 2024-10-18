@@ -26,11 +26,11 @@ function ManagerDashboard() {
   const [punchRecord, setPunchRecord] = useState([])
   const [pendingleaves, setPendingleaves] = useState([])
 
-  function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-}
+//   function getCookie(name) {
+//     const value = `; ${document.cookie}`;
+//     const parts = value.split(`; ${name}=`);
+//     if (parts.length === 2) return parts.pop().split(';').shift();
+// }
    
 
 
@@ -64,7 +64,7 @@ const currentDate = new Date();
     setIsPunchedIn(true);
 
     try {
-      const token = getCookie('token');
+      const token = localStorage.getItem('token');
       await axios.post(Endpoints.EMPLOYEE_PUNCH_IN, {
         punchInTime: currentTime,
       }, {
@@ -87,7 +87,7 @@ const currentDate = new Date();
   
     // Send punch-out time to backend
     try {
-      const token = getCookie('token');
+      const token = localStorage.getItem("token")
       await axios.post(Endpoints.EMPLOYEE_PUNCH_OUT, {
         punchOutTime: currentTime,
       }, {
@@ -132,7 +132,7 @@ const handleDeny = (leaveId) => {
 
 async function fetchPendingLeaves(){
   try {
-    const token = getCookie('token');
+    const token = localStorage.getItem('token');
     if (!token) {
       navigate("/")
       return;
@@ -162,7 +162,7 @@ async function fetchPendingLeaves(){
     
     const fetchEmployeeData = async () => {
       try {
-        const token = getCookie('token');
+        const token = localStorage.getItem("token");
         if (!token) {
           navigate("/")
           return;

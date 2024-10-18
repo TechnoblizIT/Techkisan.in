@@ -26,6 +26,7 @@ const LoginPage = () => {
       const data = await response.json();
 
       if (data.success) {
+        localStorage.setItem('token', data.token);
         if(data.message=="employee") {
         navigate('/employee-dashboard');
         } else if(data.message=="manager") {

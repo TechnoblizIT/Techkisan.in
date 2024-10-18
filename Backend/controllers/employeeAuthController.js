@@ -26,9 +26,9 @@ module.exports.loginUser = async function (req, res) {
 
            
             const token = genrateTokenManager(manager);
-            res.cookie("token", token);
+            
               
-            return res.json({ success: true, message: 'manager' ,});
+            return res.json({ success: true, message: 'manager' ,token: token });
         }
 
         
@@ -40,10 +40,10 @@ module.exports.loginUser = async function (req, res) {
 
         //
         const token = genrateToken(employee);
-        res.cookie("token",token);
+       
           
         
-        return res.json({ success: true, message: 'employee'});
+        return res.json({ success: true, message: 'employee',token:token});
 
     } catch (e) {
         console.error(e);

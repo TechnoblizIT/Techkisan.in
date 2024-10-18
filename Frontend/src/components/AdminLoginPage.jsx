@@ -27,6 +27,7 @@ const AdminLoginPage = () => {
       const data = await response.json();
 
       if (data.success) {
+        localStorage.setItem('token', data.token);
         console.log(data.message);
         navigate('/admin-dashboard');
       } else {

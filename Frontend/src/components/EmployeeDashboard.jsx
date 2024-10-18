@@ -80,7 +80,7 @@ let todayDate = day + '/' + month + '/' + year;
     setIsPunchedIn(true);
 
     try {
-      const token = getCookie('token');
+      const token = localStorage.getItem('token');
       await axios.post(Endpoints.EMPLOYEE_PUNCH_IN, {
         punchInTime: currentTime,
       }, {
@@ -103,7 +103,7 @@ let todayDate = day + '/' + month + '/' + year;
   
     // Send punch-out time to backend
     try {
-      const token = getCookie('token');
+      const token = localStorage.getItem('token')
       await axios.post(Endpoints.EMPLOYEE_PUNCH_OUT, {
         punchOutTime: currentTime,
       }, {
@@ -134,7 +134,7 @@ let todayDate = day + '/' + month + '/' + year;
   };
   
 
-  const token = getCookie('token'); 
+  const token = localStorage.getItem('token');
 
   const handleSubmitwfh = async (event) => {
     event.preventDefault(); 
@@ -280,15 +280,15 @@ const filteredLeave=leaves.filter((leave) =>{
 .slice(-entryconut) 
 .reverse(); 
 
-  function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-}
+//   function getCookie(name) {
+//     const value = `; ${document.cookie}`;
+//     const parts = value.split(`; ${name}=`);
+//     if (parts.length === 2) return parts.pop().split(';').shift();
+// }
 useEffect(() => {
   const fetchEmployeeData = async () => {
     try {
-      const token = getCookie("token");
+      const token = localStorage.getItem('token')
       if (!token) {
         navigate("/");
         return;
@@ -815,7 +815,7 @@ const currentDate = new Date();
             </div>
           </div>
         );
-        case 'report':
+      case 'report':
           return (
             <div className="report-section">
               <nav className="report-nav">

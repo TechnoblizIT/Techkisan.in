@@ -18,8 +18,8 @@ module.exports.loginUser = async function (req, res) {
     }
 
     const token = genrateToken(admin);
-    res.cookie("token", token);
-    return res.json({ success: true, message: 'Login successful' });
+    
+    return res.json({ success: true, message: 'admin',token: token });
 
   } catch (e) {
     console.log(e);
