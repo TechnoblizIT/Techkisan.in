@@ -9,7 +9,9 @@ import AdminLoginPage from './components/AdminLoginPage';
 import AdminDashboard from './components/AdminDashboard';
 import AddEmployee from './components/AddEmployee';
 import AddManager from './components/AddManager';
+import AddInterns from './components/AddIntern';
 import ManagerDashboard from './components/ManagerDashboard';
+import InternDashboard from './components/InternDashboard';
 import {APIEndpoints} from "./components/endPoints"
 function App() {
   return (
@@ -23,7 +25,9 @@ function App() {
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/add-employee" element={<AddEmployee />} />
           <Route path="/add-manager" element={<AddManager />} />
+          <Route path="/add-intern" element={<AddInterns />} />
           <Route path="/manager-dashboard" element={<ManagerDashboard />} />
+          <Route path="/intern-dashboard" element={<InternDashboard />} />
         </Routes>
       </div>
     </Router>
