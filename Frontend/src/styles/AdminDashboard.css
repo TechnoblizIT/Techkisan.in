@@ -527,13 +527,13 @@
     gap: 20px;
   }
   
-  .employee-block, .manager-block {
+  .employee-block, .manager-block, .intern-block {
     display: flex;
     align-items: center;
     gap: 10px; 
   }
   
-  .employee-block h2, .manager-block h2 {
+  .employee-block h2, .manager-block h2, .intern-block h2 {
     margin: 0;
     font-size: 18px;
   }
@@ -557,7 +557,7 @@
       align-items: flex-start;
     }
   
-    .employee-block, .manager-block {
+    .employee-block, .manager-block, .intern-block {
       /* flex-direction: row; */
       /* justify-content: space-between; */
       width: 100%;

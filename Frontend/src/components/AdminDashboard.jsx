@@ -246,6 +246,10 @@ const handleQuit = () => {
         <h2>Managers</h2>
         <Link className="add-new" to="/add-manager">Add New</Link>
       </div>
+      <div className="intern-block">
+        <h2>Intern</h2>
+        <Link className="add-new" to="/add-intern">Add New</Link>
+      </div>
     </div>
   </div>
 )}
