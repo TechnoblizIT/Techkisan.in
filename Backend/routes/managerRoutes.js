@@ -11,7 +11,7 @@ const upload=require("../configs/mutler-setup")
 router.post("/create", upload.single("Image"), async (req, res) => {
   try {
     const { firstName, lastName, email } = req.body;
-    console.log(req.body);
+    
 
     let username =
       firstName.toLowerCase() + lastName.toLowerCase() + crypto.randomBytes(3).toString("hex");
