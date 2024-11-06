@@ -3,19 +3,35 @@ const bcrypt = require('bcrypt');
 const { genrateToken } = require("../utils/generateToken");
 const managerModel = require("../models/manager-model")
 const{genrateTokenManager}=require("../utils/generateTokenManager")
+const internModel=require("../models/intern-model")
+const { genrateTokenIntern } = require("../utils/generateTokenIntern");
 module.exports.loginUser = async function (req, res) {
     try {
         let { username, password } = req.body;
-        
-        
-        const employee = await employeeModel.findOne({ username: username });
 
+       
+        const employee = await employeeModel.findOne({ username: username });
         if (!employee) {
+
             
             const manager = await managerModel.findOne({ username: username });
-           
             if (!manager) {
-                return res.json({ success: false, message: 'Invalid credentials' });
+
+                
+                const intern = await internModel.findOne({ username: username });
+                if (!intern) {
+                    return res.json({ success: false, message: 'Invalid credentials' });
+                }
+
+                
+                let isMatch = await bcrypt.compare(password, intern.password);
+                if (!isMatch) {
+                    return res.json({ success: false, message: 'Invalid password credentials' });
+                }
+
+               
+                const token = genrateTokenIntern(intern);
+                return res.json({ success: true, message: 'intern', token: token });
             }
 
             
@@ -24,26 +40,20 @@ module.exports.loginUser = async function (req, res) {
                 return res.json({ success: false, message: 'Invalid password credentials' });
             }
 
-           
-            const token = genrateTokenManager(manager);
             
-              
-            return res.json({ success: true, message: 'manager' ,token: token });
+            const token = genrateTokenManager(manager);
+            return res.json({ success: true, message: 'manager', token: token });
         }
 
-        
+       
         let isMatch = await bcrypt.compare(password, employee.password);
-
         if (!isMatch) {
             return res.json({ success: false, message: 'Invalid password credentials' });
         }
 
-        //
-        const token = genrateToken(employee);
        
-          
-        
-        return res.json({ success: true, message: 'employee',token:token});
+        const token = genrateToken(employee);
+        return res.json({ success: true, message: 'employee', token: token });
 
     } catch (e) {
         console.error(e);
