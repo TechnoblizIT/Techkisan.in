@@ -3,10 +3,16 @@ import NavigationBar from './NavigationBar';
 import '../styles/EmployeeDashboard.css';
 import axios from 'axios';
 import cakeimg from '../assets/cake-img.png'
+import profile from '../assets/P.jpg';
+import image from '../assets/img-dashboard.jpg'
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import APIEndpoints  from "./endPoints"
 function EmployeeDashboard() {
+
+  // for chat-area
+  const [selectedChat, setSelectedChat] = useState(null);
+  // ============================================================
 
   const Endpoints= new APIEndpoints()
   const formatDate = (dateString) => {
@@ -1576,6 +1582,136 @@ const currentDate = new Date();
               </div>
             </div>
           );
+          // code for chat box ======================================================================================
+          case 'chat':
+            return (
+              <div className="chat-app">
+              {/* chat-sidebar */}
+              <div className="chat-sidebar">
+                <div className="chat-sidebar-icons">
+                  <div className="chat-sidebar-icon">
+                    <i className="fa-regular fa-bell"></i>
+                    <p>Activity</p>
+                  </div>
+                  <div className="chat-sidebar-icon">
+                    <i className="fa-regular fa-message"></i>
+                    <p>Chat</p>
+                  </div>
+                  <div className="chat-sidebar-icon">
+                    <i className="fa-solid fa-people-group"></i>
+                    <p>Teams</p>
+                  </div>
+                  <div className="chat-sidebar-icon">
+                    <i className="fa-solid fa-calendar-days"></i>
+                    <p>Calendar</p>
+                  </div>
+                  <div className="chat-sidebar-icon gear-icon">
+                    <i className="fa-solid fa-gear"></i>
+                    <p className="hidden">Setting</p>
+                  </div>
+                </div>
+                <div className="chat-sidebar-bottom">
+                <img src={image} alt="profile" className="profile-photo" />
+                </div>
+              </div>
+        
+              {/* chat-list */}
+              <div className="chat-list">
+                <div className="chat-list-header">
+                  <h1>Chat</h1>
+                  <div className="chat-icons">
+                    <div className="icon-container video-icon" data-tooltip="Meet Now">
+                      <i className="fa-solid fa-video"></i>
+                    </div>
+                    <div className="icon-container add-icon" data-tooltip="New Chat">
+                      <i className="fa-solid fa-plus"></i>
+                    </div>
+                  </div>
+                </div>
+                <div className="chat-search-bar">
+                  <input type="text" className="search-input" placeholder="Search..." />
+                </div>
+                <div className="chat-previews">
+                  <div
+                    className="chat-preview"
+                    onClick={() => setSelectedChat("Eyra Doe")} // select chat on click
+                  >
+                    <img src={profile} alt="profile" className="img-profile" />
+                    <div className="preview-details">
+                      <div className="preview-header">
+                        <span className="preview-name">Eyra Doe</span>
+                        <span className="preview-time">10:00 AM</span>
+                      </div>
+                      <p className="preview-message">Hello! How are you?</p>
+                    </div>
+                  </div>
+        
+                  <div
+                    className="chat-preview"
+                    onClick={() => setSelectedChat("Myra Smith")}
+                  >
+                    <img src={profile} alt="profile" className="img-profile" />
+                    <div className="preview-details">
+                      <div className="preview-header">
+                        <span className="preview-name">Myra Smith</span>
+                        <span className="preview-time">10:05 AM</span>
+                      </div>
+                      <p className="preview-message">Meeting at 3 PM?</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+        
+              {/* chat-area */}
+              {selectedChat && (
+                <div className="chat-area">
+                  <div className="chat-header">
+                    <div className="chat-header-left">
+                    <img src={profile} alt="profile" className="profile-main" />
+                      <span className="chat-name">{selectedChat}</span>
+                    </div>
+                    <div className="chat-header-icons">
+                      <i className="fa-solid fa-video"></i>
+                      <i className="fa-solid fa-phone"></i>
+                      <i className="fa-solid fa-magnifying-glass"></i>
+                      <i className="fa-solid fa-ellipsis-vertical"></i>
+                    </div>
+                  </div>
+        
+                
+                   {/* Messages Section */}
+                   <div className="messages">
+  <div className="message-left">Hello, how are you?</div>
+  <div className="message-right">I'm good, thanks! How about you?</div>
+  <div className="message-left">I'm doing well, just a bit busy with work.</div>
+  <div className="message-right">Yeah, same here. I've been swamped with a couple of deadlines.</div>
+  <div className="message-left">That sounds stressful! What are you working on?</div>
+  <div className="message-right">Mostly project reports and some last-minute adjustments for the team.</div>
+  <div className="message-left">Sounds intense! I hope it gets easier soon.</div>
+  <div className="message-right">I hope so too! Anyway, have you watched the new series on Netflix?</div>
+  <div className="message-left">Not yet! Is it good?</div>
+  <div className="message-right">Yeah, it’s really interesting! You should check it out when you have time.</div>
+  <div className="message-left">I’ll add it to my list. What’s it about?</div>
+  <div className="message-right">It’s a thriller with a lot of twists. Definitely keeps you on the edge of your seat!</div>
+  <div className="message-left">That sounds like something I’d enjoy! I’ll watch it this weekend.</div>
+  <div className="message-right">Great choice! Let me know what you think about it.</div>
+  <div className="message-left">Will do! Alright, I need to get back to work. Talk soon!</div>
+  <div className="message-right">Same here! Catch you later!</div>
+</div>
+        
+                  {/* Message Input Box */}
+                  <div className="message-input">
+                    <div className="input-container">
+                      <input type="text" placeholder="Type a new message" />
+                      <i className="fa-regular fa-face-smile emoji-icon"></i>
+                      <i className="fa-solid fa-paperclip attach-icon"></i>
+                    </div>
+                    <i className="fa-solid fa-paper-plane send-icon"></i>
+                  </div>
+                </div>
+              )}
+            </div>
+            );
       default:
         return null;
     }

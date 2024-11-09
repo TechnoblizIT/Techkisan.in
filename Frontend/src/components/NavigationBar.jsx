@@ -103,8 +103,8 @@ function NavigationBar({ activeSection, onNavigate }) {
         <li>
           <a
             href="#"
-            className={activeSection === 'attendance' ? 'active' : ''}
-            onClick={() => handleLinkClick('attendance')}
+            className={activeSection === 'chat' ? 'active' : ''}
+            onClick={() => handleLinkClick('chat')}
           >
             Chats With Teams
           </a>

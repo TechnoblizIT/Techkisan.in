@@ -1,5 +1,5 @@
 import React,{useEffect, useState} from 'react';
-import ManagerNavigation from './ManagerNavigation';
+import NavigationBar from './NavigationBar';
 import '../styles/InternDashboard.css';
 import axios from 'axios';
 import profileimg from '../assets/img-dashboard.jpg';
@@ -1272,64 +1272,8 @@ const currentDate = new Date();
               </div>
             </div>
           );
-          case 'pending':
-            return (
-                <div className="intern-pending-section">
-                <div className="intern-pending-leave-container">
-                <h4>Pending Leave</h4>
-                <div className='intern-div-pending-table'>
-                <table className="intern-pending-leaves-table">
-            <thead>
-              
-                <tr>
-                    <th>Employee Name</th>
-                    <th>Leave Type</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
-                    <th>Number of Days</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-              
-               
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td>
-                               
-                            </td>
-                            <td>
-                                                    <button
-                                className="intern-pending-approved-button"
-                              
-                              >
-                                Approve
-                              </button>
-                              <button
-                                className="intern-pending-cancel-button"
-                              
-                              >
-                                Deny
-                              </button>
-                            </td>
-                        </tr>
-                  
-                {/* (
-                    <tr>
-                        <td colSpan="6">No pending leaves found</td>
-                    </tr>
-                ) */}
-            </tbody>
-        </table>
-        </div>
+         
     
-              </div>
-              </div>
-            );
-     
       default:
         return null;
     }
@@ -1337,7 +1281,7 @@ const currentDate = new Date();
 
   return (
     <div className="employee-dashboard">
-      <ManagerNavigation activeSection={activeSection} onNavigate={setActiveSection} />
+      <NavigationBar activeSection={activeSection} onNavigate={setActiveSection} />
       {renderSection()}
     </div>
   );
