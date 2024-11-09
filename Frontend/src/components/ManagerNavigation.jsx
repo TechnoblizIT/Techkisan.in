@@ -106,10 +106,10 @@ function ManagerNavigation({ activeSection, onNavigate }) {
         <li>
           <a
             href="#"
-            className={activeSection === 'attendance' ? 'active' : ''}
-            onClick={() => handleLinkClick('attendance')}
+            className={activeSection === 'chat' ? 'active' : ''}
+            onClick={() => handleLinkClick('chat')}
           >
-            Attendance
+            Chats With Teams
           </a>
         </li>
         <li className="dropdown-content">

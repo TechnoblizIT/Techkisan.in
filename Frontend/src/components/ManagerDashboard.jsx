@@ -5,12 +5,20 @@ import axios from 'axios';
 import profileimg from '../assets/img-dashboard.jpg';
 import bdayimg from '../assets/P.jpg'
 import cakeimg from '../assets/cake-img.png'
+import profile from '../assets/P.jpg';
+import image from '../assets/img-dashboard.jpg'
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import { type } from '@testing-library/user-event/dist/type';
 import APIEndpoints from './endPoints'
 
 function ManagerDashboard() {
+
+   // for manager-chat-area
+   const [selectedChat, setSelectedChat] = useState(null);
+   // ============================================================
+ 
+
   const Endpoints= new APIEndpoints()
 
   const [employeedata, setemployeedata]=useState("")
@@ -1475,6 +1483,138 @@ async function fetchPendingLeaves(){
     
               </div>
               </div>
+
+              
+            );
+            // code for chat box ======================================================================================
+          case 'chat':
+            return (
+              <div className="chat-application">
+              {/* manager-chat-sidebar */}
+              <div className="manager-chat-sidebar">
+                <div className="manager-chat-sidebar-icons">
+                  <div className="manager-chat-sidebar-icon">
+                    <i className="fa-regular fa-bell"></i>
+                    <p>Activity</p>
+                  </div>
+                  <div className="manager-chat-sidebar-icon">
+                    <i className="fa-regular fa-message"></i>
+                    <p>Chat</p>
+                  </div>
+                  <div className="manager-chat-sidebar-icon">
+                    <i className="fa-solid fa-people-group"></i>
+                    <p>Teams</p>
+                  </div>
+                  <div className="manager-chat-sidebar-icon">
+                    <i className="fa-solid fa-calendar-days"></i>
+                    <p>Calendar</p>
+                  </div>
+                  <div className="manager-chat-sidebar-icon gear-icon">
+                    <i className="fa-solid fa-gear"></i>
+                    <p className="hidden">Setting</p>
+                  </div>
+                </div>
+                <div className="manager-chat-sidebar-bottom">
+                <img src={image} alt="profile" className="profile-photo" />
+                </div>
+              </div>
+        
+              {/* manager-chat-list */}
+              <div className="manager-chat-list">
+                <div className="manager-chat-list-header">
+                  <h1>Chat</h1>
+                  <div className="manager-chat-icons">
+                    <div className="icon-container video-icon" data-tooltip="Meet Now">
+                      <i className="fa-solid fa-video"></i>
+                    </div>
+                    <div className="icon-container add-icon" data-tooltip="New Chat">
+                      <i className="fa-solid fa-plus"></i>
+                    </div>
+                  </div>
+                </div>
+                <div className="manager-chat-search-bar">
+                  <input type="text" className="manager-search-input" placeholder="Search..." />
+                </div>
+                <div className="manager-chat-previews">
+                  <div
+                    className="manager-chat-preview"
+                    onClick={() => setSelectedChat("Eyra Doe")} // select chat on click
+                  >
+                    <img src={profile} alt="profile" className="img-profile" />
+                    <div className="manager-preview-details">
+                      <div className="preview-header">
+                        <span className="preview-name">Eyra Doe</span>
+                        <span className="preview-time">10:00 AM</span>
+                      </div>
+                      <p className="preview-message">Hello! How are you?</p>
+                    </div>
+                  </div>
+        
+                  <div
+                    className="manager-chat-preview"
+                    onClick={() => setSelectedChat("Myra Smith")}
+                  >
+                    <img src={profile} alt="profile" className="img-profile" />
+                    <div className="manager-preview-details">
+                      <div className="preview-header">
+                        <span className="preview-name">Myra Smith</span>
+                        <span className="preview-time">10:05 AM</span>
+                      </div>
+                      <p className="preview-message">Meeting at 3 PM?</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+        
+              {/* manager-chat-area */}
+              {selectedChat && (
+                <div className="manager-chat-area">
+                  <div className="manager-chat-header">
+                    <div className="manager-chat-header-left">
+                    <img src={profile} alt="profile" className="profile-main" />
+                      <span className="chat-name">{selectedChat}</span>
+                    </div>
+                    <div className="manager-chat-header-icons">
+                      <i className="fa-solid fa-video"></i>
+                      <i className="fa-solid fa-phone"></i>
+                      <i className="fa-solid fa-magnifying-glass"></i>
+                      <i className="fa-solid fa-ellipsis-vertical"></i>
+                    </div>
+                  </div>
+        
+                
+                   {/* conversation Section */}
+                   <div className="conversation">
+  <div className="conversation-left">Hello, how are you?</div>
+  <div className="conversation-right">I'm good, thanks! How about you?</div>
+  <div className="conversation-left">I'm doing well, just a bit busy with work.</div>
+  <div className="conversation-right">Yeah, same here. I've been swamped with a couple of deadlines.</div>
+  <div className="conversation-left">That sounds stressful! What are you working on?</div>
+  <div className="conversation-right">Mostly project reports and some last-minute adjustments for the team.</div>
+  <div className="conversation-left">Sounds intense! I hope it gets easier soon.</div>
+  <div className="conversation-right">I hope so too! Anyway, have you watched the new series on Netflix?</div>
+  <div className="conversation-left">Not yet! Is it good?</div>
+  <div className="conversation-right">Yeah, it’s really interesting! You should check it out when you have time.</div>
+  <div className="conversation-left">I’ll add it to my list. What’s it about?</div>
+  <div className="conversation-right">It’s a thriller with a lot of twists. Definitely keeps you on the edge of your seat!</div>
+  <div className="conversation-left">That sounds like something I’d enjoy! I’ll watch it this weekend.</div>
+  <div className="conversation-right">Great choice! Let me know what you think about it.</div>
+  <div className="conversation-left">Will do! Alright, I need to get back to work. Talk soon!</div>
+  <div className="conversation-right">Same here! Catch you later!</div>
+</div>
+        
+                  {/* Message Input Box */}
+                  <div className="conversation-input">
+                    <div className="manager-input-container">
+                      <input type="text" placeholder="Type a new message" />
+                      <i className="fa-regular fa-face-smile emoji-icon"></i>
+                      <i className="fa-solid fa-paperclip attach-icon"></i>
+                    </div>
+                    <i className="fa-solid fa-paper-plane send-icon"></i>
+                  </div>
+                </div>
+              )}
+            </div>
             );
       default:
         return null;
