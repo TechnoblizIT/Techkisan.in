@@ -27,6 +27,11 @@ class APIEndpoints {
       this.MANAGER_APPROVE_LEAVE = `${this.BASE_URL}/manager/leaves/approve`;
       this.MANAGER_DENY_LEAVE = `${this.BASE_URL}/manager/leaves/deny`;
       this.MANAGER_LOGOUT = `${this.BASE_URL}/manager/logout`;
+      // Intern Endpoints
+      this.INTERN_CREATE = `${this.BASE_URL}/intern/create`;
+      this.INTERN_LOGIN = `${this.BASE_URL}/intern/login`;
+      this.INTERN_DASHBOARD = `${this.BASE_URL}/intern/interndata`;
+      this.INTERN_LOGOUT = `${this.BASE_URL}/intern/logout`;
     }
   }
   

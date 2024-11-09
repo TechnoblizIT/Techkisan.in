@@ -11,6 +11,7 @@ const indexRoute=require("./routes/indexRoute")
 const employeesRoute=require("./routes/employeeRoute")
 const adminRoute=require("./routes/adminRoutes")
 const managerRoute=require("./routes/managerRoutes")
+const internRoute=require("./routes/internRoutes")
 const cron = require('node-cron');
 const employeeModel=require("./models/employee-model")
 app.use(cookieParser())
@@ -36,6 +37,7 @@ app.use("/",indexRoute);
 app.use("/employees",employeesRoute);
 app.use("/admin",adminRoute);
 app.use("/manager",managerRoute);
+app.use("/intern",internRoute);
 
 
 

@@ -31,7 +31,10 @@ const LoginPage = () => {
         navigate('/employee-dashboard');
         } else if(data.message=="manager") {
         navigate('/manager-dashboard');}
-      } else {
+        else if(data.message=="intern"){
+          navigate('/intern-dashboard');}
+        }
+      else {
         
         setError(data.message);
       }

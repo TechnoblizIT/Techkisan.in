@@ -118,13 +118,9 @@ const AddEmployee = () => {
       });
       console.log(response.status)
       if (response.status === 200) {
-        navigate('/');
+        navigate('/admin-dashboard');
         console.log("Employee added successfully!");
       }
-        
-          navigate('/employee-dashboard');
-      
-      
     } catch (error) {
       console.error("There was an error adding the employee!", error);
     }
