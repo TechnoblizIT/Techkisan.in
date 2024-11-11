@@ -59,6 +59,7 @@ let todayDate = day + '/' + month + '/' + year;
   const [endDate1, setEndDate1] = useState('');
   const [dayType, setDayType] = useState('');
   const [inTime, setInTime] = useState('');
+  const [users, setUsers] = useState([]);
   const [outTime, setOutTime] = useState('');
   const [remark, setRemark] = useState('');
   const [formData, setFormData] = useState({
@@ -301,6 +302,7 @@ useEffect(() => {
       }
 
       const decode = jwtDecode(token);
+      
       if (decode.role !== "employee") {
         navigate("/");
         return;
@@ -316,6 +318,7 @@ useEffect(() => {
 
       if (response.status === 200) {
         const empdata = response.data;
+       
         setemployeedata(empdata.employee);
         setLeaves(empdata.empleaves);
         setPunchRecord(empdata.employee.punchRecords);
@@ -335,9 +338,51 @@ useEffect(() => {
       console.error('Error fetching employee data:', error);
     }
   };
+  const convertImageToBase64 = (imageData, imageType) => {
+    if (!imageData) return null; // Handle missing images
+    const binaryString = new Uint8Array(imageData).reduce(
+      (acc, byte) => acc + String.fromCharCode(byte),
+      ''
+    );
+    const base64String = btoa(binaryString);
+    return `data:${imageType};base64,${base64String}`;
+  };
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get(Endpoints.GET_USERS,{
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+        withCredentials: true,
+      });
+      const allUsers = [
+        ...response.data.employees,
+        ...response.data.managers,
+        ...response.data.interns,
+      ];
+  
+      const usersWithImageUrls = allUsers
+      .filter(user => user._id!=employeedata._id)
+      .map((user) => ({
+        ...user,
+        imageUrl: user.Image && user.Image[0]
+          ? convertImageToBase64(user.Image[0].Image.data, user.Image[0].Imagetype)
+          : "loading",
+      }));
+    
+    setUsers(usersWithImageUrls);
 
+     
+    } catch (error) {
+      console.error('Error fetching users', error);
+    }
+  };
   fetchEmployeeData();
+  fetchUsers();
 }, [navigate]);
+
+
 const joiningDate = new Date(employeedata.dateOfHire);
 const currentDate = new Date();
 
@@ -1611,64 +1656,65 @@ const currentDate = new Date();
                   </div>
                 </div>
                 <div className="chat-sidebar-bottom">
-                <img src={image} alt="profile" className="profile-photo" />
+                <img src={avatarUrl} alt="profile" className="profile-photo" />
                 </div>
               </div>
         
               {/* chat-list */}
               <div className="chat-list">
-                <div className="chat-list-header">
-                  <h1>Chat</h1>
-                  <div className="chat-icons">
-                    <div className="icon-container video-icon" data-tooltip="Meet Now">
-                      <i className="fa-solid fa-video"></i>
-                    </div>
-                    <div className="icon-container add-icon" data-tooltip="New Chat">
-                      <i className="fa-solid fa-plus"></i>
-                    </div>
-                  </div>
-                </div>
-                <div className="chat-search-bar">
-                  <input type="text" className="search-input" placeholder="Search..." />
-                </div>
-                <div className="chat-previews">
-                  <div
-                    className="chat-preview"
-                    onClick={() => setSelectedChat("Eyra Doe")} // select chat on click
-                  >
-                    <img src={profile} alt="profile" className="img-profile" />
-                    <div className="preview-details">
-                      <div className="preview-header">
-                        <span className="preview-name">Eyra Doe</span>
-                        <span className="preview-time">10:00 AM</span>
-                      </div>
-                      <p className="preview-message">Hello! How are you?</p>
-                    </div>
-                  </div>
-        
-                  <div
-                    className="chat-preview"
-                    onClick={() => setSelectedChat("Myra Smith")}
-                  >
-                    <img src={profile} alt="profile" className="img-profile" />
-                    <div className="preview-details">
-                      <div className="preview-header">
-                        <span className="preview-name">Myra Smith</span>
-                        <span className="preview-time">10:05 AM</span>
-                      </div>
-                      <p className="preview-message">Meeting at 3 PM?</p>
-                    </div>
-                  </div>
-                </div>
+      <div className="chat-list-header">
+        <h1>Chat</h1>
+        <div className="chat-icons">
+          <div className="icon-container video-icon" data-tooltip="Meet Now">
+            <i className="fa-solid fa-video"></i>
+          </div>
+          <div className="icon-container add-icon" data-tooltip="New Chat">
+            <i className="fa-solid fa-plus"></i>
+          </div>
+        </div>
+      </div>
+      <div className="chat-search-bar">
+        <input type="text" className="search-input" placeholder="Search..." />
+      </div>
+      <div className="chat-previews">
+       
+        {users.map((user) => (
+          <div
+            key={user._id}
+            className="chat-preview"
+            onClick={() => setSelectedChat(user.firstName+" "+user.lastName)} // select chat on click
+          >
+            <img src={user.imageUrl || profile} alt="profile" className="img-profile" />
+            <div className="preview-details">
+              <div className="preview-header">
+                <span className="preview-name">{user.firstName+" "+user.lastName}</span>
+                <span className="preview-time">10:00 AM</span> {/* Adjust as needed */}
               </div>
+              <p className="preview-message">no messages</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
         
               {/* chat-area */}
               {selectedChat && (
                 <div className="chat-area">
                   <div className="chat-header">
                     <div className="chat-header-left">
-                    <img src={profile} alt="profile" className="profile-main" />
-                      <span className="chat-name">{selectedChat}</span>
+                    {users
+          .filter((user) => user.firstName+" "+user.lastName === selectedChat)
+          .map((user) => (
+            <div key={user._id}>
+              <img
+                src={user.imageUrl} 
+                alt="profile"
+                className="profile-main"
+              />
+              <span className="chat-name">{user.firstName+" "+user.lastName}</span> 
+            </div>
+          ))}
+
                     </div>
                     <div className="chat-header-icons">
                       <i className="fa-solid fa-video"></i>
@@ -1685,18 +1731,6 @@ const currentDate = new Date();
   <div className="message-right">I'm good, thanks! How about you?</div>
   <div className="message-left">I'm doing well, just a bit busy with work.</div>
   <div className="message-right">Yeah, same here. I've been swamped with a couple of deadlines.</div>
-  <div className="message-left">That sounds stressful! What are you working on?</div>
-  <div className="message-right">Mostly project reports and some last-minute adjustments for the team.</div>
-  <div className="message-left">Sounds intense! I hope it gets easier soon.</div>
-  <div className="message-right">I hope so too! Anyway, have you watched the new series on Netflix?</div>
-  <div className="message-left">Not yet! Is it good?</div>
-  <div className="message-right">Yeah, it’s really interesting! You should check it out when you have time.</div>
-  <div className="message-left">I’ll add it to my list. What’s it about?</div>
-  <div className="message-right">It’s a thriller with a lot of twists. Definitely keeps you on the edge of your seat!</div>
-  <div className="message-left">That sounds like something I’d enjoy! I’ll watch it this weekend.</div>
-  <div className="message-right">Great choice! Let me know what you think about it.</div>
-  <div className="message-left">Will do! Alright, I need to get back to work. Talk soon!</div>
-  <div className="message-right">Same here! Catch you later!</div>
 </div>
         
                   {/* Message Input Box */}

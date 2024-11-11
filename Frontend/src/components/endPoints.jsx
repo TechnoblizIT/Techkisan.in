@@ -2,10 +2,11 @@ class APIEndpoints {
     constructor() {
       this.BASE_URL ="http://localhost:8000";
       
-     
+     this.GET_USERS=`${this.BASE_URL}/allusers`
       // Admin Endpoints
       this.ADMIN_LOGIN = `${this.BASE_URL}/admin/login`;
       this.ADMIN_DASHBOARD = `${this.BASE_URL}/admin/admindata`;
+
   
       // Employee Endpoints
       this.EMPLOYEE_CREATE = `${this.BASE_URL}/employees/create`;
