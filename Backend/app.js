@@ -1,12 +1,16 @@
 require('dotenv').config()
 const express =require('express');
+const http = require("http");
+const { Server } = require("socket.io");
 
 const app = express();
+const server = http.createServer(app);
 const cors = require('cors');
 const path=require('path');
 const cookieParser=require('cookie-parser');
 const expressSession = require('express-session');
 const db=require('./configs/mongoose-connection')
+const messageModel=require("./models/message-model")
 const indexRoute=require("./routes/indexRoute")
 const employeesRoute=require("./routes/employeeRoute")
 const adminRoute=require("./routes/adminRoutes")
@@ -39,8 +43,33 @@ app.use("/admin",adminRoute);
 app.use("/manager",managerRoute);
 app.use("/intern",internRoute);
 
+const io = new Server(server, {
+  cors: { origin: process.env.ORIGIN }
+});
 
+io.on("connection", (socket) => {
+  console.log("New client connected");
 
+  // Handle message events from client
+  socket.on("sendMessage", async (messageData) => {
+    const { senderId, receiverId,  text } = messageData;
+  console.log(senderId, receiverId, text);
+   
+    const message = new messageModel({
+      sender: senderId,
+      recipient: receiverId,
+      message: text,
+     });
+    await message.save();
+
+    // Emit message to other connected clients
+    io.emit("receiveMessage", message);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Client disconnected");
+  });
+})
 cron.schedule('59 23 * * *', async () => {
   try {
     const today = new Date();
@@ -70,4 +99,6 @@ cron.schedule('59 23 * * *', async () => {
 
 
 
-app.listen(process.env.PORT||8000);
+server.listen(8000, () => {
+  console.log("Server running on port 8000");
+});

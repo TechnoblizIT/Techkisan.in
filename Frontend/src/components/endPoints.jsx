@@ -3,6 +3,7 @@ class APIEndpoints {
       this.BASE_URL ="http://localhost:8000";
       
      this.GET_USERS=`${this.BASE_URL}/allusers`
+     this.GET_MESSAGES=`${this.BASE_URL}/messages`
       // Admin Endpoints
       this.ADMIN_LOGIN = `${this.BASE_URL}/admin/login`;
       this.ADMIN_DASHBOARD = `${this.BASE_URL}/admin/admindata`;

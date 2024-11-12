@@ -8,13 +8,20 @@ import image from '../assets/img-dashboard.jpg'
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import APIEndpoints  from "./endPoints"
+import io from "socket.io-client";
+
 function EmployeeDashboard() {
 
   // for chat-area
-  const [selectedChat, setSelectedChat] = useState(null);
+  const [selectedChat, setSelectedChat] = useState([]);
   // ============================================================
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+
+
 
   const Endpoints= new APIEndpoints()
+  const socket = io(Endpoints.BASE_URL);
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString(); 
@@ -292,33 +299,51 @@ const filteredLeave=leaves.filter((leave) =>{
 //     const parts = value.split(`; ${name}=`);
 //     if (parts.length === 2) return parts.pop().split(';').shift();
 // }
+const convertImageToBase64 = (imageData, imageType) => {
+  if (!imageData) return null; // Handle missing images
+  const binaryString = new Uint8Array(imageData).reduce(
+    (acc, byte) => acc + String.fromCharCode(byte),
+    ''
+  );
+  const base64String = btoa(binaryString);
+  return `data:${imageType};base64,${base64String}`;
+};
 useEffect(() => {
-  const fetchEmployeeData = async () => {
+  const fetchData = async () => {
     try {
-      const token = localStorage.getItem('token')
+      const token = localStorage.getItem('token');
       if (!token) {
         navigate("/");
         return;
       }
 
       const decode = jwtDecode(token);
-      
       if (decode.role !== "employee") {
         navigate("/");
         return;
       }
 
-      const response = await axios.get(Endpoints.EMPLOYEE_DASHBOARD, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-        withCredentials: true,
-      });
+      // Fetch employee data and users concurrently
+      const [employeeResponse, usersResponse] = await Promise.all([
+        axios.get(Endpoints.EMPLOYEE_DASHBOARD, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+          withCredentials: true,
+        }),
+        axios.get(Endpoints.GET_USERS, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+          withCredentials: true,
+        }),
+      ]);
 
-      if (response.status === 200) {
-        const empdata = response.data;
-       
+      // Check if the employee data fetch is successful
+      if (employeeResponse.status === 200) {
+        const empdata = employeeResponse.data;
         setemployeedata(empdata.employee);
         setLeaves(empdata.empleaves);
         setPunchRecord(empdata.employee.punchRecords);
@@ -334,53 +359,67 @@ useEffect(() => {
       } else {
         console.error('Failed to fetch employee data');
       }
-    } catch (error) {
-      console.error('Error fetching employee data:', error);
-    }
-  };
-  const convertImageToBase64 = (imageData, imageType) => {
-    if (!imageData) return null; // Handle missing images
-    const binaryString = new Uint8Array(imageData).reduce(
-      (acc, byte) => acc + String.fromCharCode(byte),
-      ''
-    );
-    const base64String = btoa(binaryString);
-    return `data:${imageType};base64,${base64String}`;
-  };
-  const fetchUsers = async () => {
-    try {
-      const response = await axios.get(Endpoints.GET_USERS,{
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-        withCredentials: true,
-      });
+
+      // Handle fetching and processing users
       const allUsers = [
-        ...response.data.employees,
-        ...response.data.managers,
-        ...response.data.interns,
+        ...usersResponse.data.filteredEmployees,
+        ...usersResponse.data.managers,
+        ...usersResponse.data.interns,
       ];
-  
-      const usersWithImageUrls = allUsers
-      .filter(user => user._id!=employeedata._id)
-      .map((user) => ({
+
+      const usersWithImageUrls = allUsers.map((user) => ({
         ...user,
         imageUrl: user.Image && user.Image[0]
           ? convertImageToBase64(user.Image[0].Image.data, user.Image[0].Imagetype)
           : "loading",
       }));
-    
-    setUsers(usersWithImageUrls);
 
-     
+      setUsers(usersWithImageUrls);
+
+      // Fetch messages after all user and employee data is ready
+      const res = await fetch(Endpoints.GET_MESSAGES);
+      const messagesData = await res.json();
+      setMessages(messagesData);
+
     } catch (error) {
-      console.error('Error fetching users', error);
+      console.error('Error fetching data:', error);
     }
   };
-  fetchEmployeeData();
-  fetchUsers();
+
+  fetchData();
+
+  // Listen for new messages from the server using Socket.IO
+  socket.on("receiveMessage", (newMessage) => {
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
+  });
+
+  return () => {
+    socket.off("receiveMessage");
+  };
+
 }, [navigate]);
+
+// for sending messages
+const sendMessage = () => {
+  const messageData = {
+    senderId: employeedata._id,
+    receiverId: selectedChat._id,
+    text: input
+  };
+
+  socket.emit("sendMessage", messageData);
+  setInput("");
+};
+
+//filtering out the most recent messages
+const userMessages = messages.filter(
+  (message) =>
+    message.sender === employeedata._id && message.recipient === selectedChat._id
+);
+userMessages.reverse()
+const mostRecentMessage = userMessages
+.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0]; // Get the latest message
+
 
 
 const joiningDate = new Date(employeedata.dateOfHire);
@@ -1682,7 +1721,7 @@ const currentDate = new Date();
           <div
             key={user._id}
             className="chat-preview"
-            onClick={() => setSelectedChat(user.firstName+" "+user.lastName)} // select chat on click
+            onClick={() => setSelectedChat(user)} // select chat on click
           >
             <img src={user.imageUrl || profile} alt="profile" className="img-profile" />
             <div className="preview-details">
@@ -1690,7 +1729,9 @@ const currentDate = new Date();
                 <span className="preview-name">{user.firstName+" "+user.lastName}</span>
                 <span className="preview-time">10:00 AM</span> {/* Adjust as needed */}
               </div>
-              <p className="preview-message">no messages</p>
+              <p className="preview-message">{mostRecentMessage
+              ? mostRecentMessage.message 
+              : "Loading.."}</p>
             </div>
           </div>
         ))}
@@ -1702,8 +1743,9 @@ const currentDate = new Date();
                 <div className="chat-area">
                   <div className="chat-header">
                     <div className="chat-header-left">
+                  
                     {users
-          .filter((user) => user.firstName+" "+user.lastName === selectedChat)
+          .filter((user) => user.firstName+" "+user.lastName === selectedChat.firstName+" "+selectedChat.lastName)
           .map((user) => (
             <div key={user._id}>
               <img
@@ -1727,21 +1769,37 @@ const currentDate = new Date();
                 
                    {/* Messages Section */}
                    <div className="messages">
-  <div className="message-left">Hello, how are you?</div>
-  <div className="message-right">I'm good, thanks! How about you?</div>
-  <div className="message-left">I'm doing well, just a bit busy with work.</div>
-  <div className="message-right">Yeah, same here. I've been swamped with a couple of deadlines.</div>
-</div>
+                    {console.log(messages)}
+                   {messages
+    .filter((message) => 
+      (message.sender === employeedata._id && message.recipient === selectedChat._id) || 
+      (message.sender === selectedChat._Id && message.recipient === employeedata._id)
+    )
+    .map((message, index) => (
+      <div
+        key={index}
+        className={message.senderId === employeedata._id ? "message-left" : "message-right"}
+      >
+        {message.message}
+      </div>
+    ))
+  }
+      </div>
         
                   {/* Message Input Box */}
                   <div className="message-input">
-                    <div className="input-container">
-                      <input type="text" placeholder="Type a new message" />
-                      <i className="fa-regular fa-face-smile emoji-icon"></i>
-                      <i className="fa-solid fa-paperclip attach-icon"></i>
-                    </div>
-                    <i className="fa-solid fa-paper-plane send-icon"></i>
-                  </div>
+        <div className="input-container">
+          <input
+            type="text"
+            placeholder="Type a new message"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+          />
+          <i className="fa-regular fa-face-smile emoji-icon"></i>
+          <i className="fa-solid fa-paperclip attach-icon"></i>
+        </div>
+        <i className="fa-solid fa-paper-plane send-icon" onClick={sendMessage}></i>
+      </div>
                 </div>
               )}
             </div>
