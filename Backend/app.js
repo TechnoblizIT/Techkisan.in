@@ -61,9 +61,12 @@ io.on("connection", (socket) => {
       message: text,
      });
     await message.save();
+    console.log("Message saved to database");
 
     // Emit message to other connected clients
     io.emit("receiveMessage", message);
+    // Emit message to sender client
+    
   });
 
   socket.on("disconnect", () => {

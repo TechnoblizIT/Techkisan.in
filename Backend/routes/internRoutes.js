@@ -2,6 +2,8 @@ const express = require('express');
 const router =express.Router()
 const upload=require("../configs/mutler-setup")
 const internModel=require("../models/intern-model")
+const managerModel = require('../models/manager-model');
+const employeeModel = require('../models/employee-model');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 const jwt =require("jsonwebtoken")
@@ -98,5 +100,26 @@ router.get('/interndata', async (req, res) => {
     res.status(401).json({ message: 'Unauthorized' });
 }
 });
+router.get("/allusers" , async function(req, res){
+  try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader) {
+          return res.status(401).json({ message: 'Authorization header missing' });
+      }
+      const token = authHeader.split(' ')[1];
+      if (!token) {
+          return res.status(401).json({ message: 'Token missing' });
+      }
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+ 
+  const employees=await employeeModel.find({}).populate("Image")
+  const managers=await managerModel.find({}).populate("Image")
+  const interns=await internModel.find({}).populate("Image")
+  const filteredIntern = interns.filter(intern => intern.username.toString() !== decoded.user.toString());
+  res.json({employees,managers,filteredIntern})
+  } catch (error) {
+      res.status(401).json({ message: 'Unauthorized' });
+  }
+})
 
 module.exports = router

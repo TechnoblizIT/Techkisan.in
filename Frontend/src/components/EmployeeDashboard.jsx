@@ -332,7 +332,7 @@ useEffect(() => {
           },
           withCredentials: true,
         }),
-        axios.get(Endpoints.GET_USERS, {
+        axios.get(Endpoints.GET_USERS_EMPLOYEES, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'multipart/form-data',
@@ -1769,22 +1769,21 @@ const currentDate = new Date();
                 
                    {/* Messages Section */}
                    <div className="messages">
-                    {console.log(messages)}
-                   {messages
-    .filter((message) => 
-      (message.sender === employeedata._id && message.recipient === selectedChat._id) || 
-      (message.sender === selectedChat._Id && message.recipient === employeedata._id)
+  {messages
+    .filter(
+      (message) =>
+        (message.sender === employeedata._id && message.recipient === selectedChat._id) ||
+        (message.sender === selectedChat._id && message.recipient === employeedata._id)
     )
     .map((message, index) => (
       <div
         key={index}
-        className={message.senderId === employeedata._id ? "message-left" : "message-right"}
+        className={message.sender === employeedata._id ? "message-right" : "message-left"}
       >
         {message.message}
       </div>
-    ))
-  }
-      </div>
+    ))}
+</div>
         
                   {/* Message Input Box */}
                   <div className="message-input">

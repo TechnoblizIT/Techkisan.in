@@ -3,6 +3,8 @@ const router=express.Router();
 const {loginUser , logoutUser,changePassword}=require("../controllers/employeeAuthController")
 const{createEmployee}=require("../controllers/employeeCreationController")
 const employeeModel=require("../models/employee-model")
+const internModel=require("../models/intern-model")
+const managerModel = require('../models/manager-model');
 const leaveModel=require("../models/leave-model")
 const jwt=require("jsonwebtoken")
 const bcrypt=require("bcrypt")
@@ -10,7 +12,6 @@ const empimageModel=require("../models/employeeimg-model")
 const upload=require("../configs/mutler-setup")
 const {punchIn,punchOut}=require("../controllers/employeePunchController")
 const {addWfh}=require("../controllers/employeeWfhController");
-const managerModel = require('../models/manager-model');
 const nodemailer = require("nodemailer")
 router.post('/login',loginUser)
 
@@ -172,6 +173,26 @@ router.get('/deleteLeaves/:leaveId', async (req, res) => {
     res.status(500).json({ message: 'Error canceling leave' });
   }
 });
-
+router.get("/allusers" , async function(req, res){
+  try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader) {
+          return res.status(401).json({ message: 'Authorization header missing' });
+      }
+      const token = authHeader.split(' ')[1];
+      if (!token) {
+          return res.status(401).json({ message: 'Token missing' });
+      }
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  const employees=await employeeModel.find({}).populate("Image")
+  const filteredEmployees = employees.filter(employee => employee.username.toString() !== decoded.user.toString());
+  const managers=await managerModel.find({}).populate("Image")
+  const interns=await internModel.find({}).populate("Image")
+ 
+  res.json({filteredEmployees,managers,interns})
+  } catch (error) {
+      res.status(401).json({ message: 'Unauthorized' });
+  }
+})
 
   module.exports = router;
