@@ -65,7 +65,7 @@ io.on("connection", (socket) => {
 
     // Emit message to other connected clients
     io.emit("receiveMessage", message);
-    // Emit message to sender client
+   
     
   });
 

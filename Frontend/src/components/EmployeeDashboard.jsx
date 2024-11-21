@@ -18,7 +18,7 @@ function EmployeeDashboard() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
 
-
+  const [file, setFile] = useState(null);
 
   const Endpoints= new APIEndpoints()
   const socket = io(Endpoints.BASE_URL);
@@ -1727,11 +1727,11 @@ const currentDate = new Date();
             <div className="preview-details">
               <div className="preview-header">
                 <span className="preview-name">{user.firstName+" "+user.lastName}</span>
-                <span className="preview-time">10:00 AM</span> {/* Adjust as needed */}
+                {/* <span className="preview-time">10:00 AM</span> Adjust as needed */}
               </div>
-              <p className="preview-message">{mostRecentMessage
+              {/* <p className="preview-message">{mostRecentMessage
               ? mostRecentMessage.message 
-              : "Loading.."}</p>
+              : "Loading.."}</p> */}
             </div>
           </div>
         ))}
@@ -1794,8 +1794,16 @@ const currentDate = new Date();
             value={input}
             onChange={(e) => setInput(e.target.value)}
           />
-          <i className="fa-regular fa-face-smile emoji-icon"></i>
-          <i className="fa-solid fa-paperclip attach-icon"></i>
+    <i className="fa-regular fa-face-smile emoji-icon"></i>
+          <input
+    type="file"
+    id="fileUpload"
+    onChange={(e) => setFile(e.target.files[0])}
+    style={{ display: "none" }}
+  />
+  <label htmlFor="fileUpload">
+    <i className="fa-solid fa-paperclip attach-icon"></i>
+  </label>
         </div>
         <i className="fa-solid fa-paper-plane send-icon" onClick={sendMessage}></i>
       </div>

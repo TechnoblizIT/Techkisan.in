@@ -11,16 +11,17 @@ import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import { type } from '@testing-library/user-event/dist/type';
 import APIEndpoints from './endPoints'
-
+import io from "socket.io-client";
 function ManagerDashboard() {
 
    // for manager-chat-area
-   const [selectedChat, setSelectedChat] = useState(null);
+   const [selectedChat, setSelectedChat] = useState('');
    // ============================================================
- 
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
 
   const Endpoints= new APIEndpoints()
-
+  const socket = io(Endpoints.BASE_URL);
   const [employeedata, setemployeedata]=useState("")
   const [avatarUrl, setAvatarUrl] = useState("");
   const navigate = useNavigate(); 
@@ -29,6 +30,7 @@ function ManagerDashboard() {
   const [isPunchedIn, setIsPunchedIn] = useState(false);
   const [punchInTime, setPunchInTime] = useState(null);
   const [punchOutTime, setPunchOutTime] = useState(null);
+  const [users, setUsers] = useState([]);
   const [activeRequestPage, setActiveRequestPage] = useState('leave');
   const [activeReportPage, setActiveReportPage] = useState('leave-balance');
   const [punchRecord, setPunchRecord] = useState([])
@@ -111,7 +113,7 @@ const currentDate = new Date();
 
 
 
-
+//approve and deny of leaves if employee 
 const handleApprove = (leaveId) => {
   
   fetch(`${Endpoints.MANAGER_APPROVE_LEAVE}/${leaveId}`, { method: 'POST' })
@@ -136,7 +138,15 @@ const handleDeny = (leaveId) => {
 };
 
 
-
+const convertImageToBase64 = (imageData, imageType) => {
+  if (!imageData) return null; // Handle missing images
+  const binaryString = new Uint8Array(imageData).reduce(
+    (acc, byte) => acc + String.fromCharCode(byte),
+    ''
+  );
+  const base64String = btoa(binaryString);
+  return `data:${imageType};base64,${base64String}`;
+};
 
 async function fetchPendingLeaves(){
   try {
@@ -166,63 +176,116 @@ async function fetchPendingLeaves(){
     console.error(error);
   }
 }
-  useEffect(() => {
-    
-    const fetchEmployeeData = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          navigate("/")
-          return;
-        }
-        const decode =jwtDecode(token)
-        if (decode.role!=="manager") {
-          navigate("/")
-          return;
-        }
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate("/");
+        return;
+      }
 
-        const response = await axios.get(Endpoints.MANAGER_DASHBOARD, {
+      const decode = jwtDecode(token);
+      if (decode.role !== "manager") {
+        navigate("/");
+        return;
+      }
+
+      // Fetch employee data and users concurrently
+      const [employeeResponse, usersResponse] = await Promise.all([
+        axios.get(Endpoints.MANAGER_DASHBOARD, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'multipart/form-data',
           },
-          withCredentials: true, 
-        });
-      
-        if (response.status === 200) {
-          const empdata = response.data;
-          setemployeedata(empdata.employee)
-          setLeaves(empdata.empleaves)
-          setPunchRecord(empdata.employee.punchRecords)
-     
-          if(empdata.empimg[0]){
-            if (empdata.empimg) {
-              const binaryString = new Uint8Array(empdata.empimg[0].Image.data).reduce((acc, byte) => acc + String.fromCharCode(byte), '');
-              const base64String = btoa(binaryString);
-              const imageUrl = `data:${empdata.empimg[0].Imagetype};base64,${base64String}`;
-              setAvatarUrl(imageUrl);
-            }
+          withCredentials: true,
+        }),
+        axios.get(Endpoints.GET_USERS_MANAGER, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+          withCredentials: true,
+        }),
+      ]);
 
-             }
-               
-            } else {
-                console.error('Failed to fetch employee data');
-            }
-        } catch (error) {
-            console.error('Error fetching employee data:', error);
+      // Check if the employee data fetch is successful
+      if (employeeResponse.status === 200) {
+        const empdata = employeeResponse.data;
+        setemployeedata(empdata.employee);
+        setLeaves(empdata.empleaves);
+        setPunchRecord(empdata.employee.punchRecords);
+
+        if (empdata.empimg && empdata.empimg[0]) {
+          const binaryString = new Uint8Array(empdata.empimg[0].Image.data)
+            .reduce((acc, byte) => acc + String.fromCharCode(byte), '');
+
+          const base64String = btoa(binaryString);
+          const imageUrl = `data:${empdata.empimg[0].Imagetype};base64,${base64String}`;
+          setAvatarUrl(imageUrl);
         }
-    };
-  
-   
-  
-  
-  
-  
-   
-    fetchEmployeeData();
-    fetchPendingLeaves()
-}, []);
+      } else {
+        console.error('Failed to fetch employee data');
+      }
 
+      // Handle fetching and processing users
+      const allUsers = [
+        ...usersResponse.data.employees,
+        ...usersResponse.data.filtermanager,
+        ...usersResponse.data.interns,
+      ];
+
+      const usersWithImageUrls = allUsers.map((user) => ({
+        ...user,
+        imageUrl: user.Image && user.Image[0]
+          ? convertImageToBase64(user.Image[0].Image.data, user.Image[0].Imagetype)
+          : "loading",
+      }));
+
+      setUsers(usersWithImageUrls);
+
+      // Fetch messages after all user and employee data is ready
+      const res = await fetch(Endpoints.GET_MESSAGES);
+      const messagesData = await res.json();
+      setMessages(messagesData);
+
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  fetchData();
+
+  // Listen for new messages from the server using Socket.IO
+  socket.on("receiveMessage", (newMessage) => {
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
+  });
+
+  return () => {
+    socket.off("receiveMessage");
+  };
+
+}, [navigate]);
+
+const sendMessage = () => {
+  const messageData = {
+    senderId: employeedata._id,
+    receiverId: selectedChat._id,
+    text: input
+  };
+
+  socket.emit("sendMessage", messageData);
+  setInput("");
+};
+
+//filtering out the most recent messages
+const userMessages = messages.filter(
+  (message) =>
+    message.sender === employeedata._id && message.recipient === selectedChat._id
+);
+userMessages.reverse()
+const mostRecentMessage = userMessages
+.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0]; // Get the latest message
 
 
   const renderSection = () => {
@@ -1487,136 +1550,145 @@ async function fetchPendingLeaves(){
               
             );
             // code for chat box ======================================================================================
-          case 'chat':
-            return (
-              <div className="chat-application">
-              {/* manager-chat-sidebar */}
-              <div className="manager-chat-sidebar">
-                <div className="manager-chat-sidebar-icons">
-                  <div className="manager-chat-sidebar-icon">
-                    <i className="fa-regular fa-bell"></i>
-                    <p>Activity</p>
+            case 'chat':
+              return (
+                <div className="chat-app">
+                {/* chat-sidebar */}
+                <div className="chat-sidebar">
+                  <div className="chat-sidebar-icons">
+                    <div className="chat-sidebar-icon">
+                      <i className="fa-regular fa-bell"></i>
+                      <p>Activity</p>
+                    </div>
+                    <div className="chat-sidebar-icon">
+                      <i className="fa-regular fa-message"></i>
+                      <p>Chat</p>
+                    </div>
+                    <div className="chat-sidebar-icon">
+                      <i className="fa-solid fa-people-group"></i>
+                      <p>Teams</p>
+                    </div>
+                    <div className="chat-sidebar-icon">
+                      <i className="fa-solid fa-calendar-days"></i>
+                      <p>Calendar</p>
+                    </div>
+                    <div className="chat-sidebar-icon gear-icon">
+                      <i className="fa-solid fa-gear"></i>
+                      <p className="hidden">Setting</p>
+                    </div>
                   </div>
-                  <div className="manager-chat-sidebar-icon">
-                    <i className="fa-regular fa-message"></i>
-                    <p>Chat</p>
-                  </div>
-                  <div className="manager-chat-sidebar-icon">
-                    <i className="fa-solid fa-people-group"></i>
-                    <p>Teams</p>
-                  </div>
-                  <div className="manager-chat-sidebar-icon">
-                    <i className="fa-solid fa-calendar-days"></i>
-                    <p>Calendar</p>
-                  </div>
-                  <div className="manager-chat-sidebar-icon gear-icon">
-                    <i className="fa-solid fa-gear"></i>
-                    <p className="hidden">Setting</p>
+                  <div className="chat-sidebar-bottom">
+                  <img src={avatarUrl} alt="profile" className="profile-photo" />
                   </div>
                 </div>
-                <div className="manager-chat-sidebar-bottom">
-                <img src={image} alt="profile" className="profile-photo" />
-                </div>
-              </div>
-        
-              {/* manager-chat-list */}
-              <div className="manager-chat-list">
-                <div className="manager-chat-list-header">
-                  <h1>Chat</h1>
-                  <div className="manager-chat-icons">
-                    <div className="icon-container video-icon" data-tooltip="Meet Now">
-                      <i className="fa-solid fa-video"></i>
-                    </div>
-                    <div className="icon-container add-icon" data-tooltip="New Chat">
-                      <i className="fa-solid fa-plus"></i>
-                    </div>
-                  </div>
-                </div>
-                <div className="manager-chat-search-bar">
-                  <input type="text" className="manager-search-input" placeholder="Search..." />
-                </div>
-                <div className="manager-chat-previews">
-                  <div
-                    className="manager-chat-preview"
-                    onClick={() => setSelectedChat("Eyra Doe")} // select chat on click
-                  >
-                    <img src={profile} alt="profile" className="img-profile" />
-                    <div className="manager-preview-details">
-                      <div className="preview-header">
-                        <span className="preview-name">Eyra Doe</span>
-                        <span className="preview-time">10:00 AM</span>
-                      </div>
-                      <p className="preview-message">Hello! How are you?</p>
-                    </div>
-                  </div>
-        
-                  <div
-                    className="manager-chat-preview"
-                    onClick={() => setSelectedChat("Myra Smith")}
-                  >
-                    <img src={profile} alt="profile" className="img-profile" />
-                    <div className="manager-preview-details">
-                      <div className="preview-header">
-                        <span className="preview-name">Myra Smith</span>
-                        <span className="preview-time">10:05 AM</span>
-                      </div>
-                      <p className="preview-message">Meeting at 3 PM?</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-        
-              {/* manager-chat-area */}
-              {selectedChat && (
-                <div className="manager-chat-area">
-                  <div className="manager-chat-header">
-                    <div className="manager-chat-header-left">
-                    <img src={profile} alt="profile" className="profile-main" />
-                      <span className="chat-name">{selectedChat}</span>
-                    </div>
-                    <div className="manager-chat-header-icons">
-                      <i className="fa-solid fa-video"></i>
-                      <i className="fa-solid fa-phone"></i>
-                      <i className="fa-solid fa-magnifying-glass"></i>
-                      <i className="fa-solid fa-ellipsis-vertical"></i>
-                    </div>
-                  </div>
-        
-                
-                   {/* conversation Section */}
-                   <div className="conversation">
-  <div className="conversation-left">Hello, how are you?</div>
-  <div className="conversation-right">I'm good, thanks! How about you?</div>
-  <div className="conversation-left">I'm doing well, just a bit busy with work.</div>
-  <div className="conversation-right">Yeah, same here. I've been swamped with a couple of deadlines.</div>
-  <div className="conversation-left">That sounds stressful! What are you working on?</div>
-  <div className="conversation-right">Mostly project reports and some last-minute adjustments for the team.</div>
-  <div className="conversation-left">Sounds intense! I hope it gets easier soon.</div>
-  <div className="conversation-right">I hope so too! Anyway, have you watched the new series on Netflix?</div>
-  <div className="conversation-left">Not yet! Is it good?</div>
-  <div className="conversation-right">Yeah, it’s really interesting! You should check it out when you have time.</div>
-  <div className="conversation-left">I’ll add it to my list. What’s it about?</div>
-  <div className="conversation-right">It’s a thriller with a lot of twists. Definitely keeps you on the edge of your seat!</div>
-  <div className="conversation-left">That sounds like something I’d enjoy! I’ll watch it this weekend.</div>
-  <div className="conversation-right">Great choice! Let me know what you think about it.</div>
-  <div className="conversation-left">Will do! Alright, I need to get back to work. Talk soon!</div>
-  <div className="conversation-right">Same here! Catch you later!</div>
-</div>
-        
-                  {/* Message Input Box */}
-                  <div className="conversation-input">
-                    <div className="manager-input-container">
-                      <input type="text" placeholder="Type a new message" />
-                      <i className="fa-regular fa-face-smile emoji-icon"></i>
-                      <i className="fa-solid fa-paperclip attach-icon"></i>
-                    </div>
-                    <i className="fa-solid fa-paper-plane send-icon"></i>
-                  </div>
-                </div>
-              )}
+          
+                {/* chat-list */}
+                <div className="chat-list">
+        <div className="chat-list-header">
+          <h1>Chat</h1>
+          <div className="chat-icons">
+            <div className="icon-container video-icon" data-tooltip="Meet Now">
+              <i className="fa-solid fa-video"></i>
             </div>
-            );
-      default:
+            <div className="icon-container add-icon" data-tooltip="New Chat">
+              <i className="fa-solid fa-plus"></i>
+            </div>
+          </div>
+        </div>
+        <div className="chat-search-bar">
+          <input type="text" className="search-input" placeholder="Search..." />
+        </div>
+        <div className="chat-previews">
+         
+          {users.map((user) => (
+             <div
+             key={user._id}
+             className="chat-preview"
+             onClick={() => setSelectedChat(user)} // select chat on click
+           >
+             <img src={user.imageUrl || profile} alt="profile" className="img-profile" />
+             <div className="preview-details">
+               <div className="preview-header">
+                 <span className="preview-name">{user.firstName + " " + user.lastName}</span>
+                 {/* <span className="preview-time">
+                   {mostRecentMessage ? new Date(mostRecentMessage.createdAt).toLocaleTimeString() : "N/A"}
+                 </span> Adjust timestamp format */}
+               </div>
+               {/* <p className="preview-message">
+                 {mostRecentMessage ? mostRecentMessage.message : "No messages yet"}
+               </p> */}
+             </div>
+           </div>
+          ))}
+        </div>
+      </div>
+          
+                {/* chat-area */}
+                {selectedChat && (
+                  <div className="chat-area">
+                    <div className="chat-header">
+                      <div className="chat-header-left">
+                    
+                      {users
+            .filter((user) => user.firstName+" "+user.lastName === selectedChat.firstName+" "+selectedChat.lastName)
+            .map((user) => (
+              <div key={user._id}>
+                <img
+                  src={user.imageUrl} 
+                  alt="profile"
+                  className="profile-main"
+                />
+                <span className="chat-name">{user.firstName+" "+user.lastName}</span> 
+              </div>
+            ))}
+  
+                      </div>
+                      <div className="chat-header-icons">
+                        <i className="fa-solid fa-video"></i>
+                        <i className="fa-solid fa-phone"></i>
+                        <i className="fa-solid fa-magnifying-glass"></i>
+                        <i className="fa-solid fa-ellipsis-vertical"></i>
+                      </div>
+                    </div>
+          
+                  
+                     {/* Messages Section */}
+                     <div className="messages">
+    {messages
+      .filter(
+        (message) =>
+          (message.sender === employeedata._id && message.recipient === selectedChat._id) ||
+          (message.sender === selectedChat._id && message.recipient === employeedata._id)
+      )
+      .map((message, index) => (
+        <div
+          key={index}
+          className={message.sender === employeedata._id ? "message-right" : "message-left"}
+        >
+          {message.message}
+        </div>
+      ))}
+  </div>
+          
+                    {/* Message Input Box */}
+                    <div className="message-input">
+          <div className="input-container">
+            <input
+              type="text"
+              placeholder="Type a new message"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+            />
+            <i className="fa-regular fa-face-smile emoji-icon"></i>
+            <i className="fa-solid fa-paperclip attach-icon"></i>
+          </div>
+          <i className="fa-solid fa-paper-plane send-icon" onClick={sendMessage}></i>
+        </div>
+                  </div>
+                )}
+              </div>
+              );
+        default:
         return null;
     }
   };

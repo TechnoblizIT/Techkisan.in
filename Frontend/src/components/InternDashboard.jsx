@@ -1467,11 +1467,11 @@ const currentDate = new Date();
             <div className="preview-details">
               <div className="preview-header">
                 <span className="preview-name">{user.firstName+" "+user.lastName}</span>
-                <span className="preview-time">10:00 AM</span> {/* Adjust as needed */}
+                {/* <span className="preview-time">10:00 AM</span> Adjust as needed */}
               </div>
-              <p className="preview-message">{mostRecentMessage
+              {/* <p className="preview-message">{mostRecentMessage
               ? mostRecentMessage.message 
-              : "Loading.."}</p>
+              : "Loading.."}</p> */}
             </div>
           </div>
         ))}
