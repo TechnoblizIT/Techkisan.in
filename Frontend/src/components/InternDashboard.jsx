@@ -11,6 +11,8 @@ import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import io from "socket.io-client";
 import APIEndpoints  from "./endPoints"
+import { Buffer } from 'buffer';
+
 function InternDashboard() {
 
  // for intern-chat-area
@@ -18,7 +20,7 @@ function InternDashboard() {
  // ============================================================
  const [messages, setMessages] = useState([]);
  const [input, setInput] = useState("");
-
+ const [file, setFile] = useState(null);
 
 
   const Endpoints= new APIEndpoints()
@@ -142,14 +144,34 @@ useEffect(() => {
 }, [navigate]);
 
 const sendMessage = () => {
+  if (!input && !file) return;
   const messageData = {
     senderId: employeedata._id,
     receiverId: selectedChat._id,
-    text: input
-  };
+    text: input,
+    file: null,
 
-  socket.emit("sendMessage", messageData);
-  setInput("");
+  };
+  if (file) {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      messageData.file = {
+        data: reader.result.split(',')[1], // Extract Base64 data
+        contentType: file.type, // MIME type
+        name: file.name, // Original file name
+      };
+
+      // Emit the message with the file
+      socket.emit('sendMessage', messageData);
+      setInput("");
+      setFile(null);
+    };
+    reader.readAsDataURL(file);
+  } else {
+    // Emit the message without a file
+    socket.emit('sendMessage', messageData);
+    setInput("");
+  }
 };
 
 //filtering out the most recent messages
@@ -1509,20 +1531,42 @@ const currentDate = new Date();
                 
                    {/* Messages Section */}
                    <div className="messages">
-  {messages
-    .filter(
-      (message) =>
-        (message.sender === employeedata._id && message.recipient === selectedChat._id) ||
-        (message.sender === selectedChat._id && message.recipient === employeedata._id)
-    )
-    .map((message, index) => (
-      <div
-        key={index}
-        className={message.sender === employeedata._id ? "message-right" : "message-left"}
-      >
-        {message.message}
+                   {messages
+                    .filter(
+                      (message) =>
+                        (message.sender === employeedata._id && message.recipient === selectedChat._id) ||
+                        (message.sender === selectedChat._id && message.recipient === employeedata._id)
+                    )
+                   .map((message, index) => (
+  <div
+    key={index}
+    className={message.sender === employeedata._id ? "message-right" : "message-left"}
+  >
+    {message.message && <p>{message.message}</p>}
+    {message.file && (
+      <div>
+        {message.file.contentType.startsWith("image/") ? (
+          <img
+            src={`data:${message.file.contentType};base64,${Buffer.from(
+              message.file.data
+            ).toString("base64")}`}
+            alt={message.file.name}
+            style={{ maxWidth: "200px", maxHeight: "200px" }}
+          />
+        ) : (
+          <a
+            href={`data:${message.file.contentType};base64,${Buffer.from(
+              message.file.data
+            ).toString("base64")}`}
+            download={message.file.name}
+          >
+            Download {message.file.name}
+          </a>
+        )}
       </div>
-    ))}
+    )}
+  </div>
+))}
 </div>
         
                   {/* Message Input Box */}

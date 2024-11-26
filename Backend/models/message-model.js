@@ -14,6 +14,11 @@ const messageSchema = new mongoose.Schema({
 
   },
   message: String,
+  file: {
+    data: Buffer, // Store the binary data
+    contentType: String, // File type (e.g., 'image/png', 'application/pdf')
+    name: String, // Original file name
+  },
   timestamp: { type: Date, default: Date.now },
 });
 

@@ -52,13 +52,21 @@ io.on("connection", (socket) => {
 
   // Handle message events from client
   socket.on("sendMessage", async (messageData) => {
-    const { senderId, receiverId,  text } = messageData;
-  console.log(senderId, receiverId, text);
+    const { senderId, receiverId,  text,file } = messageData;
+    const fileData = file
+    ? {
+        data: Buffer.from(file.data, 'base64'), // Decode Base64 to Buffer
+        contentType: file.contentType,
+        name: file.name,
+      }
+    : null;
+
    
     const message = new messageModel({
       sender: senderId,
       recipient: receiverId,
       message: text,
+      file: fileData,
      });
     await message.save();
     console.log("Message saved to database");

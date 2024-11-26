@@ -26,7 +26,7 @@ res.send("Assigned successfully")
 router.get("/messages", async (req, res) => {
     try {
       const messages = await messageModel.find();
-      console.log(messages)
+     
       res.json(messages);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch messages" });
