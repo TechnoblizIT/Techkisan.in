@@ -44,7 +44,9 @@ app.use("/manager",managerRoute);
 app.use("/intern",internRoute);
 
 const io = new Server(server, {
-  cors: { origin: process.env.ORIGIN }
+  cors: {   origin: origin, 
+    methods: ['POST','GET','DELETE'],
+    credentials: true,  }
 });
 
 io.on("connection", (socket) => {
