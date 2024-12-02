@@ -22,11 +22,19 @@ app.use(cookieParser())
 const origin = process.env.ORIGIN
 ? process.env.ORIGIN.split(",").map((origin) => origin.trim())
 : "*";
-app.use(cors({
-  origin: origin, 
-  methods: ['POST','GET','DELETE'],
-  credentials: true,               
-}));
+app.use(
+  cors({
+    origin: origin, 
+    methods: ['POST', 'GET', 'DELETE', 'PUT', 'OPTIONS'], 
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Requested-With',
+      'Accept',
+      'Origin',
+    ],
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended:false }));
 app.use(expressSession({
@@ -45,7 +53,7 @@ app.use("/intern",internRoute);
 
 const io = new Server(server, {
   cors: {   origin: origin, 
-    methods: ['POST','GET','DELETE'],
+    methods: ['POST', 'GET', 'DELETE', 'PUT', 'OPTIONS'],
     credentials: true,  }
 });
 
