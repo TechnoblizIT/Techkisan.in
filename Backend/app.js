@@ -24,16 +24,10 @@ const origin = process.env.ORIGIN
 : "*";
 app.use(
   cors({
-    origin: origin, 
+    origin: origin || "*", 
     methods: ['POST', 'GET', 'DELETE', 'PUT', 'OPTIONS'], 
-    allowedHeaders: [
-      'Content-Type',
-      'Authorization',
-      'X-Requested-With',
-      'Accept',
-      'Origin',
-    ],
-  })
+    credentials: true,  }
+  )
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended:false }));
@@ -52,7 +46,7 @@ app.use("/manager",managerRoute);
 app.use("/intern",internRoute);
 
 const io = new Server(server, {
-  cors: {   origin: origin, 
+  cors: {   origin: origin || "*", 
     methods: ['POST', 'GET', 'DELETE', 'PUT', 'OPTIONS'],
     credentials: true,  }
 });
