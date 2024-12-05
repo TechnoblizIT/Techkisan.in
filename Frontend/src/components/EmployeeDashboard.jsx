@@ -646,57 +646,13 @@ function EmployeeDashboard() {
                   </div>
                 </div>
                 <div className="notice-board-upcoming-holidays">
-                  <div className="task-board">
+                <div className="notice-board">
                     <div className="details">
-                      <h3>
-                        <i className="fa-solid fa-bullhorn"></i>&nbsp; Tasks
-                      </h3>
+                      <h3><i className="fa-solid fa-bullhorn"></i>&nbsp; Notice Board</h3>
                     </div>
-                    <div className="task-container">
-                      <div className="task-header">
-                        <p className="task-title-header">Title</p>
-                        <p className="task-desc-header">Description</p>
-                        <p className="task-deadline-header">Deadline</p>
-                      </div>
-                      <div className="task">
-                        <p className="task-title">Complete Project</p>
-                        <p className="task-desc">
-                          Finalize and submit the project documents.
-                        </p>
-                        <p className="task-deadline">2024-12-10</p>
-                      </div>
-                      <div className="task">
-                        <p className="task-title">Team Meeting</p>
-                        <p className="task-desc">
-                          Discuss upcoming tasks and assign responsibilities.
-                        </p>
-                        <p className="task-deadline">2024-12-06</p>
-                      </div>
-                      <div className="task">
-                        <p className="task-title">Code Review</p>
-                        <p className="task-desc">
-                          Review the codebase for potential optimizations.
-                        </p>
-                        <p className="task-deadline">2024-12-07</p>
-                      </div>
-                      <div className="task">
-                        <p className="task-title">UI Updates</p>
-                        <p className="task-desc">
-                          Implement feedback from the design team.
-                        </p>
-                        <p className="task-deadline">2024-12-08</p>
-                      </div>
-                      <div className="task">
-                        <p className="task-title">Submit Report</p>
-                        <p className="task-desc">
-                          Compile and submit the monthly performance report.
-                        </p>
-                        <p className="task-deadline">2024-12-09</p>
-                      </div>
-                    </div>
+                    <div className="notice-space">No Notice</div>
                   </div>
-
-                  <div className="upcoming-holidays">
+                 <div className="upcoming-holidays">
                     <div className="details">
                       <h3>
                         <i className="fa-solid fa-paper-plane"></i>&nbsp;
@@ -725,6 +681,73 @@ function EmployeeDashboard() {
             </div>
           </div>
         );
+        
+        case "tasks":
+  return (
+    <div className="p-6 bg-gray-50 rounded-lg shadow-lg">
+      <h3 className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+        <i className="fa-solid fa-bullhorn mr-2 text-blue-500"></i> Tasks
+      </h3>
+      <div className="overflow-auto max-h-96 border rounded-lg shadow">
+        <table className="min-w-full text-left border-collapse">
+          <thead className="sticky top-0 bg-gradient-to-r from-violet-800 to-violet-800 text-white">
+            <tr>
+            <th className="px-6 py-3 text-sm font-semibold uppercase">Sr No.</th>
+              <th className="px-6 py-3 text-sm font-semibold uppercase">Title</th>
+              <th className="px-6 py-3 text-sm font-semibold uppercase">Description</th>
+              <th className="px-6 py-3 text-sm font-semibold uppercase">Assigned to</th>
+              <th className="px-6 py-3 text-sm font-semibold uppercase">Priority</th>
+              <th className="px-6 py-3 text-sm font-semibold uppercase">Start Date</th>
+              <th className="px-6 py-3 text-sm font-semibold uppercase">Deadline</th>
+              <th className="px-6 py-3 text-sm font-semibold uppercase">Attached Doc.</th>
+              <th className="px-6 py-3 text-sm font-semibold uppercase">Status</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white">
+            <tr className="border-b hover:bg-gray-100 transition-all duration-200">
+              <td className="px-6 py-3 text-gray-500">1.</td>
+              <td className="px-6 py-3 font-medium text-gray-700">Complete Project</td>
+              <td className="px-6 py-3 text-gray-600">Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusamus officiis totam, voluptates aliquam esse ut, mollitia possimus ratione enim iure quos nihil dicta ipsa ducimus fugiat nulla repudiandae sunt voluptatem sit? Aliquam vitae earum maiores, sapiente, rem voluptate alias, nisi odit fugit quia facere nam veniam porro doloribus aliquid reiciendis!</td>
+              <td className="px-6 py-3 text-gray-500">User 1</td>
+              <td className="px-6 py-3 text-gray-500">Low</td>
+              <td className="px-6 py-3 text-gray-500">2024-12-01</td>
+              <td className="px-6 py-3 text-gray-500">2024-12-10</td>
+              <td className="px-6 py-3 text-blue-500 underline">
+                <a href="#" download>
+                  file.pdf
+                </a>
+              </td>
+              <td className="px-6 py-3 text-green-600 font-semibold">In Progress</td>
+            </tr>
+            <tr className="border-b hover:bg-gray-100 transition-all duration-200">
+            <td className="px-6 py-3 text-gray-500">2.</td>
+              <td className="px-6 py-3 font-medium text-gray-700">Team Meeting</td>
+              <td className="px-6 py-3 text-gray-600">Discuss upcoming tasks and assign responsibilities.</td>
+              <td className="px-6 py-3 text-gray-500">User 2</td>
+              <td className="px-6 py-3 text-gray-500">High</td>
+              <td className="px-6 py-3 text-gray-500">2024-12-05</td>
+              <td className="px-6 py-3 text-gray-500">2024-12-06</td>
+              <td className="px-6 py-3">-</td>
+              <td className="px-6 py-3 text-blue-600 font-semibold">Completed</td>
+            </tr>
+            <tr className="hover:bg-gray-100 transition-all duration-200">
+            <td className="px-6 py-3 text-gray-500">3.</td>
+              <td className="px-6 py-3 font-medium text-gray-700">Code Review</td>
+              <td className="px-6 py-3 text-gray-600">Review the codebase for potential optimizations.</td>
+              <td className="px-6 py-3 text-gray-500">User 1</td>
+              <td className="px-6 py-3 text-gray-500">Low</td>
+              <td className="px-6 py-3 text-gray-500">2024-12-07</td>
+              <td className="px-6 py-3 text-gray-500">2024-12-07</td>
+              <td className="px-6 py-3">-</td>
+              <td className="px-6 py-3 text-yellow-600 font-semibold">Pending</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
+        
       case "request":
         return (
           <div className="request-section">
@@ -2219,6 +2242,7 @@ function EmployeeDashboard() {
   };
 
   return (
+    
     <div className="employee-dashboard">
       <NavigationBar
         activeSection={activeSection}

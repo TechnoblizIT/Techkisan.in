@@ -87,6 +87,7 @@ function NavigationBar({ activeSection, onNavigate }) {
             Home
           </a>
         </li>
+        
         <li className={`dropdown ${openDropdown === 'leaves' ? 'open' : ''}`}>
           <a
             href="#"
@@ -99,6 +100,15 @@ function NavigationBar({ activeSection, onNavigate }) {
             <a href="#" onClick={() => handleLinkClick('request')}>Request</a>
             <a href="#" onClick={() => handleLinkClick('report')}>My Report</a>
           </div>
+        </li>
+        <li>
+          <a
+            href="#"
+            className={activeSection === 'tasks' ? 'active' : ''}
+            onClick={() => handleLinkClick('tasks')}
+          >
+            Tasks
+          </a>
         </li>
         <li>
           <a
