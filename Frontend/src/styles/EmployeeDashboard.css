@@ -2297,3 +2297,84 @@ hr {
     cursor: pointer;
   }
 }
+
+
+/* task component css */
+.task-board {
+  border: 1px solid #ccc; 
+  padding: 10px;
+  max-width: 100%;
+}
+
+
+.task-container {
+  max-height: 200px; 
+  overflow-y: auto; 
+  overflow-x: hidden; 
+
+  /* scrollbar-width: none; 
+  -ms-overflow-style: none; */
+}
+
+.task-header {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: 10px; 
+  font-weight: bold;
+  background-color: #f4f4f4; 
+  padding: 8px 0;
+  border-bottom: 2px solid #ddd; 
+  position: sticky; 
+  top: 0; 
+  z-index: 1; 
+}
+
+.task {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: 10px; 
+  padding: 8px 0;
+  border-bottom: 1px solid #ddd; 
+  word-wrap: break-word; }
+
+.task:last-child {
+  border-bottom: none;
+}
+
+.task-title {
+  margin-top: 5px;
+  font-weight:lighter;
+  color: #444;
+}
+
+.task-desc {
+  color: #666;
+}
+
+.task-deadline {
+  color: #888;
+  text-align: right; 
+  white-space: nowrap;
+}
+
+
+.task-title-header {
+  font-weight: bold;
+  color: #444;
+}
+
+.task-desc-header {
+  font-weight: bold;
+  color: #444;
+}
+
+.task-deadline-header {
+  font-weight: bold;
+  color: #444;
+  text-align: right;
+}
+
+
+
+
+
