@@ -89,6 +89,15 @@ function ManagerNavigation({ activeSection, onNavigate }) {
             Home
           </a>
         </li>
+        <li>
+          <a
+            href="#"
+            className={activeSection === 'tasks' ? 'active' : ''}
+            onClick={() => handleLinkClick('tasks')}
+          >
+            Tasks
+          </a>
+        </li>
         <li className={`dropdown ${openDropdown === 'leaves' ? 'open' : ''}`}>
           <a
             href="#"
