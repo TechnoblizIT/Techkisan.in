@@ -12,8 +12,6 @@ import io from "socket.io-client";
 import { Buffer } from "buffer";
 
 function EmployeeDashboard() {
-<<<<<<< HEAD
-=======
 
   // for my ticket area
   const [activeTab, setActiveTab] = useState("open");
@@ -58,7 +56,7 @@ function EmployeeDashboard() {
     },
   ];
 
->>>>>>> 5ed4eac3723d2bb701c308087386c818ebd176c1
+
   // for chat-area
   const [selectedChat, setSelectedChat] = useState([]);
   // ============================================================
