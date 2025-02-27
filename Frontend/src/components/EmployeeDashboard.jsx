@@ -14,6 +14,49 @@ import { Buffer } from 'buffer';
 
 function EmployeeDashboard() {
 
+  // for my ticket area
+  const [activeTab, setActiveTab] = useState("open");
+
+  const openTickets = [
+    {
+      ticketNo: "TCK001",
+      title: "Login Issue",
+      createdDate: "2024-02-27",
+      status: "Closed",
+      priority: "High",
+      agentAssigned: "John Doe",
+      action: "View",
+    },
+    {
+      ticketNo: "TCK002",
+      title: "Payment Failure",
+      createdDate: "2024-02-26",
+      status: "Closed",
+      priority: "Medium",
+      agentAssigned: "Jane Smith",
+      action: "View",
+    },
+  ];
+
+  const closedTickets = [
+    {
+      ticketNo: "TCK003",
+      title: "Facing issue with Laptop ",
+      createdDate: "2024-02-25",
+      status: "Closed",
+      priority: "Low",
+      agentAssigned: "Mike Ross",
+    },
+    {
+      ticketNo: "TCK004",
+      title: "Refund Request",
+      createdDate: "2024-02-24",
+      status: "Closed",
+      priority: "Medium",
+      agentAssigned: "Rachel Zane",
+    },
+  ];
+
   // for chat-area
   const [selectedChat, setSelectedChat] = useState([]);
   // ============================================================
@@ -579,7 +622,31 @@ const currentDate = new Date();
                     <div className="details">
                       <h3><i className="fa-solid fa-bullhorn"></i>&nbsp; Notice Board</h3>
                     </div>
-                    <div className="notice-space">No Notice</div>
+                    <div className="notice-space">
+                <p>Office will be closed on the upcoming national holiday. Enjoy your day off!</p>
+                <p>Monthly team meeting scheduled for tomorrow at 10 AM. Please be on time.</p>
+                <p>Reminder: Annual office holiday party is scheduled for this Friday. Don't miss it!</p>
+                <p>Important: Please submit your vacation requests before the end of the week.</p>
+                <p>Office closed for maintenance on Saturday. Apologies for any inconvenience.</p>
+                <p>Urgent: Team meeting on Monday to discuss upcoming projects. Make sure you're prepared!</p>
+              </div>
+                  </div>
+                  <div className="overall-ticket">
+                  <div className="details">
+                      <h3><i class="fa-solid fa-circle-info"></i>&nbsp; Help Desk Status</h3>
+                    </div>
+                    <div className="tickets">
+                      <p><i class="fa-solid fa-people-group"></i>&nbsp; Total Ticket Raised</p>
+                      <p className='ticket-raised'>7</p>
+                    </div>
+                    <div className="tickets">
+                      <p><i class="fa-solid fa-phone-flip"></i>&nbsp; Open Tickets</p>
+                      <p className='open-ticket'>0</p>
+                    </div>
+                    <div className="tickets">
+                      <p><i class="fa-solid fa-ticket"></i>&nbsp; Closed Tickets</p>
+                      <p className='close-ticket'>7</p>
+                    </div>
                   </div>
                   <div className="upcoming-holidays">
                     <div className="details">
@@ -1870,6 +1937,68 @@ const currentDate = new Date();
               )}
             </div>
             );
+
+            //code for ticket section======================================================================
+            case 'ticket':
+              return (
+                <div className="ticket-dashboard">
+                    {/* Top Buttons */}
+      <div className="top-btns">
+        <button className="add-btn">+ Add</button>
+        <button className="filter-btn">Filter</button>
+      </div>
+      {/* Open & Close Buttons */}
+      <div className="openclose-btns"> 
+  <button className="status-btn" onClick={() => setActiveTab("open")}>
+    <span className={`number-badge ${activeTab === "open" ? "blue-badge" : "grey-badge"}`}>2</span> Open
+  </button>
+  <button className="status-btn" onClick={() => setActiveTab("closed")}>
+    <span className={`number-badge ${activeTab === "closed" ? "blue-badge" : "grey-badge"}`}>7</span> Closed
+  </button>
+</div>
+
+      {/* Table Section */}
+      <div className="ticket-table">
+        <div className="div-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Ticket No.</th>
+                <th>Title</th>
+                <th>Created Date</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Agent Assigned</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+            {(activeTab === "open" ? openTickets : closedTickets).map((ticket, index) => (
+              <tr key={index}>
+              <td className={`left-border color-${index % 5}`}>&nbsp;{ticket.ticketNo}</td>
+              <td>{ticket.title}</td>
+              <td>{ticket.createdDate}</td>
+              <td><span className="status-text">{ticket.status}</span></td>
+              <td className={`left-border color-${index % 5}`}>&nbsp;{ticket.priority}</td>
+              <td>{ticket.agentAssigned}</td>
+              <td className="action-icons">
+                <button className="edit-btn"><i className="fa-solid fa-pen-to-square"></i></button>
+                <button className="delete-btn"><i className="fa-solid fa-trash"></i></button></td>
+              </tr>
+            ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+               //code for ticket-report section======================================================================
+              case 'ticket-report':
+                return (
+                  <div className='ticket-dashboard'>
+                    <h1>this is ticket report page</h1>
+                  </div>
+                );
       default:
         return null;
     }
