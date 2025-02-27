@@ -2087,7 +2087,7 @@ function EmployeeDashboard() {
                 <h1>This is the On Duty Page</h1>
               )}
             </div>
-<<<<<<< HEAD
+
           </div>
         );
       // code for chat box ======================================================================================
@@ -2307,9 +2307,7 @@ function EmployeeDashboard() {
               </div>
             )}
           </div>
-        );
-=======
-            );
+        );  
 
             //code for ticket section======================================================================
             case 'ticket':
@@ -2372,7 +2370,7 @@ function EmployeeDashboard() {
                     <h1>this is ticket report page</h1>
                   </div>
                 );
->>>>>>> 5ed4eac3723d2bb701c308087386c818ebd176c1
+
       default:
         return null;
     }
