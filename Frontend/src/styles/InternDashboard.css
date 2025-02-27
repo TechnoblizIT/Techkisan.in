@@ -175,7 +175,7 @@
     color: white;
   }
   
-  .personal-information, .company-information, .notice-brd-details, .intern-upcoming-holidys {
+  .personal-information, .company-information, .notice-brd-details, .intern-upcoming-holidys,.intern-overall-ticket {
     background-color: #ffffff;
     color: #777777;
     padding: 20px;
@@ -187,15 +187,47 @@
   .notice-board-holidays-details {
     flex: 1;
   }
-  
-  .space {
+  .intern-notice-space {
     width: 100%;
     height: 200px;
     border: 1px solid #ddd9d9;
     text-align: center;
-    line-height: 200px;
+    overflow-y: auto; 
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px; 
   }
-  
+  .intern-notice-space::-webkit-scrollbar {
+    display: none;
+  }
+  .intern-notice-space p {
+    font-size: 12px;
+    font-weight: bold;
+    color: #333; 
+    padding: 8px;
+    border-radius: 5px;
+    text-align: left;
+    background-color: #f5f5f5;
+    border-bottom: 1px solid #ddd9d9;
+  }
+  /* css for intern notice board============= */
+  .intern-overall-ticket .intern-tickets{
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    margin-top: 10px;
+    font-size: 14px;
+    border-bottom: 1px solid #ddd;
+  }
+  .intern-overall-ticket .intern-tickets .intern-ticket-raised,.intern-open-ticket,.intern-close-ticket{
+    font-weight: bold;
+    color: #000;
+  }
+  .intern-overall-ticket .intern-tickets i{
+    color: #5849ac;
+  }
+  /* css for intern holiday================== */
   .intern-upcoming-holidays-details .holidy {
     display: flex;
     justify-content: space-between;
@@ -2131,5 +2163,171 @@
   .send-icon {
     font-size: 20px;
     cursor: pointer;
+  }
+}
+/* css for ticket section======================================================= */
+.intern-ticket-dashboard{
+  padding: 20px;
+  padding-top: 80px;
+}
+.ticket-top-btns{
+  display: flex;
+  justify-content: end;
+}
+.ticket-top-btns button{
+  margin-right: 10px;
+  background-color: #007bff;
+  border: none;
+  color: #fff;
+  padding: 5px 8px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.intern-add-btn, .intern-filter-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.intern-add-btn:hover, .intern-filter-btn:hover {
+  background: #0056b3;
+}
+
+/* Open & Close Buttons */
+.intern-openclose-btns {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+.intern-status-btn {
+  border: none;
+  cursor: pointer;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+ }
+.number-badge {
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-weight: bold;
+  display: inline-block;
+  min-width: 25px;
+  text-align: center;
+}
+.blue-badge {
+  background-color: #007bff;
+}
+
+.grey-badge {
+  background-color: #777;
+}
+/* Table Styling */
+.intern-ticket-table .intern-div-table {
+  overflow: auto;
+}
+.intern-ticket-table table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 12px;
+  margin-top: 20px;
+}
+.intern-ticket-table th,
+.intern-ticket-table td {
+  padding: 0px 12px;
+  text-align: left;
+  border: none;
+}
+.intern-ticket-table th {
+  color: #555555;
+  font-size: 15px;
+  background-color: transparent;
+}
+.intern-ticket-table td {
+  border: 1px solid #eee;
+  background-color: #ffffff;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  font-size: 14px;
+}
+.intern-status-text {
+  background-color: black;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: inline-block;
+}
+/* Action Icons */
+.intern-action-icons {
+  display: flex;
+  gap: 5px;
+}
+.intern-action-icons button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  transition: 0.3s;
+  font-size: 14px;
+  color: #000;
+}
+
+.intern-edit-btn:hover i {
+  color: #007bff;
+  transform: scale(1.2);
+}
+
+.intern-delete-btn:hover i {
+  color: rgb(207, 32, 32);
+  transform: scale(1.2);
+}
+
+/* css for left-border */
+.left-border {
+  position: relative;
+  padding-left: 10px; 
+}
+
+td[class*="color-"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 8px;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+.color-0::before {
+  background-color: red;
+}
+.color-1::before {
+  background-color: yellow;
+}
+.color-2::before {
+  background-color: #1abc9c; 
+}
+.color-3::before {
+  background-color: #f39c12; 
+}
+.color-4::before {
+  background-color: #3498db; 
+}
+
+
+/* media query for my ticket page */
+@media (max-width: 768px){
+  .intern-ticket-dashboard{
+    padding-top: 100px;
+  }
+  .intern-openclose-btns{
+    margin-top: 20px;
+    justify-content: start;
   }
 }

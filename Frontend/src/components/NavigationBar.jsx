@@ -119,6 +119,24 @@ function NavigationBar({ activeSection, onNavigate }) {
             Chats With Teams
           </a>
         </li>
+        <li>
+          <a
+            href="#"
+            className={activeSection === 'ticket' ? 'active' : ''}
+            onClick={() => handleLinkClick('ticket')}
+          >
+            My Tickets
+          </a>
+        </li>
+        <li>
+          <a
+            href="#"
+            className={activeSection === 'ticket-report' ? 'active' : ''}
+            onClick={() => handleLinkClick('ticket-report')}
+          >
+            My Reports
+          </a>
+        </li>
         <li className="dropdown-content">
           <a href="#" className="dropbtn">My Account <img src="assest/icons8-dropdown-30.png" width="10px" alt="" /></a>
           <div className="dropdown-content">

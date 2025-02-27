@@ -21,7 +21,62 @@ function InternDashboard() {
   const [input, setInput] = useState("");
   const [file, setFile] = useState(null);
 
+<<<<<<< HEAD
   const Endpoints = new APIEndpoints();
+=======
+  // for my ticket area
+    const [activeTab, setActiveTab] = useState("open");
+  
+    const openTickets = [
+      {
+        ticketNo: "TCK001",
+        title: "Login Issue",
+        createdDate: "2024-02-27",
+        status: "Closed",
+        priority: "High",
+        agentAssigned: "John Doe",
+        action: "View",
+      },
+      {
+        ticketNo: "TCK002",
+        title: "Payment Failure",
+        createdDate: "2024-02-26",
+        status: "Closed",
+        priority: "Medium",
+        agentAssigned: "Jane Smith",
+        action: "View",
+      },
+    ];
+  
+    const closedTickets = [
+      {
+        ticketNo: "TCK003",
+        title: "Facing issue with Laptop ",
+        createdDate: "2024-02-25",
+        status: "Closed",
+        priority: "Low",
+        agentAssigned: "Mike Ross",
+      },
+      {
+        ticketNo: "TCK004",
+        title: "Refund Request",
+        createdDate: "2024-02-24",
+        status: "Closed",
+        priority: "Medium",
+        agentAssigned: "Rachel Zane",
+      },
+    ];
+  
+ // for intern-chat-area
+ const [selectedChat, setSelectedChat] = useState("");
+ // ============================================================
+ const [messages, setMessages] = useState([]);
+ const [input, setInput] = useState("");
+ const [file, setFile] = useState(null);
+
+
+  const Endpoints= new APIEndpoints()
+>>>>>>> 5ed4eac3723d2bb701c308087386c818ebd176c1
   const socket = io(Endpoints.BASE_URL);
   const [employeedata, setemployeedata] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
@@ -272,6 +327,7 @@ function InternDashboard() {
                     <p className="labels">Awards</p>
                   </div>
                 </div>
+<<<<<<< HEAD
                 <div className="birthdays-sctn">
                   <p>
                     <span>
@@ -307,6 +363,118 @@ function InternDashboard() {
                           )
                         : "Loading..."}
                     </p>
+=======
+              </div>
+              <div className="birthdays-sctn">
+            <p><span><img className="cake-img" src={cakeimg} alt="" /></span> &nbsp; Birthdays</p>
+            <div className="birthday-prsn">
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="Birthday Person" className="birthday-img" />
+              ) : (
+              <p>Loading Image...</p>
+            )}
+              <p><strong>{employeedata ? employeedata.firstName+" "+employeedata.lastName : 'Loading...'}</strong> has a birthday on {employeedata ? new Date(employeedata.dob).toLocaleDateString('en-GB', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: '2-digit'
+                            }) 
+                            : 'Loading...'}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+          <div className="intern-right-side">
+            <div className="intern-details-container">
+              <div className="intern-personal-details">
+              <div className="personal-information">
+              <div className="information">
+                <h3><i className="fa-solid fa-pen"></i> &nbsp;Personal Details</h3>
+              </div>
+              <p>Name:{employeedata ? employeedata.firstName+" "+employeedata.lastName : 'Loading...'}</p>
+              <hr />
+              <p>Father's Name:{employeedata ? employeedata.fatherName: 'Loading...'}</p>
+              <hr />
+              <p>
+                  Date of Birth: {employeedata ? new Date(employeedata.dob).toLocaleDateString('en-GB', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: '2-digit'
+                            }) 
+                            : 'Loading...'}
+                          </p>
+              <hr />
+              <p>Gender: {employeedata ? employeedata.gender : 'Loading...'}</p>
+              <hr />
+              <p>Email:{employeedata ? employeedata.email: 'Loading...'}</p>
+              <hr />
+              <p>Phone:{employeedata ? employeedata.mobile: 'Loading...'} </p>
+              <hr />
+              <p>Local Address: xyz</p>
+              <hr />
+              <p>Permanent Address: XYZ</p>
+            </div>
+            <div className="company-information">
+              <div className="information">
+                <h3><i className="fa-solid fa-briefcase"></i>&nbsp; Company Details</h3>
+              </div>
+              <p>Employee ID: {employeedata ? employeedata.employeeId: 'Loading...'}</p>
+              <hr ></hr>
+              <p>Department: {employeedata ? employeedata.department: 'Loading...'}</p>
+              <hr></hr>
+              <p>Designation: {employeedata ? employeedata.jobTitle : 'Loading'}</p>
+            </div>
+          </div>
+              <div className="notice-board-holidays-details">
+                <div className="notice-brd-details">
+                  <div className="information">
+                    <h3><i className="fa-solid fa-bullhorn"></i>&nbsp; Notice Board</h3>
+                  </div>
+                  <div className="intern-notice-space">
+                  <p>Office will be closed on the upcoming national holiday. Enjoy your day off!</p>
+                <p>Monthly team meeting scheduled for tomorrow at 10 AM. Please be on time.</p>
+                <p>Reminder: Annual office holiday party is scheduled for this Friday. Don't miss it!</p>
+                <p>Important: Please submit your vacation requests before the end of the week.</p>
+                <p>Office closed for maintenance on Saturday. Apologies for any inconvenience.</p>
+                <p>Urgent: Team meeting on Monday to discuss upcoming projects. Make sure you're prepared!</p>
+                  </div>
+                </div>
+                <div className="intern-overall-ticket">
+                  <div className="information">
+                      <h3><i class="fa-solid fa-circle-info"></i>&nbsp; Help Desk Status</h3>
+                    </div>
+                    <div className="intern-tickets">
+                      <p><i class="fa-solid fa-people-group"></i>&nbsp; Total Ticket Raised</p>
+                      <p className='intern-ticket-raised'>7</p>
+                    </div>
+                    <div className="intern-tickets">
+                      <p><i class="fa-solid fa-phone-flip"></i>&nbsp; Open Tickets</p>
+                      <p className='intern-open-ticket'>0</p>
+                    </div>
+                    <div className="intern-tickets">
+                      <p><i class="fa-solid fa-ticket"></i>&nbsp; Closed Tickets</p>
+                      <p className='intern-close-ticket'>7</p>
+                    </div>
+                  </div>
+                <div className="intern-upcoming-holidays-details">
+                  <div className="information">
+                    <h3><i className="fa-solid fa-paper-plane"></i>&nbsp; Upcoming Holidays</h3>
+                  </div>
+                  <div className="holidy">
+                    <p>Office Off</p>
+                    <p>01/01/2024</p>
+                  </div>
+                  <div className="holidy">
+                    <p>Office Off</p>
+                    <p>15/08/2024</p>
+                  </div>
+                  <div className="holidy">
+                    <p>Office Off</p>
+                    <p>25/12/2024</p>
+                  </div>
+                  <div className="holidy">
+                    <p>Office Off</p>
+                    <p>01/05/2024</p>
+>>>>>>> 5ed4eac3723d2bb701c308087386c818ebd176c1
                   </div>
                 </div>
               </div>
@@ -1719,6 +1887,7 @@ function InternDashboard() {
                 <h1>This is the On Duty Page</h1>
               )}
             </div>
+<<<<<<< HEAD
           </div>
         );
       // code for chat box ======================================================================================
@@ -1914,6 +2083,70 @@ function InternDashboard() {
             )}
           </div>
         );
+=======
+            );
+             //code for ticket section======================================================================
+             case 'ticket':
+              return (
+                <div className="intern-ticket-dashboard">
+                    {/* Top Buttons */}
+      <div className="ticket-top-btns">
+        <button className="intern-add-btn">+ Add</button>
+        <button className="intern-filter-btn">Filter</button>
+      </div>
+      {/* Open & Close Buttons */}
+      <div className="intern-openclose-btns"> 
+  <button className="intern-status-btn" onClick={() => setActiveTab("open")}>
+    <span className={`number-badge ${activeTab === "open" ? "blue-badge" : "grey-badge"}`}>2</span> Open
+  </button>
+  <button className="intern-status-btn" onClick={() => setActiveTab("closed")}>
+    <span className={`number-badge ${activeTab === "closed" ? "blue-badge" : "grey-badge"}`}>7</span> Closed
+  </button>
+</div>
+
+      {/* Table Section */}
+      <div className="intern-ticket-table">
+        <div className="intern-div-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Ticket No.</th>
+                <th>Title</th>
+                <th>Created Date</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Agent Assigned</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+            {(activeTab === "open" ? openTickets : closedTickets).map((ticket, index) => (
+              <tr key={index}>
+              <td className={`left-border color-${index % 5}`}>&nbsp;{ticket.ticketNo}</td>
+              <td>{ticket.title}</td>
+              <td>{ticket.createdDate}</td>
+              <td><span className="intern-status-text">{ticket.status}</span></td>
+              <td className={`left-border color-${index % 5}`}>&nbsp;{ticket.priority}</td>
+              <td>{ticket.agentAssigned}</td>
+              <td className="intern-action-icons">
+                <button className="intern-edit-btn"><i className="fa-solid fa-pen-to-square"></i></button>
+                <button className="intern-delete-btn"><i className="fa-solid fa-trash"></i></button></td>
+              </tr>
+            ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+               //code for ticket-report section======================================================================
+              case 'ticket-report':
+                return (
+                  <div className='ticket-dashboard'>
+                    <h1>this is ticket report page</h1>
+                  </div>
+                );
+>>>>>>> 5ed4eac3723d2bb701c308087386c818ebd176c1
       default:
         return null;
     }
