@@ -2331,10 +2331,6 @@ hr {
     cursor: pointer;
   }
 }
-<<<<<<< HEAD
-
-
-=======
 /* css for ticket section======================================================= */
 .ticket-dashboard{
   padding: 20px;
@@ -2501,4 +2497,3 @@ td[class*="color-"]::before {
     justify-content: start;
   }
 }
->>>>>>> 5ed4eac3723d2bb701c308087386c818ebd176c1

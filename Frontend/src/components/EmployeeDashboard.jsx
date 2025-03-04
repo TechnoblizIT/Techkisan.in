@@ -4,6 +4,7 @@ import "../styles/EmployeeDashboard.css";
 import axios from "axios";
 import cakeimg from "../assets/cake-img.png";
 import profile from "../assets/P.jpg";
+import defaultimg from "../assets/avtar.png"
 import image from "../assets/img-dashboard.jpg";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
@@ -2155,7 +2156,7 @@ function EmployeeDashboard() {
                     onClick={() => setSelectedChat(user)} // select chat on click
                   >
                     <img
-                      src={user.imageUrl || profile}
+                      src={user?.imageUrl?.trim() ? user.imageUrl : defaultimg}
                       alt="profile"
                       className="img-profile"
                     />
@@ -2189,7 +2190,8 @@ function EmployeeDashboard() {
                       .map((user) => (
                         <div key={user._id}>
                           <img
-                            src={user.imageUrl}
+                           src={user?.imageUrl ? user.imageUrl : defaultimg}
+
                             alt="profile"
                             className="profile-main"
                           />
