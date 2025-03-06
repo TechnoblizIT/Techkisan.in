@@ -2569,11 +2569,14 @@ function EmployeeDashboard() {
               </tr>
             ))}
             </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
+                    </table>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        );
+
                //code for ticket-report section======================================================================
               case 'ticket-report':
                 return (
