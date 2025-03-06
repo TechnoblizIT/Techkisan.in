@@ -21,7 +21,8 @@ class APIEndpoints {
       this.EMPLOYEE_PUNCH_OUT = `${this.BASE_URL}/employees/punchOut`;
       this.EMPLOYEE_DEL_LEAVE = `${this.BASE_URL}/employees/deleteLeaves`;
       this.EMPLOYEE_LOGOUT = `${this.BASE_URL}/employees/logout`;  
-      this.GET_USERS_EMPLOYEES=`${this.BASE_URL}/employees/allusers`    
+      this.GET_USERS_EMPLOYEES=`${this.BASE_URL}/employees/allusers`  
+      this.GET_UNREADMESSAGE_EMPLOYEES=`${this.BASE_URL}/employees/unreadmessages`  
       // Manager Endpoints
       this.MANAGER_CREATE = `${this.BASE_URL}/manager/create`;
       this.MANAGER_LOGIN = `${this.BASE_URL}/manager/login`;

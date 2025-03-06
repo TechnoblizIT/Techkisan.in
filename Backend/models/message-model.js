@@ -20,6 +20,7 @@ const messageSchema = new mongoose.Schema({
     name: String, // Original file name
   },
   timestamp: { type: Date, default: Date.now },
+  isRead: { type: Boolean, default: false },
 });
 
 module.exports = mongoose.model('Message', messageSchema);

@@ -60,6 +60,7 @@ function EmployeeDashboard() {
 
   // for chat-area
   const [selectedChat, setSelectedChat] = useState([]);
+  const [unreadMessages, setUnreadMessages] = useState([]);
   // ============================================================
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -122,7 +123,19 @@ function EmployeeDashboard() {
     vacationAddress: "",
     contactNumber: "",
   });
+ async function fetchunreadMessages(){
+   const token = localStorage.getItem("token");
+   const decodedToken = jwtDecode(token);
+   const userId = decodedToken.id;
+   const response = await axios.get(`${Endpoints.GET_UNREADMESSAGE_EMPLOYEES}/${userId}`, {
+     headers: {
+       Authorization: `Bearer ${token}`,
+     },
+   });
+   setUnreadMessages(response.data);
 
+ }
+ 
   const [punchRecord, setPunchRecord] = useState([]);
 
   const [activeSection, setActiveSection] = useState("home");
@@ -429,9 +442,16 @@ function EmployeeDashboard() {
     };
 
     fetchData();
+    fetchunreadMessages();
+    // Add a listener for incoming messages
+
     // Listen for new messages from the server using Socket.IO
     socket.on("receiveMessage", (newMessage) => {
       setMessages((prevMessages) => [...prevMessages, newMessage]);
+      setUnreadMessages((prevUnreadMessages) => [
+        prevUnreadMessages + 1,
+       ...prevUnreadMessages,
+      ]);
     });
 
     return () => {
@@ -2149,6 +2169,7 @@ function EmployeeDashboard() {
                 />
               </div>
               <div className="chat-previews">
+            
                 {users.map((user) => (
                   <div
                     key={user._id}
@@ -2164,6 +2185,7 @@ function EmployeeDashboard() {
                       <div className="preview-header">
                         <span className="preview-name">
                           {user.firstName + " " + user.lastName}
+                          {unreadMessages}
                         </span>
                         {/* <span className="preview-time">10:00 AM</span> Adjust as needed */}
                       </div>

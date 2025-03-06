@@ -12,7 +12,8 @@ const empimageModel=require("../models/employeeimg-model")
 const upload=require("../configs/mutler-setup")
 const {punchIn,punchOut}=require("../controllers/employeePunchController")
 const {addWfh}=require("../controllers/employeeWfhController");
-const nodemailer = require("nodemailer")
+const nodemailer = require("nodemailer");
+const messageModel = require('../models/message-model');
 router.post('/login',loginUser)
 
 
@@ -192,6 +193,16 @@ router.get("/allusers" , async function(req, res){
   res.json({filteredEmployees,managers,interns})
   } catch (error) {
       res.status(401).json({ message: 'Unauthorized' });
+  }
+})
+router.get("/unreadmessages/:userId", async (req, res) => {
+  try{
+    const unreadmessage=await messageModel.find({sender:req.params.userId,isRead:false})
+
+    res.status(200).json({unreadmessage})
+  }catch(e){
+    console.log(e)
+    res.status(500).json({message: "Failed to fetch unread messages"})
   }
 })
 
