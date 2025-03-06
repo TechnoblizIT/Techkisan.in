@@ -71,6 +71,8 @@ io.on("connection", (socket) => {
       recipient: receiverId,
       message: text,
       file: fileData,
+      timestamp: new Date(),
+      isRead: false,  
      });
     await message.save();
     console.log("Message saved to database");

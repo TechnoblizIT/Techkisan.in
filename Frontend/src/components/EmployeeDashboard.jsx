@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from "react";
-import NavigationBar from "./NavigationBar";
-import "../styles/EmployeeDashboard.css";
-import axios from "axios";
-import cakeimg from "../assets/cake-img.png";
-import profile from "../assets/P.jpg";
-import image from "../assets/img-dashboard.jpg";
-import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
-import APIEndpoints from "./endPoints";
+import React,{useEffect, useState} from 'react';
+import NavigationBar from './NavigationBar';
+import '../styles/EmployeeDashboard.css';
+import axios from 'axios';
+import cakeimg from '../assets/cake-img.png'
+import profile from '../assets/P.jpg';
+import image from '../assets/img-dashboard.jpg'
+import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
+import APIEndpoints  from "./endPoints"
 import io from "socket.io-client";
 import { Buffer } from "buffer";
 
@@ -113,8 +113,10 @@ function EmployeeDashboard() {
     },
   ];
 
+
   // for chat-area
   const [selectedChat, setSelectedChat] = useState([]);
+  const [unreadMessages, setUnreadMessages] = useState([]);
   // ============================================================
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -177,8 +179,8 @@ function EmployeeDashboard() {
     vacationAddress: "",
     contactNumber: "",
   });
-
-  const [punchRecord, setPunchRecord] = useState([]);
+ 
+  const [punchRecord, setPunchRecord] = useState([])
 
   const [activeSection, setActiveSection] = useState("home");
 
@@ -483,11 +485,11 @@ function EmployeeDashboard() {
       }
     };
 
-    fetchData();
-    // Listen for new messages from the server using Socket.IO
-    socket.on("receiveMessage", (newMessage) => {
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
-    });
+  fetchData();
+  // Listen for new messages from the server using Socket.IO
+  socket.on("receiveMessage", (newMessage) => {
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
+  });
 
     return () => {
       socket.off("receiveMessage");
@@ -747,7 +749,7 @@ function EmployeeDashboard() {
                   </div>
                 </div>
                 <div className="notice-board-upcoming-holidays">
-                  <div className="notice-board">
+                <div className="notice-board">
                     <div className="details">
                       <h3>
                         <i className="fa-solid fa-bullhorn"></i>&nbsp; Notice
@@ -809,7 +811,7 @@ function EmployeeDashboard() {
                       <p className="close-ticket">7</p>
                     </div>
                   </div>
-                  <div className="upcoming-holidays">
+                 <div className="upcoming-holidays">
                     <div className="details">
                       <h3>
                         <i className="fa-solid fa-paper-plane"></i>&nbsp;
@@ -838,7 +840,7 @@ function EmployeeDashboard() {
             </div>
           </div>
         );
-      case "request":
+      case 'request':
         return (
           <div className="request-section">
             <nav className="request-nav">
@@ -2102,91 +2104,74 @@ function EmployeeDashboard() {
                 </div>
               )}
 
-              {activeReportPage === "on-duty" && (
-                <h1>This is the On Duty Page</h1>
-              )}
-            </div>
-          </div>
-        );
-      // code for chat box ======================================================================================
-      case "chat":
-        return (
-          <div className="chat-app">
-            {/* chat-sidebar */}
-            <div className="chat-sidebar">
-              <div className="chat-sidebar-icons">
-                <div className="chat-sidebar-icon">
-                  <i className="fa-regular fa-bell"></i>
-                  <p>Activity</p>
-                </div>
-                <div className="chat-sidebar-icon">
-                  <i className="fa-regular fa-message"></i>
-                  <p>Chat</p>
-                </div>
-                <div className="chat-sidebar-icon">
-                  <i className="fa-solid fa-people-group"></i>
-                  <p>Teams</p>
-                </div>
-                <div className="chat-sidebar-icon">
-                  <i className="fa-solid fa-calendar-days"></i>
-                  <p>Calendar</p>
-                </div>
-                <div className="chat-sidebar-icon gear-icon">
-                  <i className="fa-solid fa-gear"></i>
-                  <p className="hidden">Setting</p>
-                </div>
+                {activeReportPage === 'on-duty' && <h1>This is the On Duty Page</h1>}
               </div>
-              <div className="chat-sidebar-bottom">
+            </div>
+          );
+          // code for chat box ======================================================================================
+          case 'chat':
+            return (
+              <div className="chat-app">
+              {/* chat-sidebar */}
+              <div className="chat-sidebar">
+                <div className="chat-sidebar-icons">
+                  <div className="chat-sidebar-icon">
+                    <i className="fa-regular fa-bell"></i>
+                    <p>Activity</p>
+                  </div>
+                  <div className="chat-sidebar-icon">
+                    <i className="fa-regular fa-message"></i>
+                    <p>Chat</p>
+                  </div>
+                  <div className="chat-sidebar-icon">
+                    <i className="fa-solid fa-people-group"></i>
+                    <p>Teams</p>
+                  </div>
+                  <div className="chat-sidebar-icon">
+                    <i className="fa-solid fa-calendar-days"></i>
+                    <p>Calendar</p>
+                  </div>
+                  <div className="chat-sidebar-icon gear-icon">
+                    <i className="fa-solid fa-gear"></i>
+                    <p className="hidden">Setting</p>
+                  </div>
+                </div>
+                <div className="chat-sidebar-bottom">
                 <img src={avatarUrl} alt="profile" className="profile-photo" />
-              </div>
-            </div>
-
-            {/* chat-list */}
-            <div className="chat-list">
-              <div className="chat-list-header">
-                <h1>Chat</h1>
-                <div className="chat-icons">
-                  <div
-                    className="icon-container video-icon"
-                    data-tooltip="Meet Now"
-                  >
-                    <i className="fa-solid fa-video"></i>
-                  </div>
-                  <div
-                    className="icon-container add-icon"
-                    data-tooltip="New Chat"
-                  >
-                    <i className="fa-solid fa-plus"></i>
-                  </div>
                 </div>
               </div>
-              <div className="chat-search-bar">
-                <input
-                  type="text"
-                  className="search-input"
-                  placeholder="Search..."
-                />
+        
+              {/* chat-list */}
+              <div className="chat-list">
+      <div className="chat-list-header">
+        <h1>Chat</h1>
+        <div className="chat-icons">
+          <div className="icon-container video-icon" data-tooltip="Meet Now">
+            <i className="fa-solid fa-video"></i>
+          </div>
+          <div className="icon-container add-icon" data-tooltip="New Chat">
+            <i className="fa-solid fa-plus"></i>
+          </div>
+        </div>
+      </div>
+      <div className="chat-search-bar">
+        <input type="text" className="search-input" placeholder="Search..." />
+      </div>
+      <div className="chat-previews">
+       
+        {users.map((user) => (
+          <div
+            key={user._id}
+            className="chat-preview"
+            onClick={() => setSelectedChat(user)} // select chat on click
+          >
+            <img src={user.imageUrl || profile} alt="profile" className="img-profile" />
+            <div className="preview-details">
+              <div className="preview-header">
+                <span className="preview-name">{user.firstName+" "+user.lastName}</span>
+                {/* <span className="preview-time">10:00 AM</span> Adjust as needed */}
               </div>
-              <div className="chat-previews">
-                {users.map((user) => (
-                  <div
-                    key={user._id}
-                    className="chat-preview"
-                    onClick={() => setSelectedChat(user)} // select chat on click
-                  >
-                    <img
-                      src={user.imageUrl || profile}
-                      alt="profile"
-                      className="img-profile"
-                    />
-                    <div className="preview-details">
-                      <div className="preview-header">
-                        <span className="preview-name">
-                          {user.firstName + " " + user.lastName}
-                        </span>
-                        {/* <span className="preview-time">10:00 AM</span> Adjust as needed */}
-                      </div>
-                      {/* <p className="preview-message">{mostRecentMessage
+              {/* <p className="preview-message">{mostRecentMessage
               ? mostRecentMessage.message 
               : "Loading.."}</p> */}
                     </div>
@@ -2201,35 +2186,31 @@ function EmployeeDashboard() {
                 <div className="chat-header">
                   <div className="chat-header-left">
                     {users
-                      .filter(
-                        (user) =>
-                          user.firstName + " " + user.lastName ===
-                          selectedChat.firstName + " " + selectedChat.lastName
-                      )
-                      .map((user) => (
-                        <div key={user._id}>
-                          <img
-                            src={user.imageUrl}
-                            alt="profile"
-                            className="profile-main"
-                          />
-                          <span className="chat-name">
-                            {user.firstName + " " + user.lastName}
-                          </span>
-                        </div>
-                      ))}
-                  </div>
-                  <div className="chat-header-icons">
-                    <i className="fa-solid fa-video"></i>
-                    <i className="fa-solid fa-phone"></i>
-                    <i className="fa-solid fa-magnifying-glass"></i>
-                    <i className="fa-solid fa-ellipsis-vertical"></i>
-                  </div>
-                </div>
+          .filter((user) => user.firstName+" "+user.lastName === selectedChat.firstName+" "+selectedChat.lastName)
+          .map((user) => (
+            <div key={user._id}>
+              <img
+                src={user.imageUrl} 
+                alt="profile"
+                className="profile-main"
+              />
+              <span className="chat-name">{user.firstName+" "+user.lastName}</span> 
+            </div>
+          ))}
 
-                {/* Messages Section */}
-                <div className="messages">
-                  {messages
+                    </div>
+                    <div className="chat-header-icons">
+                      <i className="fa-solid fa-video"></i>
+                      <i className="fa-solid fa-phone"></i>
+                      <i className="fa-solid fa-magnifying-glass"></i>
+                      <i className="fa-solid fa-ellipsis-vertical"></i>
+                    </div>
+                  </div>
+        
+                
+                   {/* Messages Section */}
+                   <div className="messages">
+                   {messages
                     .filter(
                       (message) =>
                         (message.sender === employeedata._id &&
@@ -2237,95 +2218,81 @@ function EmployeeDashboard() {
                         (message.sender === selectedChat._id &&
                           message.recipient === employeedata._id)
                     )
-                    .map((message, index) => (
-                      <div
-                        key={index}
-                        className={
-                          message.sender === employeedata._id
-                            ? "message-right"
-                            : "message-left"
-                        }
-                      >
-                        {message.message && <p>{message.message}</p>}
-                        {message.file && (
-                          <div>
-                            {message.file.contentType.startsWith("image/") ? (
-                              <img
-                                src={`data:${
-                                  message.file.contentType
-                                };base64,${Buffer.from(
-                                  message.file.data
-                                ).toString("base64")}`}
-                                alt={message.file.name}
-                                style={{
-                                  maxWidth: "200px",
-                                  maxHeight: "200px",
-                                }}
-                              />
-                            ) : (
-                              <a
-                                href={`data:${
-                                  message.file.contentType
-                                };base64,${Buffer.from(
-                                  message.file.data
-                                ).toString("base64")}`}
-                                download={message.file.name}
-                              >
-                                Download {message.file.name}
-                              </a>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                   .map((message, index) => (
+  <div
+    key={index}
+    className={message.sender === employeedata._id ? "message-right" : "message-left"}
+  >
+    {message.message && <p>{message.message}</p>}
+    {message.file && (
+      <div>
+        {message.file.contentType.startsWith("image/") ? (
+          <img
+            src={`data:${message.file.contentType};base64,${Buffer.from(
+              message.file.data
+            ).toString("base64")}`}
+            alt={message.file.name}
+            style={{ maxWidth: "200px", maxHeight: "200px" }}
+          />
+        ) : (
+          <a
+            href={`data:${message.file.contentType};base64,${Buffer.from(
+              message.file.data
+            ).toString("base64")}`}
+            download={message.file.name}
+          >
+            Download {message.file.name}
+          </a>
+        )}
+      </div>
+    )}
+  </div>
+))}
+</div>
+        
+                  {/* Message Input Box */}
+                  <div className="message-input">
+        <div className="input-container">
+        <input
+          type="text"
+          placeholder="Type a new message"
+          value={file ? file.name : input}
+          onChange={(e) => setInput(e.target.value)}
+          readOnly={!!file} 
+        />
+        {file && (
+          <button
+            type="button"
+            style={{
+              backgroundColor: "red",
+              color: "white",
+              border: "none",
+              marginRight: "5%",
+            }}
+            onClick={() => setFile(null)} // Clear the file and preview
+          >
+            Remove
+          </button>
+        )}
+         
+    <i className="fa-regular fa-face-smile emoji-icon"></i>
+          <input
+    type="file"
+    id="fileUpload"
+    onChange={(e) => setFile(e.target.files[0])}
+    style={{ display: "none" }}
+  />
+  
+  <label htmlFor="fileUpload">
+    <i className="fa-solid fa-paperclip attach-icon"></i>
+  </label>
+        </div>
+        <i className="fa-solid fa-paper-plane send-icon" onClick={sendMessage}></i>
+      </div>
                 </div>
-
-                {/* Message Input Box */}
-                <div className="message-input">
-                  <div className="input-container">
-                    <input
-                      type="text"
-                      placeholder="Type a new message"
-                      value={file ? file.name : input}
-                      onChange={(e) => setInput(e.target.value)}
-                      readOnly={!!file}
-                    />
-                    {file && (
-                      <button
-                        type="button"
-                        style={{
-                          backgroundColor: "red",
-                          color: "white",
-                          border: "none",
-                          marginRight: "5%",
-                        }}
-                        onClick={() => setFile(null)} // Clear the file and preview
-                      >
-                        Remove
-                      </button>
-                    )}
-
-                    <i className="fa-regular fa-face-smile emoji-icon"></i>
-                    <input
-                      type="file"
-                      id="fileUpload"
-                      onChange={(e) => setFile(e.target.files[0])}
-                      style={{ display: "none" }}
-                    />
-
-                    <label htmlFor="fileUpload">
-                      <i className="fa-solid fa-paperclip attach-icon"></i>
-                    </label>
-                  </div>
-                  <i
-                    className="fa-solid fa-paper-plane send-icon"
-                    onClick={sendMessage}
-                  ></i>
-                </div>
-              </div>
-            )}
-          </div>
-        );
+              )}
+            </div>
+            );
 
       //code for ticket section======================================================================
       case "ticket":
@@ -2572,72 +2539,55 @@ function EmployeeDashboard() {
                   </button>
                 </div>
 
-                {/* Table Section */}
-                <div className="ticket-table">
-                  <div className="div-table">
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>Ticket No.</th>
-                          <th>Title</th>
-                          <th>Created Date</th>
-                          <th>Status</th>
-                          <th>Priority</th>
-                          <th>Agent Assigned</th>
-                          <th>Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {(activeTab === "open"
-                          ? openTickets
-                          : closedTickets
-                        ).map((ticket, index) => (
-                          <tr key={index}>
-                            <td className={`left-border color-${index % 5}`}>
-                              &nbsp;{ticket.ticketNo}
-                            </td>
-                            <td>{ticket.title}</td>
-                            <td>{ticket.createdDate}</td>
-                            <td>
-                              <span className="status-text">
-                                {ticket.status}
-                              </span>
-                            </td>
-                            <td className={`left-border color-${index % 5}`}>
-                              &nbsp;{ticket.priority}
-                            </td>
-                            <td>{ticket.agentAssigned}</td>
-                            <td className="action-icons">
-                              <button className="edit-btn">
-                                <i className="fa-solid fa-pen-to-square"></i>
-                              </button>
-                              <button className="delete-btn">
-                                <i className="fa-solid fa-trash"></i>
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+      {/* Table Section */}
+      <div className="ticket-table">
+        <div className="div-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Ticket No.</th>
+                <th>Title</th>
+                <th>Created Date</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Agent Assigned</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+            {(activeTab === "open" ? openTickets : closedTickets).map((ticket, index) => (
+              <tr key={index}>
+              <td className={`left-border color-${index % 5}`}>&nbsp;{ticket.ticketNo}</td>
+              <td>{ticket.title}</td>
+              <td>{ticket.createdDate}</td>
+              <td><span className="status-text">{ticket.status}</span></td>
+              <td className={`left-border color-${index % 5}`}>&nbsp;{ticket.priority}</td>
+              <td>{ticket.agentAssigned}</td>
+              <td className="action-icons">
+                <button className="edit-btn"><i className="fa-solid fa-pen-to-square"></i></button>
+                <button className="delete-btn"><i className="fa-solid fa-trash"></i></button></td>
+              </tr>
+            ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+               //code for ticket-report section======================================================================
+              case 'ticket-report':
+                return (
+                  <div className='ticket-dashboard'>
+                    <h1>this is ticket report page</h1>
                   </div>
-                </div>
-              </>
-            )}
-          </div>
-        );
-      //code for ticket-report section======================================================================
-      case "ticket-report":
-        return (
-          <div className="ticket-dashboard">
-            <h1>this is ticket report page</h1>
-          </div>
-        );
+                );
       default:
         return null;
     }
   };
 
   return (
+    
     <div className="employee-dashboard">
       <NavigationBar
         activeSection={activeSection}
