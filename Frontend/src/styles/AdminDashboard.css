@@ -709,7 +709,7 @@ h2 {
 
 .radio-group {
   display: flex;
-  gap: 40px; /* Space between the radio options */
+  gap: 40px; 
 }
 
 .radio-option {
@@ -718,7 +718,7 @@ h2 {
 }
 
 .radio-option input[type="radio"] {
-  margin-right: 8px; /* Consistent spacing between radio button and text */
+  margin-right: 8px; 
 }
 
 .footer-buttons {
@@ -879,7 +879,7 @@ h4 {
 }
 /* Styling for item8 */
 .grid-item.item8 {
-  border: 1px solid #ccc; /* Add border if needed */
+  border: 1px solid #ccc; 
   padding: 10px;
   margin-bottom: 10px;
 }
@@ -889,12 +889,12 @@ h4 {
 }
 
 .grid-item.item8 textarea {
-  width: 100%; /* Ensures the textarea spans the width of the container */
+  width: 100%; 
   padding: 10px;
-  box-sizing: border-box; /* Includes padding in the element's total width and height */
+  box-sizing: border-box; 
   border: 1px solid #ccc;
-  font-size: 14px; /* Font size for the textarea */
-  resize: vertical; /* Allows vertical resizing only */
+  font-size: 14px; 
+  resize: vertical; 
 }
 
 /* Responsive Styles */
@@ -921,7 +921,7 @@ h4 {
     font-size: 20px;
   }
 
-  input[type="text"] {
+  .row input[type="text"] {
     width: calc(50% - 10px);
     height: 25px;
   }
