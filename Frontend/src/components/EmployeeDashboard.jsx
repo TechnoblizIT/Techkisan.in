@@ -24,15 +24,49 @@ function EmployeeDashboard() {
   const [attendance, setAttendance] = useState([]);
   const Endpoints = new APIEndpoints();
   const socket = io(Endpoints.BASE_URL);
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString();
+ 
+ 
+ 
+  const formatDate = (date) => {
+    if (!date) return "-";
+    return new Date(date).toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
   };
+  
   const [entryconut, setentryconut] = useState(10);
-  const formatTime = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  
+  
+  
+  const formatTime = (date) => {
+    if (!date) return "-";
+    return new Date(date).toLocaleTimeString("en-US", {
+      timeZone: "Asia/Kolkata",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
   };
+  
+  const calculateWorkDuration = (punchIn, punchOut) => {
+    if (!punchIn || !punchOut) return "-";
+  
+    const inTime = new Date(punchIn);
+    const outTime = new Date(punchOut);
+  
+    const diffMs = outTime - inTime; // Difference in milliseconds
+    if (diffMs <= 0) return "0 hrs 0 mins"; // Prevent negative values
+  
+    const hours = Math.floor(diffMs / (1000 * 60 * 60)); // Convert to hours
+    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60)); // Remaining minutes
+  
+    return `${hours} hrs ${minutes} mins`;
+  };
+  
+  
   const calculateDays = (fromDate, toDate) => {
     const from = new Date(fromDate);
     const to = new Date(toDate);
@@ -1374,48 +1408,45 @@ function EmployeeDashboard() {
                   </div>
                   <div className="table-container">
                     <div className="in-out-table-section">
-                      <table className="in-out-details-table">
-                        <thead>
-                          <tr>
-                            <th>Code</th>
-                            <th>Name</th>
-                            <th>Entry Date</th>
-                            <th>Location In</th>
-                            <th>Location Out</th>
-                            <th>In Time</th>
-                            <th>Out Time</th>
-                            <th>Total Working Hour</th>
-                            <th>In Geolocation</th>
-                            <th>Out Geolocation</th>
-                            <th>Leave</th>
-                            <th>Morning Late</th>
-                            <th>Early</th>
+                    <table className="in-out-details-table">
+                      <thead>
+                        <tr>
+                          <th>Code</th>
+                          <th>Name</th>
+                          <th>Entry Date</th>
+                          <th>Location In</th>
+                          <th>Location Out</th>
+                          <th>In Time</th>
+                          <th>Out Time</th>
+                          <th>Total Working Hour</th>
+                          <th>In Geolocation</th>
+                          <th>Out Geolocation</th>
+                          <th>Leave</th>
+                          <th>Morning Late</th>
+                          <th>Early</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredRecords.slice(-entryconut).map((record) => (
+                          <tr key={record._id}>
+                            <td>{employeedata.employeeId}</td>
+                            <td>{employeedata.firstName + " " + employeedata.lastName}</td>
+                            <td>{formatDate(record.date)}</td>
+                            <td>{record.locationIn || "-"}</td>
+                            <td>{record.locationOut || "-"}</td>
+                            <td>{formatTime(record.punchInTime)}</td>
+                            <td>{formatTime(record.punchOutTime)}</td>
+                            <td>{calculateWorkDuration(record.punchInTime, record.punchOutTime)}</td>
+                            <td>{record.inGeolocation || "-"}</td>
+                            <td>{record.outGeolocation || "-"}</td>
+                            <td>{record.leave || "-"}</td>
+                            <td>{record.morningLate ? "Yes" : "No"}</td>
+                            <td>{record.early ? "Yes" : "No"}</td>
                           </tr>
-                        </thead>
-                        <tbody>
-                          {filteredRecords.slice(-entryconut).map((record) => (
-                            <tr key={record._id}>
-                              <td>{employeedata.employeeId}</td>
-                              <td>
-                                {employeedata.firstName +
-                                  " " +
-                                  employeedata.lastName}
-                              </td>
-                              <td>{formatDate(record.date)}</td>
-                              <td>-</td>
-                              <td>-</td>
-                              <td>{formatTime(record.punchInTime)}</td>
-                              <td>{formatTime(record.punchOutTime)}</td>
-                              <td>{record.workDuration * 10}</td>
-                              <td>-</td>
-                              <td>-</td>
-                              <td>-</td>
-                              <td>-</td>
-                              <td>-</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                        ))}
+                      </tbody>
+                    </table>
+
                     </div>
                     <div className="inout-pagination">
                       <p>Showing 1 to 5 of 5 entries</p>
