@@ -3,7 +3,9 @@ const router=express.Router();
 const bcrypt = require('bcrypt');
 const adminModel=require('../models/admin-model');
 const employeeModel=require('../models/employee-model');
-const {loginUser}=require("../controllers/adminController")
+const {loginUser}=require("../controllers/adminController");
+const managerModel = require('../models/manager-model');
+const internModel=require("../models/intern-model")
 router.post('/create', async(req, res) => {
     try{ bcrypt.genSalt("admin123", async function (err, salt) {
      const hashedPassword = await bcrypt.hash("admin123", 10);
@@ -38,6 +40,9 @@ router.get('/admindata',async function (req, res){
     
         const employee = await employeeModel.find()
         const employeeCount = await employeeModel.countDocuments()
+        const managerCount=await managerModel.countDocuments()
+        const internCount=await internModel.countDocuments()
+        const totalsEmployess=employeeCount+managerCount;
         const admin = await adminModel.find()
         if (!employee) {
             return res.status(401).json({ message: 'Invalid credentials' });
@@ -48,8 +53,9 @@ router.get('/admindata',async function (req, res){
       
         res.status(200).json({
             success: true,
-            employeeCount: employeeCount,
-            employee: employee,})
+            employeeCount: totalsEmployess,
+            internCount: internCount,
+        })
     } catch (error) {
         res.status(401).json({ message: 'Unauthorized' });
     }

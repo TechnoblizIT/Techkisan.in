@@ -4,11 +4,13 @@ import { useRef }from "react";
 // import { BrowserRouter as Router } from 'react-router-dom';
 import '../styles/AdminDashboard.css'
 import avatarImage from '../assets/avtar.png';
-// import axios from "axios";
+import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { useReactToPrint } from 'react-to-print';
 import logo from "../assets/logo1.png"
 import { useNavigate } from 'react-router-dom';
+import APIEndpoints  from "./endPoints"
+
 
 // function getCookie(name) {
 //   const value = `; ${document.cookie}`;
@@ -16,11 +18,14 @@ import { useNavigate } from 'react-router-dom';
 //   if (parts.length === 2) return parts.pop().split(';').shift();
 // }
 const AdminDashboard = () => {
+  const Endpoints = new APIEndpoints();
   const [activeSection, setActiveSection] = useState('');
   const [activePage, setActivePage] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
   const [topMenuOpen, setTopMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [employeecount, setEmployeecount] = useState(0);
+  const [internCount,setInternCount] = useState(0);
   const navigate = useNavigate(); 
   
   const sections = ['HR', 'Sales/Purchase', 'Accounting','Company','Tools','Modules','Add-Ons','Setting'];
@@ -38,7 +43,7 @@ const AdminDashboard = () => {
     setTopMenuOpen(false);
   };
   
-  useEffect(() => {
+  useEffect(async() => {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -50,7 +55,19 @@ const AdminDashboard = () => {
         if (decode.role !== "admin") {
           navigate("/admin-login");
           return;
-        }}
+        
+        }
+        // Fetch employee count
+        const response = await axios.get(Endpoints.ADMIN_DASHBOARD, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        setEmployeecount(response.data.employeeCount);
+        setInternCount(response.data.internCount);
+      }
+        
         catch(err) {
           console.error('Error in admin dashboard:', err.message || 'Server error');
      }
@@ -156,19 +173,19 @@ const handleQuit = () => {
               <div className="left-section">
                 <div className='info-overview'>
                   <div className="info-block">
-                    <h1>50</h1>
+                    <h1>{employeecount?employeecount:0}</h1>
                     <h2>Employee</h2>
                     <Link className="view-link" to="#">View Employees</Link>
                   </div>
                   <div className="info-block">
-                    <h1>6</h1>
-                    <h2>Department</h2>
-                    <Link className="view-link" to="#">View Departments</Link>
+                    <h1>{internCount?internCount:0}</h1>
+                    <h2>Interns</h2>
+                    <Link className="view-link" to="#">View Intern</Link>
                   </div>
                   <div className="info-block">
                     <h1>13</h1>
-                    <h2>Designation</h2>
-                    <Link className="view-link" to="#">View Designations</Link>
+                    <h2>Department</h2>
+                    <Link className="view-link" to="#">View Department</Link>
                   </div>
                 </div>
                 {/* Latest Announcement Section */}

@@ -45,7 +45,6 @@ router.get('/empdata', async (req, res) => {
     if (!employee) {
         return res.status(404).json({ message: 'Employee not found' });
     }
-
     const employeeImages = await empimageModel.find({ employee: employee._id });
     const empleaves = await leaveModel.find({ employeeId: employee._id });
     res.json({ employee: employee, empimg:employeeImages ,empleaves:empleaves});
@@ -205,5 +204,6 @@ router.get("/unreadmessages/:userId", async (req, res) => {
     res.status(500).json({message: "Failed to fetch unread messages"})
   }
 })
+
 
   module.exports = router;
