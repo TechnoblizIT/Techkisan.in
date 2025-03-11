@@ -18,6 +18,8 @@ const managerRoute=require("./routes/managerRoutes")
 const internRoute=require("./routes/internRoutes")
 const cron = require('node-cron');
 const employeeModel=require("./models/employee-model")
+const managerModel=require("./models/manager-model")
+const internModel=require("./models/intern-model")
 app.use(cookieParser())
 const origin = process.env.ORIGIN
 ? process.env.ORIGIN.split(",").map((origin) => origin.trim())
@@ -91,24 +93,38 @@ cron.schedule('59 23 * * *', async () => {
   try {
     const today = new Date();
     today.setHours(0, 0, 0, 0); 
-    const employees = await employeeModel.find();
 
-    for (const employee of employees) {
-      const punchedInToday = employee.punchRecords.some(
-        punch => new Date(punch).setHours(0, 0, 0, 0) === today.getTime()
-      );
+    // Function to update attendance
+    const updateAttendance = async (users) => {
+      for (const user of users) {
+        const punchedInToday = user.punchRecords.some(
+          punch => new Date(punch).setHours(0, 0, 0, 0) === today.getTime()
+        );
 
-      if (!punchedInToday) {
-        if (employee.punchRecords.status !== 'CL'|| employee.punchRecords.status !== 'SL' || employee.punchRecords.status !== 'H')
-        employee.attendance.push({ date: today, status: 'A' });
-      } else {
-        employee.attendance.push({ date: today, status: 'P' });
+        if (!punchedInToday) {
+          // Check if the user is on leave
+          if (!['CL', 'SL', 'H'].includes(user.status)) {
+            user.attendance.push({ date: today, status: 'A' });
+          }
+        } else {
+          user.attendance.push({ date: today, status: 'P' });
+        }
+
+        await user.save();
       }
+    };
 
-      await employee.save();
-    }
+    // Fetch all employees, managers, and interns
+    const employees = await employeeModel.find();
+    const managers = await managerModel.find();
+    const interns = await internModel.find();
 
-    console.log('Attendance updated for all employees');
+    // Update attendance for all
+    await updateAttendance(employees);
+    await updateAttendance(managers);
+    await updateAttendance(interns);
+
+    console.log('Attendance updated for all employees, managers, and interns.');
   } catch (error) {
     console.error('Error updating attendance:', error);
   }

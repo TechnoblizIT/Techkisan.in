@@ -10,6 +10,7 @@ const jwt =require("jsonwebtoken")
 const leaveModel=require("../models/leave-model")
 const empimageModel=require("../models/employeeimg-model")
 const upload=require("../configs/mutler-setup")
+const {punchIn, punchOut}=require("../controllers/managerPunchController")
 router.post("/create", upload.single("Image"), async (req, res) => {
   try {
     const { firstName, lastName, email } = req.body;
@@ -105,6 +106,11 @@ router.get('/managerdata', async (req, res) => {
     res.status(401).json({ message: 'Unauthorized' });
 }
 });
+
+router.post("/punchIn",punchIn)
+
+router.post('/punchOut' , punchOut)
+
 
 router.get("/pendingleaves", async (req, res) => {
   try {

@@ -1607,25 +1607,25 @@ function EmployeeDashboard() {
                   {/* Second Block: Attendance Table */}
                   <div className="second-block">
                   <table className="attendance-table">
-      <thead>
-        <tr>
-          <th>Month</th>
-          {[...Array(31).keys()].map((day) => (
-            <th key={day}>{day + 1}</th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {Object.keys(attendanceMap).map((month) => (
-          <tr key={month}>
-            <td>{month}</td>
-            {attendanceMap[month].map((status, index) => (
-              <td key={index} className={status}>{status || "-"}</td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
+                <thead>
+                  <tr>
+                    <th>Month</th>
+                    {[...Array(31).keys()].map((day) => (
+                      <th key={day}>{day + 1}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.keys(attendanceMap).map((month) => (
+                    <tr key={month}>
+                      <td>{month}</td>
+                      {attendanceMap[month].map((status, index) => (
+                        <td key={index} className={status}>{status || "-"}</td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+                   </table>
 
                   </div>
                 </div>

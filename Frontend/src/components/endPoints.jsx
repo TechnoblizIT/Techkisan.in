@@ -27,6 +27,8 @@ class APIEndpoints {
       this.MANAGER_CREATE = `${this.BASE_URL}/manager/create`;
       this.MANAGER_LOGIN = `${this.BASE_URL}/manager/login`;
       this.MANAGER_DASHBOARD = `${this.BASE_URL}/manager/managerdata`;
+      this.MANAGER_PUNCH_IN = `${this.BASE_URL}/manager/punchIn`;
+      this.MANAGER_PUNCH_OUT = `${this.BASE_URL}/manager/punchOut`;
       this.MANAGER_GET_PENDING_LEAVES = `${this.BASE_URL}/manager/pendingleaves`;
       this.MANAGER_APPROVE_LEAVE = `${this.BASE_URL}/manager/leaves/approve`;
       this.MANAGER_DENY_LEAVE = `${this.BASE_URL}/manager/leaves/deny`;

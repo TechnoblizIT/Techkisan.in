@@ -2,14 +2,14 @@ import React, { useEffect, useState } from "react";
 import ManagerNavigation from "./ManagerNavigation";
 import "../styles/ManagerDashboard.css";
 import axios from "axios";
-import profileimg from "../assets/img-dashboard.jpg";
-import bdayimg from "../assets/P.jpg";
+// import profileimg from "../assets/img-dashboard.jpg";
+// import bdayimg from "../assets/P.jpg";
 import cakeimg from "../assets/cake-img.png";
 import profile from "../assets/P.jpg";
-import image from "../assets/img-dashboard.jpg";
+// import image from "../assets/img-dashboard.jpg";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import { type } from "@testing-library/user-event/dist/type";
+// import { type } from "@testing-library/user-event/dist/type";
 import APIEndpoints from "./endPoints";
 import io from "socket.io-client";
 function ManagerDashboard() {
@@ -19,7 +19,7 @@ function ManagerDashboard() {
   // ============================================================
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-
+  const [attendance, setAttendance] = useState([]);
   const Endpoints = new APIEndpoints();
   const socket = io(Endpoints.BASE_URL);
   const [employeedata, setemployeedata] = useState("");
@@ -35,7 +35,8 @@ function ManagerDashboard() {
   const [activeReportPage, setActiveReportPage] = useState("leave-balance");
   const [punchRecord, setPunchRecord] = useState([]);
   const [pendingleaves, setPendingleaves] = useState([]);
-
+  const [startDate, setstartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   //   function getCookie(name) {
   //     const value = `; ${document.cookie}`;
   //     const parts = value.split(`; ${name}=`);
@@ -50,6 +51,7 @@ function ManagerDashboard() {
   let diffInYears = currentDate.getFullYear() - joiningDate.getFullYear();
   let diffInMonths = currentDate.getMonth() - joiningDate.getMonth();
   let diffInDays = currentDate.getDate() - joiningDate.getDate();
+  const [entryconut, setentryconut] = useState(10);
 
   if (diffInDays < 0) {
     diffInMonths--;
@@ -74,7 +76,7 @@ function ManagerDashboard() {
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        Endpoints.EMPLOYEE_PUNCH_IN,
+        Endpoints.MANAGER_PUNCH_IN,
         {
           punchInTime: currentTime,
         },
@@ -99,7 +101,7 @@ function ManagerDashboard() {
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        Endpoints.EMPLOYEE_PUNCH_OUT,
+        Endpoints.MANAGER_PUNCH_OUT,
         {
           punchOutTime: currentTime,
         },
@@ -115,7 +117,7 @@ function ManagerDashboard() {
     }
   };
 
-  //approve and deny of leaves if employee
+  //this is for handling the leave approve
   const handleApprove = (leaveId) => {
     fetch(`${Endpoints.MANAGER_APPROVE_LEAVE}/${leaveId}`, { method: "POST" })
       .then((response) => response.json())
@@ -126,7 +128,7 @@ function ManagerDashboard() {
         console.error(error.message);
       });
   };
-
+// this is for handling leave deny
   const handleDeny = (leaveId) => {
     fetch(`${Endpoints.MANAGER_DENY_LEAVE}/${leaveId}`, { method: "POST" })
       .then((response) => response.json())
@@ -137,7 +139,7 @@ function ManagerDashboard() {
         console.error(error.message);
       });
   };
-
+// this functions is for converting image to base64
   const convertImageToBase64 = (imageData, imageType) => {
     if (!imageData) return null; // Handle missing images
     const binaryString = new Uint8Array(imageData).reduce(
@@ -147,7 +149,7 @@ function ManagerDashboard() {
     const base64String = btoa(binaryString);
     return `data:${imageType};base64,${base64String}`;
   };
-
+//this function is for fetching new leaves from backend 
   async function fetchPendingLeaves() {
     try {
       const token = localStorage.getItem("token");
@@ -176,7 +178,64 @@ function ManagerDashboard() {
       console.error(error);
     }
   }
-  useEffect(() => {
+// this is for filter out the details or records as per date input 
+  const filteredRecords = punchRecord
+    .filter((record) => {
+      const recordDate = new Date(record.date);
+      const start = startDate ? new Date(startDate) : null;
+      const end = endDate ? new Date(endDate) : null;
+
+      if (start && end) {
+        return recordDate >= start && recordDate <= end;
+      } else if (start) {
+        return recordDate >= start;
+      } else if (end) {
+        return recordDate <= end;
+      } else {
+        return true;
+      }
+    })
+    .slice()
+    .reverse();
+
+
+// this is for calculating work duration for in out details 
+    const calculateWorkDuration = (punchIn, punchOut) => {
+      if (!punchIn || !punchOut) return "-";
+    
+      const inTime = new Date(punchIn);
+      const outTime = new Date(punchOut);
+    
+      const diffMs = outTime - inTime; // Difference in milliseconds
+      if (diffMs <= 0) return "0 hrs 0 mins"; // Prevent negative values
+    
+      const hours = Math.floor(diffMs / (1000 * 60 * 60)); // Convert to hours
+      const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60)); // Remaining minutes
+    
+      return `${hours} hrs ${minutes} mins`;
+    };
+// this is for coverting the datetime into readable format
+    const formatTime = (date) => {
+      if (!date) return "-";
+      return new Date(date).toLocaleTimeString("en-US", {
+        timeZone: "Asia/Kolkata",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+      });
+    };
+    // this is for coverting the datetime into readable format
+    const formatDate = (date) => {
+      if (!date) return "-";
+      return new Date(date).toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+    };
+// this is useeffect  works on screen onload
+   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("token");
@@ -212,6 +271,7 @@ function ManagerDashboard() {
         // Check if the employee data fetch is successful
         if (employeeResponse.status === 200) {
           const empdata = employeeResponse.data;
+          setAttendance(empdata.employee.attendance)
           setemployeedata(empdata.employee);
           setLeaves(empdata.empleaves);
           setPunchRecord(empdata.employee.punchRecords);
@@ -269,7 +329,7 @@ function ManagerDashboard() {
       socket.off("receiveMessage");
     };
   }, [navigate]);
-
+//this for send new message as per socket emit
   const sendMessage = () => {
     const messageData = {
       senderId: employeedata._id,
@@ -292,6 +352,27 @@ function ManagerDashboard() {
     (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
   )[0]; // Get the latest message
 
+  // this is for getting attendence and map over the attendence table 
+  const generateAttendanceMap = () => {
+    let attendanceMap = {};
+    attendance.forEach((record) => {
+      const date = new Date(record.date);
+      const month = date.toLocaleString("default", { month: "long" });
+      const day = date.getDate();
+
+      if (!attendanceMap[month]) {
+        attendanceMap[month] = Array(31).fill("");
+      }
+
+      attendanceMap[month][day - 1] = record.status;
+    });
+
+    return attendanceMap;
+  };
+
+ const attendanceMap = generateAttendanceMap();
+
+ 
   const renderSection = () => {
     switch (activeSection) {
       case "home":
@@ -1036,87 +1117,47 @@ function ManagerDashboard() {
                   </div>
                   <div className="in-out-table-block">
                     <div className="in-out-table-container">
-                      <table className="in-out-info-table">
-                        <thead>
-                          <tr>
-                            <th>Code</th>
-                            <th>Name</th>
-                            <th>Entry Date</th>
-                            <th>Location In</th>
-                            <th>Location Out</th>
-                            <th>In Time</th>
-                            <th>Out Time</th>
-                            <th>Total Working Hour</th>
-                            <th>In Geolocation</th>
-                            <th>Out Geolocation</th>
-                            <th>Leave</th>
-                            <th>Morning Late</th>
-                            <th>Early</th>
+                    <div className="in-out-table-section">
+                    <table className="in-out-details-table">
+                      <thead>
+                        <tr>
+                          <th>Code</th>
+                          <th>Name</th>
+                          <th>Entry Date</th>
+                          <th>Location In</th>
+                          <th>Location Out</th>
+                          <th>In Time</th>
+                          <th>Out Time</th>
+                          <th>Total Working Hour</th>
+                          <th>In Geolocation</th>
+                          <th>Out Geolocation</th>
+                          <th>Leave</th>
+                          <th>Morning Late</th>
+                          <th>Early</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredRecords.slice(-entryconut).map((record) => (
+                          <tr key={record._id}>
+                            <td>{employeedata.employeeId}</td>
+                            <td>{employeedata.firstName + " " + employeedata.lastName}</td>
+                            <td>{formatDate(record.date)}</td>
+                            <td>{record.locationIn || "-"}</td>
+                            <td>{record.locationOut || "-"}</td>
+                            <td>{formatTime(record.punchInTime)}</td>
+                            <td>{formatTime(record.punchOutTime)}</td>
+                            <td>{calculateWorkDuration(record.punchInTime, record.punchOutTime)}</td>
+                            <td>{record.inGeolocation || "-"}</td>
+                            <td>{record.outGeolocation || "-"}</td>
+                            <td>{record.leave || "-"}</td>
+                            <td>{record.morningLate ? "Yes" : "No"}</td>
+                            <td>{record.early ? "Yes" : "No"}</td>
                           </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td>47</td>
-                            <td>xyz</td>
-                            <td>11/08/2024</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>WeekOff</td>
-                            <td>Weekoff</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                          </tr>
-                          <tr>
-                            <td>47</td>
-                            <td>xyz</td>
-                            <td>12/08/2024</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>Unswiped</td>
-                            <td>Unswiped</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                          </tr>
-                          <tr>
-                            <td>47</td>
-                            <td>xyz</td>
-                            <td>13/08/2024</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>WeekOff</td>
-                            <td>Weekoff</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                          </tr>
-                          <tr>
-                            <td>47</td>
-                            <td>xyz</td>
-                            <td>14/08/2024</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>Holiday</td>
-                            <td>Independance Day</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>-</td>
-                          </tr>
-                        </tbody>
-                      </table>
+                        ))}
+                      </tbody>
+                    </table>
+
+                    </div>
                     </div>
                     <div className="in-out-pagination">
                       <p>Showing 1 to 5 of 5 entries</p>
@@ -1257,356 +1298,24 @@ function ManagerDashboard() {
                   {/* Second Block: Attendance Table */}
                   <div className="manager-second-block">
                     <table className="manager-attendance-table">
-                      <thead>
-                        <tr>
-                          <th>Month</th>
-                          {[...Array(31).keys()].map((day) => (
-                            <th key={day}>{day + 1}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>January</td>
-                          <td className="H">H</td>
-                          <td className="CL">CL</td>
-                          <td className="CL">CL</td>
-                          <td className="CL">CL</td>
-                          <td className="CL">CL</td>
-                          <td className="W">W</td>
-                          <td className="W">W</td>
-                          <td className="fh-sl-p">FH-SL/P</td>
-                          <td className="P">P</td>
-                          <td className="I">I</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="A">A</td>
-                          <td className="A">A</td>
-                          <td className="A">A</td>
-                          <td className="A">A</td>
-                          <td className="A">A</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="SL">SL</td>
-                          <td className="SL">SL</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="W">W</td>
-                        </tr>
-                        <tr>
-                          <td>February</td>
-                          <td className="A">A</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="I">I</td>
-                          <td className="W">W</td>
-                          <td className="CL">CL</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="A">A</td>
-                          <td className="A">A</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="W">W</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="H">H</td>
-                          <td className="A">A</td>
-                          <td className="SL">SL</td>
-                          <td className="SL">SL</td>
-                          <td className="P">P</td>
-                          <td className="I">I</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="CL">CL</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="A">A</td>
-                          <td className="P">P</td>
-                          <td className="W">W</td>
-                          <td className="P">P</td>
-                          <td className="A">A</td>
-                        </tr>
-                        <tr>
-                          <td>March</td>
-                          <td className="P">P</td>
-                          <td className="A">A</td>
-                          <td className="P">P</td>
-                          <td className="SL">SL</td>
-                          <td className="CL">CL</td>
-                          <td className="P">P</td>
-                          <td className="I">I</td>
-                          <td className="A">A</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="H">H</td>
-                          <td className="W">W</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="CL">CL</td>
-                          <td className="SL">SL</td>
-                          <td className="W">W</td>
-                          <td className="P">P</td>
-                          <td className="A">A</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="I">I</td>
-                          <td className="W">W</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="A">A</td>
-                          <td className="P">P</td>
-                          <td className="SL">SL</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                        </tr>
-                        <tr>
-                          <td>April</td>
-                          <td className="W">W</td>
-                          <td className="H">H</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="I">I</td>
-                          <td className="A">A</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="CL">CL</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="SL">SL</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="A">A</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="H">H</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="W">W</td>
-                          <td className="P">P</td>
-                          <td className="CL">CL</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="A">A</td>
-                          <td className="SL">SL</td>
-                          <td className="P">P</td>
-                        </tr>
-                        <tr>
-                          <td>May</td>
-                          <td className="CL">CL</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="I">I</td>
-                          <td className="W">W</td>
-                          <td className="P">P</td>
-                          <td className="H">H</td>
-                          <td className="P">P</td>
-                          <td className="A">A</td>
-                          <td className="SL">SL</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="A">A</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="CL">CL</td>
-                          <td className="W">W</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="H">H</td>
-                          <td className="P">P</td>
-                          <td className="SL">SL</td>
-                          <td className="P">P</td>
-                          <td className="A">A</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                          <td className="P">P</td>
-                        </tr>
-                        <tr>
-                          <td>August</td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                        </tr>
-                        <tr>
-                          <td>September</td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                        </tr>
-                        <tr>
-                          <td>October</td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                        </tr>
-                        <tr>
-                          <td>November</td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                        </tr>
-                        <tr>
-                          <td>December</td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                        </tr>
-                      </tbody>
+                    <thead>
+                  <tr>
+                    <th>Month</th>
+                    {[...Array(31).keys()].map((day) => (
+                      <th key={day}>{day + 1}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.keys(attendanceMap).map((month) => (
+                    <tr key={month}>
+                      <td>{month}</td>
+                      {attendanceMap[month].map((status, index) => (
+                        <td key={index} className={status}>{status || "-"}</td>
+                      ))}
+                    </tr>
+                  ))}
+                  </tbody>
                     </table>
                   </div>
                 </div>
