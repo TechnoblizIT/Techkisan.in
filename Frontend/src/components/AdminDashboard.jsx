@@ -10,7 +10,9 @@ import { useReactToPrint } from 'react-to-print';
 import logo from "../assets/logo1.png"
 import { useNavigate } from 'react-router-dom';
 import APIEndpoints  from "./endPoints"
-
+import barcode from "../assets/invoice/barcode.png"
+import signature from "../assets/invoice/signature.png"
+import paymenticons from "../assets/invoice/paymenticons.png"
 
 // function getCookie(name) {
 //   const value = `; ${document.cookie}`;
@@ -27,7 +29,7 @@ const AdminDashboard = () => {
   const [employeecount, setEmployeecount] = useState(0);
   const [internCount,setInternCount] = useState(0);
   const navigate = useNavigate(); 
-  
+
   const sections = ['HR', 'Sales/Purchase', 'Accounting','Company','Tools','Modules','Add-Ons','Setting'];
   const hrLinks = ['Overview', 'Employees', 'Departments', 'Designation', 'Announcement', 'Reports', 'Management', 'Help'];
   
@@ -75,6 +77,8 @@ const AdminDashboard = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+
 // -----------------------------------------------------------------------------------------------------------//
 const componentRef = useRef(); 
   
@@ -816,113 +820,165 @@ const handleQuit = () => {
                 </div>
               )}
 
-              {activeItem === 'add-receipt' && (
+{activeItem === 'add-receipt' && (
                 <div className="content-box">
                   {/* <h2>Add-Reciept</h2> */}
                   <div>
-   
-      <button className="print-button" onClick={handlePrint}>Print Invoice</button>
+                    <button className="print-button" onClick={handlePrint}>Print Invoice</button>
+                    <div className="invoice-container" ref={componentRef}>
+                      <div>
+                        <h2 style={{color: "black" ,  marginBottom: "10px", marginLeft: "300px"}}>Tax Invoice</h2>
+                      </div>
+                      <div className="invoice-header">
+                        <div className="logo-sectionlogoin">
+                          <img src={logo} alt="Company Logo" className="logoin" style={{ height:'50px' , width:'200px' }}/>
+                        </div>
+                        <div className="invoice-info">
+                          <div className="invoice-info-row">
+                            <label htmlFor="invoice-no.">Invoice No.:</label>
+                            <input type="text" id="invoice-no." name="invoice-no." />
+                          </div>
+                          <div className="invoice-info-row">
+                            <label htmlFor="date-of-issue">Date of Issue:</label>
+                            <input type="text" id="date-of-issue" name="date-of-issue" />
+                          </div>
+                        </div>
+                      </div>
+                      <div className='invoice-fromto'>
+                        <div className="from-section">
+                            <h3>From</h3>
+                            <p>Techkisan Automation,</p>
+                            <p>1st Floor, House No. 399, Ambule House,</p>
+                            <p>Murri, Gondia, Maharashtra, India.</p>
+                            <p><strong>Pin code :</strong><span style={{ margin: '0px 9px'}}></span>441601</p>
+                            <p><strong>Mobile No. :</strong><span style={{ margin: '0 3px'}}></span>7972021213 | 9511831914</p>
+                            <p><strong>GSTN :</strong><span style={{ margin: '0 18px'}}></span>27AAQFT9534N1Z5</p>
+                            <p><strong>PAN No.:</strong><span style={{ margin: '0 12px'}}></span>AAQFT9534N</p>
+                          </div>
+                          <div className="to-section">
+                            <h3>Bill To</h3>
+                            <div className='to-section-row'>
+                              <label>M/s </label>
+                              <input type="text" />
+                            </div>
+                            <div className='to-section-row'>
+                              <label>Address:</label>
+                              <input type="text" />
+                            </div>
+                            <div className='to-section-row'>
+                              <label></label>
+                              <input type="text" />
+                            </div>
+                            <div className='to-section-row'>
+                              <label></label>
+                              <input type="text" />
+                            </div>
+                            <div className='to-section-row'>
+                              <label>Mobile No.: </label>
+                              <input type="text" />
+                            </div>
+                            <div className='to-section-row'>
+                              <label>GSTN: </label>
+                              <input type="text" />
+                            </div>
+                            <div className='to-section-row'>
+                              <label>PAN No.: </label>
+                              <input type="text" />
+                            </div>
+                          </div>
+                      </div>
 
-      <div className="invoice-container" ref={componentRef}>
-      
-        <div className="invoice-header">
-         
-          <div className="logo-sectionlogoin">
-            <img src={logo} alt="Company Logo" className="logoin" />
-          </div>
+                      <div className="invoice-table">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Sr.</th>
+                            <th>Product Description</th>
+                            <th>HSN</th>
+                            <th>Qty</th>
+                            <th>Rate</th>
+                            <th>TaxRate</th>
+                            <th>TaxAmt</th>
+                            <th>Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {[...Array(10)].map((_, index) => (
+                            <tr key={index} className={index >= 5 ? "hidden-row" : ""}>
+                              <td><input type="text" /></td>
+                              <td><textarea rows="3" style={{width: "100%" }}/></td>
+                              <td><input type="text" /></td>
+                              <td><input type="text" /></td>
+                              <td><input type="text" /></td>
+                              <td><input type="text" /></td>
+                              <td><input type="text" /></td>
+                              <td><input type="text" /></td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
 
-         
-          <div className="from-section">
-            <h3>From</h3>
-            <p>JK POWERGUARD,</p>
-            <p>Nagpur Godown: Suri Plaza...</p>
-            <p>Banking Details: Canara Bank...</p>
-            <p>PAN No.: AKBPS6073L</p>
-          </div>
+                    <div className="tax-section">
+                      <div className="tax-row">
+                        <label>Round Off:</label>
+                        <input type="text" style={{ width: "100px"}}/>
+                      </div>
+                      <div className="tax-row">
+                        <label>Total:</label>
+                        <input type="text" style={{ width: "100px"}}/>
+                      </div>
+                      <div className="tax-row">
+                        <label>In words:</label>
+                        <input type="text" style={{ width: "350px"}}/>
+                      </div>
+                    </div>
 
-        
-          <div className="to-section">
-            <h3>To</h3>
-            <p>M/s Techisian Automation</p>
-            <p>1st Floor, House No 399...</p>
-            <p>GST No.: 27AAQTF9534N1ZS</p>
-          </div>
-
-         
-          <div className="invoice-info">
-            <p><strong>Invoice No.:</strong> JKP/24-25/5065</p>
-            <p><strong>Date of Issue:</strong> 14/08/2024</p>
-          </div>
-        </div>
-
-      
-        <table className="invoice-table">
-          <thead>
-            <tr>
-              <th>Sr.</th>
-              <th>Product Description</th>
-              <th>HSN</th>
-              <th>Qty</th>
-              <th>Rate</th>
-              <th>Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>1</td>
-              <td>Ksolare 5.4KW 1Phase...</td>
-              <td>85044090</td>
-              <td>1</td>
-              <td>29,650/-</td>
-              <td>29,650/-</td>
-            </tr>
-            <tr>
-              <td>1</td>
-              <td>Ksolare 5.4KW 1Phase...</td>
-              <td>85044090</td>
-              <td>1</td>
-              <td>29,650/-</td>
-              <td>29,650/-</td>
-            </tr>
-            <tr>
-              <td>1</td>
-              <td>Ksolare 5.4KW 1Phase...</td>
-              <td>85044090</td>
-              <td>1</td>
-              <td>29,650/-</td>
-              <td>29,650/-</td>
-            </tr>
-            <tr>
-              <td>1</td>
-              <td>Ksolare 5.4KW 1Phase...</td>
-              <td>85044090</td>
-              <td>1</td>
-              <td>29,650/-</td>
-              <td>29,650/-</td>
-            </tr>
-          </tbody>
-        </table>
-
-       
-        <div className="tax-section">
-          <p>SGST @ 6%: 1,779/-</p>
-          <p>CGST @ 6%: 1,779/-</p>
-          <p>Round Off: 0</p>
-          <h3>Total: 33,208/-</h3>
-        </div>
-
-        
-        <div className="footer-section">
-          <p><strong>Terms:</strong> Interest will be charged @24% per annum...</p>
-          <div className="signature-section">
-            <p>For JK POWERGUARD</p>
-            <p>Computer Generated Invoice</p>
-            <p>Signature</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    </div>
+                      <div className="footer-section">
+                        <div className='payment-section'>
+                          <h4>BANK DETAILS</h4>
+                          <div className='payment-section-row'>
+                            <p>Bank Name:</p>
+                            <p>HDFC Bank</p>
+                          </div>
+                          <div className='payment-section-row'>
+                            <p>A/c Holder Name:</p>
+                            <p>TechKisan Automation</p>
+                          </div>
+                          <div className='payment-section-row'>
+                            <p>Account No.:</p>
+                            <p>50200063151545</p>
+                          </div>
+                          <div className='payment-section-row'>
+                            <p>IFSC Code:</p>
+                            <p>HDFC000963</p>
+                          </div>
+                          <div className='UPI-section-main'>
+                            <h4>PAYMENT VIA QR CODE</h4>
+                            <div className='UPI-section'>
+                              <div>
+                                <p><strong>UPI ID:</strong></p>
+                                <p>9511831914@hdfcbank</p>
+                                <p>8698105221@hdfcbank</p>
+                                <div>
+                                  <img src={paymenticons} alt="payment icons" style={{ height:'30px' , width:'145px' , marginTop:'5px'}}/>
+                                </div>
+                              </div>
+                              <div>
+                                <img src={barcode} alt="QR code" style={{ height:'78px' , width:'78px' }}/>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="signature-section">
+                          <p><strong>For Techkisan Automation</strong></p>
+                          <img src={signature} alt="Signature" />
+                          <p style={{ fontSize:'10px', marginLeft:'25px'}}><i>Computer Generated Invoice</i></p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  </div>
 
               )}
 
