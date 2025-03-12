@@ -19,7 +19,7 @@ import paymenticons from "../assets/invoice/paymenticons.png"
 //   const parts = value.split(`; ${name}=`);
 //   if (parts.length === 2) return parts.pop().split(';').shift();
 // }
-const AdminDashboard = () => {
+const AdminDashboard = ({ handleMenuClick }) => {
   const Endpoints = new APIEndpoints();
   const [activeSection, setActiveSection] = useState('');
   const [activePage, setActivePage] = useState('');
@@ -29,6 +29,12 @@ const AdminDashboard = () => {
   const [employeecount, setEmployeecount] = useState(0);
   const [internCount,setInternCount] = useState(0);
   const navigate = useNavigate(); 
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null); // Track active button
+  const handleItemClick = (item) => {
+    setActiveItem(item); // Set active page
+    setIsMenuOpen(false); // Close menu on mobile after click
+  };
 
   const sections = ['HR', 'Sales/Purchase', 'Accounting','Company','Tools','Modules','Add-Ons','Setting'];
   const hrLinks = ['Overview', 'Employees', 'Departments', 'Designation', 'Announcement', 'Reports', 'Management', 'Help'];
@@ -109,9 +115,7 @@ const handleQuit = () => {
   const [activeItem, setActiveItem] = useState('add-account'); // No item is active initially
 
   // Handle click on a menu item
-  const handleRightBarClick = (item) => {
-    setActiveItem(item); // Set the clicked item as active
-  };
+  
   
   
 // -----------------------------------------------------------------------------------------------------------//
@@ -281,37 +285,43 @@ const handleQuit = () => {
           {activeSection === 'HR' && activePage === 'Departments' && <p>This is the departments page.</p>}
           {activeSection === 'HR' && activePage === 'Help' && <p>This is the help page.</p>}
          {/* sales and purchase section */}
-       {activeSection === "Sales/Purchase" && (
-            <div id="sales/purchase" className="sales-purchase-section">
-            <div className="right-buttons-container">
-              <a href="#help-section" onClick={() => handleRightBarClick('help')} className="right-button-row">Help</a>
-              <a href="#add-account-section" onClick={() => handleRightBarClick('add-account')} className="right-button-row">Add Account</a>
-              <a href="#add-item-section" onClick={() => handleRightBarClick('add-item')} className="right-button-row">Add Item</a>
-              <a href="#add-master-section" onClick={() => handleRightBarClick('add-master')} className="right-button-row">Add Master</a>
-              <a href="#add-voucher-section" onClick={() => handleRightBarClick('add-voucher')} className="right-button-row">Add Voucher</a>
-              <a href="#add-payment-section" onClick={() => handleRightBarClick('add-payment')} className="right-button-row">Add Payment</a>
-              <a href="#add-receipt-section" onClick={() => handleRightBarClick('add-receipt')} className="right-button-row">Add Receipt</a>
-              <a href="#add-journal-section" onClick={() => handleRightBarClick('add-journal')}className="right-button-row">Add Journal</a>
-              <a href="#add-sales-section" onClick={() => handleRightBarClick('add-sales')} className="right-button-row">Add Sales</a>
-              <a href="#add-purchase-section" onClick={() => handleRightBarClick('add-purchase')} className="right-button-row">Add Purchase</a>
-              <a href="#balance-sheet-section" onClick={() => handleRightBarClick('balance-sheet')} className="right-button-row">Balance Sheet</a>
-              <a href="#trial-balance-section" onClick={() => handleRightBarClick('trial-balance')} className="right-button-row">Trial Balance</a>
-              <a href="#stock-status-section" onClick={() => handleRightBarClick('stock-status')} className="right-button-row">Stock Status</a>
-              <a href="#acc-summary-section" onClick={() => handleRightBarClick('acc-summary')} className="right-button-row">Acc. Summary</a>
-              <a href="#acc-ledger-section" onClick={() => handleRightBarClick('acc-ledger')} className="right-button-row">Acc. Ledger</a>
-              <a href="#item-summary-section" onClick={() => handleRightBarClick('item-summary')} className="right-button-row">Item Summary</a>
-              <a href="#item-ledger-section" onClick={() => handleRightBarClick('item-ledger')} className="right-button-row">Item Ledger</a>
-              <a href="#gst-summary-section" onClick={() => handleRightBarClick('gst-summary')} className="right-button-row">GST Summary</a>
-              <a href="#query-system-section" onClick={() => handleRightBarClick('query-system')} className="right-button-row">Query System</a>
-              <a href="#switch-user-section" onClick={() => handleRightBarClick('switch-user')} className="right-button-row">Switch User</a>
-              <a href="#configuration-section" onClick={() => handleRightBarClick('configuration')} className="right-button-row">Configuration</a>
-              <a href="#lock-program-section" onClick={() => handleRightBarClick('lock-program')} className="right-button-row">Lock Program</a>
-              <a href="#gst-portal-section" onClick={() => handleRightBarClick('gst-portal')} className="right-button-row">GST Portal</a>
-              <a className="right-button-tax">
-                <span>Tax Type:</span>
-                <span className="gst-text">GST</span>
-              </a>
-            </div>
+         {activeSection === "Sales/Purchase" && (
+        <div id="sales/purchase" className="sales-purchase-section">
+          
+          {/* Hamburger Button (Only for Mobile) */}
+          <button className="menu-button" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            Side Menu ☰
+          </button>
+
+          {/* Right Buttons Container (Toggle for Mobile) */}
+          <div className={`right-buttons-container ${isMenuOpen ? "active" : ""}`}>
+            {[
+              { id: "add-account", label: "Add Account" },
+              { id: "add-item", label: "Add Item" },
+              { id: "add-receipt", label: "Tax Invoice" },
+              { id: "notax-receipt", label: "NoTax Invoice" },
+              { id: "add-sales", label: "Add Sales" },
+              { id: "add-purchase", label: "Add Purchase" },
+              { id: "stock-status", label: "Stock Status" },
+              { id: "acc-ledger", label: "Acc. Ledger" },
+              { id: "item-summary", label: "Item Summary" },
+              { id: "gst-summary", label: "GST Summary" }
+            ].map((btn) => (
+              <button
+                key={btn.id}
+                onClick={() => handleItemClick(btn.id)}
+                className={`right-button-row ${activeItem === btn.id ? "active" : ""}`}
+              >
+                {btn.label}
+              </button>
+            ))}
+
+            {/* Tax Type Display */}
+            <a className="right-button-tax">
+              <span>Tax Type:</span>
+              <span className="gst-text">GST</span>
+            </a>
+          </div>
             <div className="sales-purchase-main-content">
 
               {activeItem === 'help' && (
@@ -820,7 +830,7 @@ const handleQuit = () => {
                 </div>
               )}
 
-{activeItem === 'add-receipt' && (
+            {activeItem === 'add-receipt' && (
                 <div className="content-box">
                   {/* <h2>Add-Reciept</h2> */}
                   <div>
@@ -909,6 +919,154 @@ const handleQuit = () => {
                               <td><textarea rows="3" style={{width: "100%" }}/></td>
                               <td><input type="text" /></td>
                               <td><input type="text" /></td>
+                              <td><input type="text" /></td>
+                              <td><input type="text" /></td>
+                              <td><input type="text" /></td>
+                              <td><input type="text" /></td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div className="tax-section">
+                      <div className="tax-row">
+                        <label>Round Off:</label>
+                        <input type="text" style={{ width: "100px"}}/>
+                      </div>
+                      <div className="tax-row">
+                        <label>Total:</label>
+                        <input type="text" style={{ width: "100px"}}/>
+                      </div>
+                      <div className="tax-row">
+                        <label>In words:</label>
+                        <input type="text" style={{ width: "350px"}}/>
+                      </div>
+                    </div>
+
+                      <div className="footer-section">
+                        <div className='payment-section'>
+                          <h4>BANK DETAILS</h4>
+                          <div className='payment-section-row'>
+                            <p>Bank Name:</p>
+                            <p>HDFC Bank</p>
+                          </div>
+                          <div className='payment-section-row'>
+                            <p>A/c Holder Name:</p>
+                            <p>TechKisan Automation</p>
+                          </div>
+                          <div className='payment-section-row'>
+                            <p>Account No.:</p>
+                            <p>50200063151545</p>
+                          </div>
+                          <div className='payment-section-row'>
+                            <p>IFSC Code:</p>
+                            <p>HDFC000963</p>
+                          </div>
+                          <div className='UPI-section-main'>
+                            <h4>PAYMENT VIA QR CODE</h4>
+                            <div className='UPI-section'>
+                              <div>
+                                <p><strong>UPI ID:</strong></p>
+                                <p>9511831914@hdfcbank</p>
+                                <p>8698105221@hdfcbank</p>
+                                <div>
+                                  <img src={paymenticons} alt="payment icons" style={{ height:'30px' , width:'145px' , marginTop:'5px'}}/>
+                                </div>
+                              </div>
+                              <div>
+                                <img src={barcode} alt="QR code" style={{ height:'78px' , width:'78px' }}/>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="signature-section">
+                          <p><strong>For Techkisan Automation</strong></p>
+                          <img src={signature} alt="Signature" />
+                          <p style={{ fontSize:'10px', marginLeft:'25px'}}><i>Computer Generated Invoice</i></p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  </div>
+
+              )}
+
+            {activeItem === 'notax-receipt' && (
+                <div className="content-box">
+                  {/* <h2>Add-Reciept</h2> */}
+                  <div>
+                    <button className="print-button" onClick={handlePrint}>Print Invoice</button>
+                    <div className="invoice-container" ref={componentRef}>
+                      <div>
+                        <h2 style={{color: "black" ,  marginBottom: "10px", marginLeft: "300px"}}>Invoice</h2>
+                      </div>
+                      <div className="invoice-header">
+                        <div className="logo-sectionlogoin">
+                          <img src={logo} alt="Company Logo" className="logoin" style={{ height:'50px' , width:'200px' }}/>
+                        </div>
+                        <div className="invoice-info">
+                          <div className="invoice-info-row">
+                            <label htmlFor="invoice-no.">Invoice No.:</label>
+                            <input type="text" id="invoice-no." name="invoice-no." />
+                          </div>
+                          <div className="invoice-info-row">
+                            <label htmlFor="date-of-issue">Date of Issue:</label>
+                            <input type="text" id="date-of-issue" name="date-of-issue" />
+                          </div>
+                        </div>
+                      </div>
+                      <div className='invoice-fromto'>
+                        <div className="from-section">
+                            <h3>From</h3>
+                            <p>Techkisan Automation,</p>
+                            <p>Nakade Complex, Mama Chawk, Civil Line</p>
+                            <p>Gondia, Maharashtra, India - 441601</p>
+                            <p><strong>Mobile No. :</strong><span style={{ margin: '0 3px'}}></span>7972021213 | 9511831914</p>
+                            <p><strong>Email I'd :</strong><span style={{ margin: '0px 9px'}}></span>tkn.automation@gmail.com</p>
+                          </div>
+                          <div className="to-section">
+                            <h3>Bill To</h3>
+                            <div className='to-section-row'>
+                              <label>M/s </label>
+                              <input type="text" />
+                            </div>
+                            <div className='to-section-row'>
+                              <label>Address:</label>
+                              <input type="text" />
+                            </div>
+                            <div className='to-section-row'>
+                              <label></label>
+                              <input type="text" />
+                            </div>
+                            <div className='to-section-row'>
+                              <label></label>
+                              <input type="text" />
+                            </div>
+                            <div className='to-section-row'>
+                              <label>Mobile No.: </label>
+                              <input type="text" />
+                            </div>
+                          </div>
+                      </div>
+
+                      <div className="invoice-table">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Sr.</th>
+                            <th>Product Description</th>
+                            <th>HSN</th>
+                            <th>Qty</th>
+                            <th>Rate</th>
+                            <th>Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {[...Array(10)].map((_, index) => (
+                            <tr key={index} className={index >= 5 ? "hidden-row" : ""}>
+                              <td><input type="text" /></td>
+                              <td><textarea rows="3" style={{width: "100%" }}/></td>
                               <td><input type="text" /></td>
                               <td><input type="text" /></td>
                               <td><input type="text" /></td>
