@@ -1,4 +1,4 @@
-import React,{useEffect, useState} from 'react';
+import React,{useEffect, useState,useRef} from 'react';
 import NavigationBar from './NavigationBar';
 import '../styles/EmployeeDashboard.css';
 import axios from 'axios';
@@ -102,6 +102,7 @@ function EmployeeDashboard() {
   const [users, setUsers] = useState([]);
   const [outTime, setOutTime] = useState("");
   const [remark, setRemark] = useState("");
+  const messagesEndRef = useRef(null);
   const [formData, setFormData] = useState({
     leaveType: "",
     fromDate: "",
@@ -337,6 +338,9 @@ function EmployeeDashboard() {
     const base64String = btoa(binaryString);
     return `data:${imageType};base64,${base64String}`;
   };
+  const [onlineUsers, setOnlineUsers] = useState([]);
+  
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -345,93 +349,91 @@ function EmployeeDashboard() {
           navigate("/");
           return;
         }
-
+  
         const decode = jwtDecode(token);
         if (decode.role !== "employee") {
           navigate("/");
           return;
         }
-
-        // Fetch employee data and users concurrently
-        const [employeeResponse, usersResponse] = await Promise.all([
+  
+        const [employeeResponse, usersResponse, messagesResponse] = await Promise.all([
           axios.get(Endpoints.EMPLOYEE_DASHBOARD, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "multipart/form-data",
-            },
+            headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
             withCredentials: true,
           }),
           axios.get(Endpoints.GET_USERS_EMPLOYEES, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "multipart/form-data",
-            },
+            headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
             withCredentials: true,
           }),
+          fetch(Endpoints.GET_MESSAGES).then((res) => res.json()),
         ]);
-
-        // Check if the employee data fetch is successful
+  
+        let empdata = null;
+  
         if (employeeResponse.status === 200) {
-          const empdata = employeeResponse.data;
-          setAttendance(empdata.employee.attendance)
+          empdata = employeeResponse.data;
+          setAttendance(empdata.employee.attendance);
           setemployeedata(empdata.employee);
           setLeaves(empdata.empleaves);
           setPunchRecord(empdata.employee.punchRecords);
-
+  
           if (empdata.empimg && empdata.empimg[0]) {
-            const binaryString = new Uint8Array(
-              empdata.empimg[0].Image.data
-            ).reduce((acc, byte) => acc + String.fromCharCode(byte), "");
-
+            const binaryString = new Uint8Array(empdata.empimg[0].Image.data)
+              .reduce((acc, byte) => acc + String.fromCharCode(byte), "");
+  
             const base64String = btoa(binaryString);
-            const imageUrl = `data:${empdata.empimg[0].Imagetype};base64,${base64String}`;
-            setAvatarUrl(imageUrl);
+            setAvatarUrl(`data:${empdata.empimg[0].Imagetype};base64,${base64String}`);
           }
-        } else {
-          console.error("Failed to fetch employee data");
         }
-
-
-        // Handle fetching and processing users
+  
+        if (empdata) {
+          socket.emit("userOnline", empdata.employee._id);
+        }
+  
         const allUsers = [
           ...usersResponse.data.filteredEmployees,
           ...usersResponse.data.managers,
           ...usersResponse.data.interns,
         ];
-
+  
         const usersWithImageUrls = allUsers.map((user) => ({
           ...user,
-          imageUrl:
-            user.Image && user.Image[0]
-              ? convertImageToBase64(
-                  user.Image[0].Image.data,
-                  user.Image[0].Imagetype
-                )
-              : "loading",
+          imageUrl: user.Image && user.Image[0] ? 
+            convertImageToBase64(user.Image[0].Image.data, user.Image[0].Imagetype) 
+            : "loading",
         }));
-
+  
         setUsers(usersWithImageUrls);
-
-        // Fetch messages after all user and employee data is ready
-        const res = await fetch(Endpoints.GET_MESSAGES);
-        const messagesData = await res.json();
-        setMessages(messagesData);
+        setMessages(messagesResponse);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
-
-  fetchData();
-  // Listen for new messages from the server using Socket.IO
-  socket.on("receiveMessage", (newMessage) => {
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
-  });
-
+  
+    fetchData();
+  
+    socket.on("updateUserStatus", (users) => {
+      setOnlineUsers(users);
+    });
+  
+    socket.on("receiveMessage", (newMessage) => {
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+    });
+  
     return () => {
+      socket.off("updateUserStatus");
       socket.off("receiveMessage");
+      socket.disconnect();
     };
-  }, [navigate]);
-
+  }, [navigate, selectedChat]);
+  
+  // **New useEffect for auto-scrolling when messages update**
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
+  
   // for sending messages
   const sendMessage = () => {
     if (!input && !file) return;
@@ -1779,24 +1781,23 @@ function EmployeeDashboard() {
       </div>
       <div className="chat-previews">
        
-        {users.map((user) => (
-          <div
-            key={user._id}
-            className="chat-preview"
-            onClick={() => setSelectedChat(user)} // select chat on click
-          >
-            <img src={user.imageUrl || profile} alt="profile" className="img-profile" />
-            <div className="preview-details">
-              <div className="preview-header">
-                <span className="preview-name">{user.firstName+" "+user.lastName}</span>
-                {/* <span className="preview-time">10:00 AM</span> Adjust as needed */}
-              </div>
-              {/* <p className="preview-message">{mostRecentMessage
-              ? mostRecentMessage.message 
-              : "Loading.."}</p> */}
+     {users.map((user) => (
+                <div
+                  key={user._id}
+                  className="chat-preview"
+                  onClick={() => setSelectedChat(user)}
+                >
+                  <img src={user.imageUrl || profile} alt="profile" className="img-profile" />
+                  <div className="preview-details">
+                    <div className="preview-header">
+                      <span className="preview-name">{user.firstName + " " + user.lastName}</span>
+                      <span
+                        className={`online-indicator ${onlineUsers.includes(user._id) ? "online" : "offline"}`}
+                      ></span>
                     </div>
                   </div>
-                ))}
+                </div>
+              ))}
               </div>
             </div>
 
@@ -1815,6 +1816,8 @@ function EmployeeDashboard() {
                 className="profile-main"
               />
               <span className="chat-name">{user.firstName+" "+user.lastName}</span> 
+              <span
+                        className={`online-indicator ${onlineUsers.includes(user._id) ? "online" : "offline"}`}>{onlineUsers.includes(user._id)}</span>
             </div>
           ))}
 
@@ -1830,48 +1833,48 @@ function EmployeeDashboard() {
                 
                    {/* Messages Section */}
                    <div className="messages">
-                   {messages
-                    .filter(
-                      (message) =>
-                        (message.sender === employeedata._id &&
-                          message.recipient === selectedChat._id) ||
-                        (message.sender === selectedChat._id &&
-                          message.recipient === employeedata._id)
-                    )
-                   .map((message, index) => (
-  <div
-    key={index}
-    className={message.sender === employeedata._id ? "message-right" : "message-left"}
-  >
-    {message.message && <p>{message.message}</p>}
-    {message.file && (
-      <div>
-        {message.file.contentType.startsWith("image/") ? (
-          <img
-            src={`data:${message.file.contentType};base64,${Buffer.from(
-              message.file.data
-            ).toString("base64")}`}
-            alt={message.file.name}
-            style={{ maxWidth: "200px", maxHeight: "200px" }}
-          />
-        ) : (
-          <a
-            href={`data:${message.file.contentType};base64,${Buffer.from(
-              message.file.data
-            ).toString("base64")}`}
-            download={message.file.name}
-          >
-            Download {message.file.name}
-          </a>
+  {messages
+    .filter(
+      (message) =>
+        (message.sender === employeedata._id && message.recipient === selectedChat._id) ||
+        (message.sender === selectedChat._id && message.recipient === employeedata._id)
+    )
+    .map((message, index) => (
+      <div
+        key={index}
+        className={message.sender === employeedata._id ? "message-right" : "message-left"}
+      >
+        {message.message && <p>{message.message}</p>}
+        {message.file && (
+          <div>
+            {message.file.contentType.startsWith("image/") ? (
+              <img
+                src={`data:${message.file.contentType};base64,${Buffer.from(
+                  message.file.data
+                ).toString("base64")}`}
+                alt={message.file.name}
+                style={{ maxWidth: "200px", maxHeight: "200px" }}
+              />
+            ) : (
+              <a
+                href={`data:${message.file.contentType};base64,${Buffer.from(
+                  message.file.data
+                ).toString("base64")}`}
+                download={message.file.name}
+              >
+                Download {message.file.name}
+              </a>
+            )}
+          </div>
         )}
       </div>
-    )}
-  </div>
-))}
+    ))}
+  <div ref={messagesEndRef}></div> {/* Add this at the bottom */}
 </div>
+
         
                   {/* Message Input Box */}
-                  <div className="message-input">
+   <div className="message-input">
         <div className="input-container">
         <input
           type="text"

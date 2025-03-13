@@ -2048,6 +2048,23 @@ select {
   transform: scale(1.1);
   color: rgb(108, 88, 223);
 }
+/* added by praduman  */
+.online-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 8px;
+}
+
+.online {
+  background-color: green;
+}
+
+.offline {
+  background-color: grey;
+}
+
 
 /* Mobile-screen styles */
 @media screen and (max-width: 768px) {

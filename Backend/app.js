@@ -53,42 +53,54 @@ const io = new Server(server, {
     credentials: true,  }
 });
 
+const onlineUsers = new Map();
+
 io.on("connection", (socket) => {
-  console.log("New client connected");
+  console.log("User connected:", socket.id);
 
-  // Handle message events from client
-  socket.on("sendMessage", async (messageData) => {
-    const { senderId, receiverId,  text,file } = messageData;
-    const fileData = file
-    ? {
-        data: Buffer.from(file.data, 'base64'), // Decode Base64 to Buffer
-        contentType: file.contentType,
-        name: file.name,
+  socket.on("userOnline", (userId) => {
+    onlineUsers.set(userId, socket.id);
+    io.emit("updateUserStatus", Array.from(onlineUsers.keys())); // Send online users
+  });
+
+  socket.on("disconnect", () => {
+    let disconnectedUserId;
+    for (let [userId, socketId] of onlineUsers.entries()) {
+      if (socketId === socket.id) {
+        disconnectedUserId = userId;
+        onlineUsers.delete(userId);
+        break;
       }
-    : null;
+    }
+    io.emit("updateUserStatus", Array.from(onlineUsers.keys())); // Update UI
+    console.log("User disconnected:", disconnectedUserId);
+  });
 
-   
+  // Handling message sending
+  socket.on("sendMessage", async (messageData) => {
+    const { senderId, receiverId, text, file } = messageData;
+    const fileData = file
+      ? {
+          data: Buffer.from(file.data, "base64"), // Decode Base64 to Buffer
+          contentType: file.contentType,
+          name: file.name,
+        }
+      : null;
+
     const message = new messageModel({
       sender: senderId,
       recipient: receiverId,
       message: text,
       file: fileData,
       timestamp: new Date(),
-      isRead: false,  
-     });
+      isRead: false,
+    });
     await message.save();
     console.log("Message saved to database");
 
-    // Emit message to other connected clients
     io.emit("receiveMessage", message);
-   
-    
   });
-
-  socket.on("disconnect", () => {
-    console.log("Client disconnected");
-  });
-})
+});
 cron.schedule('59 23 * * *', async () => {
   try {
     const today = new Date();
