@@ -29,11 +29,12 @@ function NavigationBar({ activeSection, onNavigate }) {
 
   const handleChangePassword = async () => {
     try {
-      const token = getCookie('token'); 
+      const token = localStorage.getItem("token");
       if (!token) {
         console.error('Token not found');
         return;
       }
+    
       navigate('/change-password');
 
     } catch (err) {

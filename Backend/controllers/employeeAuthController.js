@@ -5,6 +5,7 @@ const managerModel = require("../models/manager-model")
 const{genrateTokenManager}=require("../utils/generateTokenManager")
 const internModel=require("../models/intern-model")
 const { genrateTokenIntern } = require("../utils/generateTokenIntern");
+const jwt =require("jsonwebtoken")
 module.exports.loginUser = async function (req, res) {
     try {
         let { username, password } = req.body;
@@ -89,11 +90,15 @@ module.exports.changePassword=async(req, res)=> {
    
     const username = jwt.verify(token, process.env.JWT_SECRET);
     
-    const employee = await employeeModel.findOne({username: username.user });
-    
-    if (!employee) {
-        return res.status(404).json({ message: 'Employee not found' });
+    var employee = await employeeModel.findOne({username: username.user });
+    if(!employee) {
+       employee=await managerModel.findOne({username:username.user}); 
     }
+    if(!employee &&!manager) {
+       employee=await internModel.findOne({username:username.user}); 
+    }
+    
+    
     bcrypt.compare(currentPassword, employee.password, (err, isMatch) => {
      if (err) return res.status(err).json({ message:"Server error"});
      if (isMatch) {

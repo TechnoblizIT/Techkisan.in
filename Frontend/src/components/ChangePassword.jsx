@@ -4,6 +4,7 @@ import '../styles/ChangePassword.css';
 import logo from '../assets/logo1.png';
 import { useNavigate} from 'react-router-dom';
 import APIEndpoints  from "./endPoints"
+import { getByTitle } from '@testing-library/react';
 const ChangePassword = () => {
   const Endpoints= new APIEndpoints()
   const [currentPassword, setCurrentPassword] = useState('');
@@ -28,7 +29,7 @@ const ChangePassword = () => {
       return;
     }
 
-    const token = getCookie('token');
+    const token = localStorage.getItem("token");
     if (!token) {
       navigate("/")
        return;

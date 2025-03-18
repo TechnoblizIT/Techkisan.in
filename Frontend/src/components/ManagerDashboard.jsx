@@ -395,7 +395,7 @@ useEffect(() => {
                 )}
                 <h2 className="manager-name">
                   {employeedata
-                    ? employeedata.firstName + employeedata.lastName
+                    ? employeedata.firstName +" "+ employeedata.lastName
                     : "Loading..."}
                 </h2>
                 <p className="manager-role">

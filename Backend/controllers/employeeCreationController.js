@@ -8,7 +8,7 @@ const empimageModel=require("../models/employeeimg-model")
 module.exports.createEmployee=async(req,res)=>{
     try {
         const { firstName, lastName, email } = req.body;
-        let username = firstName.toLowerCase() + lastName.toLowerCase() + crypto.randomBytes(3).toString('hex');
+        const username = email.split('@')[0];
         username = username.replaceAll(" ", "");
         const password = crypto.randomBytes(6).toString('hex');
         const saltRounds = 10;
@@ -20,7 +20,6 @@ module.exports.createEmployee=async(req,res)=>{
           password: hashedPassword,
           Image: [],
         });
-        console.log(newEmployee)
     
         await newEmployee.save();
     
