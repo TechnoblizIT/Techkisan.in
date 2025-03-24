@@ -56,7 +56,7 @@ const io = new Server(server, {
 const onlineUsers = new Map();
 
 io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
+ 
 
   socket.on("userOnline", (userId) => {
     onlineUsers.set(userId, socket.id);
@@ -73,11 +73,12 @@ io.on("connection", (socket) => {
       }
     }
     io.emit("updateUserStatus", Array.from(onlineUsers.keys())); // Update UI
-    console.log("User disconnected:", disconnectedUserId);
+   
   });
 
   // Handling message sending
   socket.on("sendMessage", async (messageData) => {
+   console.log("message")
     const { senderId, receiverId, text, file } = messageData;
     const fileData = file
       ? {

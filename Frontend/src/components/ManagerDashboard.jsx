@@ -1,4 +1,4 @@
-import React, { useEffect, useState ,useRef} from "react";
+import React, { useEffect, useState ,useRef,useCallback} from "react";
 import ManagerNavigation from "./ManagerNavigation";
 import "../styles/ManagerDashboard.css";
 import axios from "axios";
@@ -119,6 +119,8 @@ function ManagerDashboard() {
       console.error("Error punching out:", error);
     }
   };
+  const notificationSound = new Audio("/sounds/notificationChat.mp3"); // Sound file in 'public' folder
+
 
   //this is for handling the leave approve
   const handleApprove = (leaveId) => {
@@ -254,27 +256,25 @@ useEffect(() => {
         return;
       }
 
+      // Fetch all required data in parallel
       const [employeeResponse, usersResponse, messagesResponse] = await Promise.all([
         axios.get(Endpoints.MANAGER_DASHBOARD, {
-          headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
+          headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         }),
         axios.get(Endpoints.GET_USERS_MANAGER, {
-          headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
+          headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         }),
         fetch(Endpoints.GET_MESSAGES).then((res) => res.json()),
       ]);
 
-      let empdata = null;
-
       if (employeeResponse.status === 200) {
-        empdata = employeeResponse.data;
+        const empdata = employeeResponse.data;
         setAttendance(empdata.employee.attendance);
         setemployeedata(empdata.employee);
         setLeaves(empdata.empleaves);
         setPunchRecord(empdata.employee.punchRecords);
-
         if (empdata.empimg && empdata.empimg[0]) {
           const binaryString = new Uint8Array(empdata.empimg[0].Image.data)
             .reduce((acc, byte) => acc + String.fromCharCode(byte), "");
@@ -282,12 +282,13 @@ useEffect(() => {
           const base64String = btoa(binaryString);
           setAvatarUrl(`data:${empdata.empimg[0].Imagetype};base64,${base64String}`);
         }
+
+        if (empdata?.employee?._id) {
+          socket.emit("userOnline", empdata.employee._id); // Ensure user is marked online
+        }
       }
 
-      if (empdata) {
-        socket.emit("userOnline", empdata.employee._id);
-      }
-      console.log(usersResponse.data)
+      setMessages(messagesResponse);
 
       const allUsers = [
         ...usersResponse.data.employees,
@@ -297,53 +298,78 @@ useEffect(() => {
 
       const usersWithImageUrls = allUsers.map((user) => ({
         ...user,
-        imageUrl: user.Image && user.Image[0] ? 
-          convertImageToBase64(user.Image[0].Image.data, user.Image[0].Imagetype) 
+        imageUrl: user.Image && user.Image[0]
+          ? convertImageToBase64(user.Image[0].Image.data, user.Image[0].Imagetype)
           : "loading",
       }));
 
       setUsers(usersWithImageUrls);
-      setMessages(messagesResponse);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
 
   fetchData();
+}, []);
 
-  socket.on("updateUserStatus", (users) => {
-    setOnlineUsers(users);
-  });
-
-  socket.on("receiveMessage", (newMessage) => {
+// ✅ Optimize socket event listeners
+useEffect(() => {
+  const handleReceiveMessage = (newMessage) => {
     setMessages((prevMessages) => [...prevMessages, newMessage]);
-  });
+    notificationSound.currentTime = 0; // Reset playback position for instant play
+    notificationSound.play().catch(error => console.error("Sound play error:", error))
+  };
+
+  const handleUpdateUserStatus = (users) => {
+    setOnlineUsers(users);
+  };
+
+  socket.on("receiveMessage", handleReceiveMessage);
+  socket.on("updateUserStatus", handleUpdateUserStatus);
 
   return () => {
-    socket.off("updateUserStatus");
-    socket.off("receiveMessage");
-    socket.disconnect();
+    socket.off("receiveMessage", handleReceiveMessage);
+    socket.off("updateUserStatus", handleUpdateUserStatus);
   };
-}, [navigate, selectedChat]);
+}, []);
 
-// **New useEffect for auto-scrolling when messages update**
+// ✅ Auto-scroll to the latest message
 useEffect(() => {
-  if (messagesEndRef.current) {
-    messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-  }
+  messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }, [messages]);
 
-//this for send new message as per socket emit
-  const sendMessage = () => {
-    const messageData = {
-      senderId: employeedata._id,
-      receiverId: selectedChat._id,
-      text: input,
-    };
+// ✅ Optimized sendMessage function
+const sendMessage = useCallback(() => {
+  if (!input && !file) return;
 
-    socket.emit("sendMessage", messageData);
-    setInput("");
+  const messageData = {
+    senderId: employeedata._id,
+    receiverId: selectedChat._id,
+    text: input,
+    file: null,
   };
+
+  setMessages((prevMessages) => [...prevMessages, { ...messageData, temp: true }]);
+
+  if (file) {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      messageData.file = {
+        data: reader.result.split(",")[1],
+        contentType: file.type,
+        name: file.name,
+      };
+
+      socket.emit("sendMessage", messageData);
+      setFile(null);
+    };
+    reader.readAsDataURL(file);
+  } else {
+    socket.emit("sendMessage", messageData);
+  }
+
+  setInput("");
+}, [input, file, employeedata, selectedChat]);
 
   //filtering out the most recent messages
   const userMessages = messages.filter(
@@ -1604,29 +1630,32 @@ useEffect(() => {
     key={index}
     className={message.sender === employeedata._id ? "message-right" : "message-left"}
   >
-    {message.message && <p>{message.message}</p>}
-    {message.file && (
-      <div>
-        {message.file.contentType.startsWith("image/") ? (
-          <img
-            src={`data:${message.file.contentType};base64,${Buffer.from(
-              message.file.data
-            ).toString("base64")}`}
-            alt={message.file.name}
-            style={{ maxWidth: "200px", maxHeight: "200px" }}
-          />
-        ) : (
-          <a
-            href={`data:${message.file.contentType};base64,${Buffer.from(
-              message.file.data
-            ).toString("base64")}`}
-            download={message.file.name}
-          >
-            Download {message.file.name}
-          </a>
-        )}
-      </div>
+{message.message && <p>{message.message}</p>}
+{message.file && (
+  <div>
+    {message.file.contentType.startsWith("image/") ? (
+      <img
+        src={`data:${message.file.contentType};base64,${btoa(
+          String.fromCharCode(...new Uint8Array(message.file.data.data))
+        )}`}
+        alt={message.file.name}
+        style={{ maxWidth: "200px", maxHeight: "200px" }}
+      />
+    ) : (
+      <a
+      href={`data:${message.file.contentType};base64,${btoa(
+        String.fromCharCode(...new Uint8Array(message.file.data.data))
+      )}`}
+      download={message.file.name}
+      className="download-btn"
+    >
+      <i className="fa-solid fa-download"></i> {message.file.name}
+    </a>
+    
     )}
+  </div>
+)}
+
   </div>
 ))}
 <div ref={messagesEndRef}></div> {/* Add this at the bottom */}

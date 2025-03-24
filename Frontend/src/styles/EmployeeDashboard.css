@@ -2175,6 +2175,39 @@ select {
 .offline {
   background-color: grey;
 }
+.download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px; /* Space between icon and text */
+  padding: 8px 12px;
+  background-color: #DEDAF3; /* Light purple */
+  color: #4A3F78; /* Darker text for contrast */
+  font-size: 14px;
+  font-weight: bold;
+  text-decoration: none;
+  border-radius: 5px;
+  transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+  white-space: nowrap; /* Prevents file name from breaking */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px; /* Adjust max width */
+  border: 1px solid #B8A8E6; /* Subtle border */
+}
+
+.download-btn:hover {
+  background-color: #C5B8E6; /* Slightly darker on hover */
+  color: #3A2F5F; /* Darker text */
+}
+
+.download-btn:active {
+  background-color: #B8A8E6; /* Even darker when clicked */
+}
+
+.download-btn i {
+  font-size: 16px;
+}
+
+
 
 
 /* Mobile-screen styles */
