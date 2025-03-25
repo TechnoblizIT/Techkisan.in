@@ -1,19 +1,17 @@
-import React,{useEffect, useState,useRef,useCallback} from 'react';
-import NavigationBar from './NavigationBar';
-import '../styles/EmployeeDashboard.css';
-import axios from 'axios';
-import cakeimg from '../assets/cake-img.png'
-import profile from '../assets/P.jpg';
-import image from '../assets/img-dashboard.jpg'
-import { useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
-import APIEndpoints  from "./endPoints"
+import React, { useEffect, useState, useRef, useCallback } from "react";
+import NavigationBar from "./NavigationBar";
+import "../styles/EmployeeDashboard.css";
+import axios from "axios";
+import cakeimg from "../assets/cake-img.png";
+import profile from "../assets/P.jpg";
+// import image from "../assets/img-dashboard.jpg";
+import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import APIEndpoints from "./endPoints";
 import io from "socket.io-client";
-import { Buffer } from "buffer";
+// import { Buffer } from "buffer";
 
 function EmployeeDashboard() {
- 
-
   // for chat-area
   const [selectedChat, setSelectedChat] = useState([]);
   const [unreadMessages, setUnreadMessages] = useState([]);
@@ -24,9 +22,7 @@ function EmployeeDashboard() {
   const [attendance, setAttendance] = useState([]);
   const Endpoints = new APIEndpoints();
   const socket = io(Endpoints.BASE_URL);
- 
- 
- 
+
   const formatDate = (date) => {
     if (!date) return "-";
     return new Date(date).toLocaleDateString("en-GB", {
@@ -35,10 +31,9 @@ function EmployeeDashboard() {
       year: "numeric",
     });
   };
-  
+
   const [entryconut, setentryconut] = useState(10);
-  
-  
+
   const notificationSound = new Audio("/sounds/notificationChat.mp3"); // Sound file in 'public' folder
   const formatTime = (date) => {
     if (!date) return "-";
@@ -50,23 +45,22 @@ function EmployeeDashboard() {
       hour12: true,
     });
   };
-  
+
   const calculateWorkDuration = (punchIn, punchOut) => {
     if (!punchIn || !punchOut) return "-";
-  
+
     const inTime = new Date(punchIn);
     const outTime = new Date(punchOut);
-  
+
     const diffMs = outTime - inTime; // Difference in milliseconds
     if (diffMs <= 0) return "0 hrs 0 mins"; // Prevent negative values
-  
+
     const hours = Math.floor(diffMs / (1000 * 60 * 60)); // Convert to hours
     const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60)); // Remaining minutes
-  
+
     return `${hours} hrs ${minutes} mins`;
   };
-  
-  
+
   const calculateDays = (fromDate, toDate) => {
     const from = new Date(fromDate);
     const to = new Date(toDate);
@@ -114,8 +108,8 @@ function EmployeeDashboard() {
     vacationAddress: "",
     contactNumber: "",
   });
- 
-  const [punchRecord, setPunchRecord] = useState([])
+
+  const [punchRecord, setPunchRecord] = useState([]);
 
   const [activeSection, setActiveSection] = useState("home");
 
@@ -339,14 +333,13 @@ function EmployeeDashboard() {
     return `data:${imageType};base64,${base64String}`;
   };
   const [onlineUsers, setOnlineUsers] = useState([]);
-  
-  
+
   useEffect(() => {
     if (!socket.connected) {
       socket.connect();
     }
     socket.emit("userOnline", employeedata?._id);
-  }, [employeedata]);
+  }, [employeedata,socket]);
 
   // ✅ Fetch data as early as possible
   useEffect(() => {
@@ -365,17 +358,18 @@ function EmployeeDashboard() {
         }
 
         // Fetch all required data in parallel
-        const [employeeResponse, usersResponse, messagesResponse] = await Promise.all([
-          axios.get(Endpoints.EMPLOYEE_DASHBOARD, {
-            headers: { Authorization: `Bearer ${token}` },
-            withCredentials: true,
-          }),
-          axios.get(Endpoints.GET_USERS_EMPLOYEES, {
-            headers: { Authorization: `Bearer ${token}` },
-            withCredentials: true,
-          }),
-          fetch(Endpoints.GET_MESSAGES).then((res) => res.json()),
-        ]);
+        const [employeeResponse, usersResponse, messagesResponse] =
+          await Promise.all([
+            axios.get(Endpoints.EMPLOYEE_DASHBOARD, {
+              headers: { Authorization: `Bearer ${token}` },
+              withCredentials: true,
+            }),
+            axios.get(Endpoints.GET_USERS_EMPLOYEES, {
+              headers: { Authorization: `Bearer ${token}` },
+              withCredentials: true,
+            }),
+            fetch(Endpoints.GET_MESSAGES).then((res) => res.json()),
+          ]);
 
         if (employeeResponse.status === 200) {
           const empdata = employeeResponse.data;
@@ -384,11 +378,14 @@ function EmployeeDashboard() {
           setLeaves(empdata.empleaves);
           setPunchRecord(empdata.employee.punchRecords);
           if (empdata.empimg && empdata.empimg[0]) {
-            const binaryString = new Uint8Array(empdata.empimg[0].Image.data)
-              .reduce((acc, byte) => acc + String.fromCharCode(byte), "");
-  
+            const binaryString = new Uint8Array(
+              empdata.empimg[0].Image.data
+            ).reduce((acc, byte) => acc + String.fromCharCode(byte), "");
+
             const base64String = btoa(binaryString);
-            setAvatarUrl(`data:${empdata.empimg[0].Imagetype};base64,${base64String}`);
+            setAvatarUrl(
+              `data:${empdata.empimg[0].Imagetype};base64,${base64String}`
+            );
           }
 
           if (empdata?.employee?._id) {
@@ -406,9 +403,13 @@ function EmployeeDashboard() {
 
         const usersWithImageUrls = allUsers.map((user) => ({
           ...user,
-          imageUrl: user.Image && user.Image[0]
-            ? convertImageToBase64(user.Image[0].Image.data, user.Image[0].Imagetype)
-            : "loading",
+          imageUrl:
+            user.Image && user.Image[0]
+              ? convertImageToBase64(
+                  user.Image[0].Image.data,
+                  user.Image[0].Imagetype
+                )
+              : "loading",
         }));
 
         setUsers(usersWithImageUrls);
@@ -424,10 +425,11 @@ function EmployeeDashboard() {
   useEffect(() => {
     const handleReceiveMessage = (newMessage) => {
       setMessages((prevMessages) => [...prevMessages, newMessage]);
-     
-      notificationSound.currentTime = 0; // Reset playback position for instant play
-      notificationSound.play().catch(error => console.error("Sound play error:", error))
 
+      notificationSound.currentTime = 0; // Reset playback position for instant play
+      notificationSound
+        .play()
+        .catch((error) => console.error("Sound play error:", error));
     };
 
     const handleUpdateUserStatus = (users) => {
@@ -441,11 +443,14 @@ function EmployeeDashboard() {
       socket.off("receiveMessage", handleReceiveMessage);
       socket.off("updateUserStatus", handleUpdateUserStatus);
     };
-  }, []);
-
+  }, [socket]);
+  // const inputRef = useRef(null);
   // ✅ Auto-scroll to the latest message
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    messagesEndRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+    });
   }, [messages]);
 
   // ✅ Optimized sendMessage function
@@ -459,7 +464,10 @@ function EmployeeDashboard() {
       file: null,
     };
 
-    setMessages((prevMessages) => [...prevMessages, { ...messageData, temp: true }]);
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      { ...messageData, temp: true },
+    ]);
 
     if (file) {
       const reader = new FileReader();
@@ -479,24 +487,13 @@ function EmployeeDashboard() {
     }
 
     setInput("");
-  }, [input, file, employeedata, selectedChat]);
+  }, [input, file, employeedata, selectedChat,socket]);
 
   
-  //filtering out the most recent messages
-  const userMessages = messages.filter(
-    (message) =>
-      message.sender === employeedata._id &&
-      message.recipient === selectedChat._id
-  );
-  userMessages.reverse();
-  const mostRecentMessage = userMessages.sort(
-    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-  )[0]; // Get the latest message
-
   const joiningDate = new Date(employeedata.dateOfHire);
   const currentDate = new Date();
 
-  const diffInTime = currentDate - joiningDate;
+  // const diffInTime = currentDate - joiningDate;
 
   let diffInYears = currentDate.getFullYear() - joiningDate.getFullYear();
   let diffInMonths = currentDate.getMonth() - joiningDate.getMonth();
@@ -693,9 +690,15 @@ function EmployeeDashboard() {
                       Phone:{employeedata ? employeedata.mobile : "Loading..."}{" "}
                     </p>
                     <hr />
-                    <p>Local Address: xyz</p>
+                    <p>
+                      Local Address:
+                      {employeedata ? employeedata.address1 : "Loading..."}
+                    </p>
                     <hr />
-                    <p>Permanent Address: XYZ</p>
+                    <p>
+                      Permanent Address:{" "}
+                      {employeedata ? employeedata.address2 : "Loading..."}
+                    </p>
                   </div>
                   <div className="company-details">
                     <div className="details">
@@ -721,7 +724,7 @@ function EmployeeDashboard() {
                   </div>
                 </div>
                 <div className="notice-board-upcoming-holidays">
-                <div className="notice-board">
+                  <div className="notice-board">
                     <div className="details">
                       <h3>
                         <i className="fa-solid fa-bullhorn"></i>&nbsp; Notice
@@ -783,7 +786,7 @@ function EmployeeDashboard() {
                       <p className="close-ticket">7</p>
                     </div>
                   </div>
-                 <div className="upcoming-holidays">
+                  <div className="upcoming-holidays">
                     <div className="details">
                       <h3>
                         <i className="fa-solid fa-paper-plane"></i>&nbsp;
@@ -812,7 +815,7 @@ function EmployeeDashboard() {
             </div>
           </div>
         );
-      case 'request':
+      case "request":
         return (
           <div className="request-section">
             <nav className="request-nav">
@@ -1426,45 +1429,53 @@ function EmployeeDashboard() {
                   </div>
                   <div className="table-container">
                     <div className="in-out-table-section">
-                    <table className="in-out-details-table">
-                      <thead>
-                        <tr>
-                          <th>Code</th>
-                          <th>Name</th>
-                          <th>Entry Date</th>
-                          <th>Location In</th>
-                          <th>Location Out</th>
-                          <th>In Time</th>
-                          <th>Out Time</th>
-                          <th>Total Working Hour</th>
-                          <th>In Geolocation</th>
-                          <th>Out Geolocation</th>
-                          <th>Leave</th>
-                          <th>Morning Late</th>
-                          <th>Early</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredRecords.slice(-entryconut).map((record) => (
-                          <tr key={record._id}>
-                            <td>{employeedata.employeeId}</td>
-                            <td>{employeedata.firstName + " " + employeedata.lastName}</td>
-                            <td>{formatDate(record.date)}</td>
-                            <td>{record.locationIn || "-"}</td>
-                            <td>{record.locationOut || "-"}</td>
-                            <td>{formatTime(record.punchInTime)}</td>
-                            <td>{formatTime(record.punchOutTime)}</td>
-                            <td>{calculateWorkDuration(record.punchInTime, record.punchOutTime)}</td>
-                            <td>{record.inGeolocation || "-"}</td>
-                            <td>{record.outGeolocation || "-"}</td>
-                            <td>{record.leave || "-"}</td>
-                            <td>{record.morningLate ? "Yes" : "No"}</td>
-                            <td>{record.early ? "Yes" : "No"}</td>
+                      <table className="in-out-details-table">
+                        <thead>
+                          <tr>
+                            <th>Code</th>
+                            <th>Name</th>
+                            <th>Entry Date</th>
+                            <th>Location In</th>
+                            <th>Location Out</th>
+                            <th>In Time</th>
+                            <th>Out Time</th>
+                            <th>Total Working Hour</th>
+                            <th>In Geolocation</th>
+                            <th>Out Geolocation</th>
+                            <th>Leave</th>
+                            <th>Morning Late</th>
+                            <th>Early</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-
+                        </thead>
+                        <tbody>
+                          {filteredRecords.slice(-entryconut).map((record) => (
+                            <tr key={record._id}>
+                              <td>{employeedata.employeeId}</td>
+                              <td>
+                                {employeedata.firstName +
+                                  " " +
+                                  employeedata.lastName}
+                              </td>
+                              <td>{formatDate(record.date)}</td>
+                              <td>{record.locationIn || "-"}</td>
+                              <td>{record.locationOut || "-"}</td>
+                              <td>{formatTime(record.punchInTime)}</td>
+                              <td>{formatTime(record.punchOutTime)}</td>
+                              <td>
+                                {calculateWorkDuration(
+                                  record.punchInTime,
+                                  record.punchOutTime
+                                )}
+                              </td>
+                              <td>{record.inGeolocation || "-"}</td>
+                              <td>{record.outGeolocation || "-"}</td>
+                              <td>{record.leave || "-"}</td>
+                              <td>{record.morningLate ? "Yes" : "No"}</td>
+                              <td>{record.early ? "Yes" : "No"}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                     <div className="inout-pagination">
                       <p>Showing 1 to 5 of 5 entries</p>
@@ -1624,27 +1635,28 @@ function EmployeeDashboard() {
 
                   {/* Second Block: Attendance Table */}
                   <div className="second-block">
-                  <table className="attendance-table">
-                <thead>
-                  <tr>
-                    <th>Month</th>
-                    {[...Array(31).keys()].map((day) => (
-                      <th key={day}>{day + 1}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {Object.keys(attendanceMap).map((month) => (
-                    <tr key={month}>
-                      <td>{month}</td>
-                      {attendanceMap[month].map((status, index) => (
-                        <td key={index} className={status}>{status || "-"}</td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-                   </table>
-
+                    <table className="attendance-table">
+                      <thead>
+                        <tr>
+                          <th>Month</th>
+                          {[...Array(31).keys()].map((day) => (
+                            <th key={day}>{day + 1}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {Object.keys(attendanceMap).map((month) => (
+                          <tr key={month}>
+                            <td>{month}</td>
+                            {attendanceMap[month].map((status, index) => (
+                              <td key={index} className={status}>
+                                {status || "-"}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               )}
@@ -1742,78 +1754,99 @@ function EmployeeDashboard() {
                 </div>
               )}
 
-                {activeReportPage === 'on-duty' && <h1>This is the On Duty Page</h1>}
+              {activeReportPage === "on-duty" && (
+                <h1>This is the On Duty Page</h1>
+              )}
+            </div>
+          </div>
+        );
+      // code for chat box ======================================================================================
+      case "chat":
+        return (
+          <div className="chat-app">
+            {/* chat-sidebar */}
+            <div className="chat-sidebar">
+              <div className="chat-sidebar-icons">
+                <div className="chat-sidebar-icon">
+                  <i className="fa-regular fa-bell"></i>
+                  <p>Activity</p>
+                </div>
+                <div className="chat-sidebar-icon">
+                  <i className="fa-regular fa-message"></i>
+                  <p>Chat</p>
+                </div>
+                <div className="chat-sidebar-icon">
+                  <i className="fa-solid fa-people-group"></i>
+                  <p>Teams</p>
+                </div>
+                <div className="chat-sidebar-icon">
+                  <i className="fa-solid fa-calendar-days"></i>
+                  <p>Calendar</p>
+                </div>
+                <div className="chat-sidebar-icon gear-icon">
+                  <i className="fa-solid fa-gear"></i>
+                  <p className="hidden">Setting</p>
+                </div>
+              </div>
+              <div className="chat-sidebar-bottom">
+                <img src={avatarUrl} alt="profile" className="profile-photo" />
               </div>
             </div>
-          );
-          // code for chat box ======================================================================================
-          case 'chat':
-            return (
-              <div className="chat-app">
-              {/* chat-sidebar */}
-              <div className="chat-sidebar">
-                <div className="chat-sidebar-icons">
-                  <div className="chat-sidebar-icon">
-                    <i className="fa-regular fa-bell"></i>
-                    <p>Activity</p>
+
+            {/* chat-list */}
+            <div className="chat-list">
+              <div className="chat-list-header">
+                <h1>Chat</h1>
+                <div className="chat-icons">
+                  <div
+                    className="icon-container video-icon"
+                    data-tooltip="Meet Now"
+                  >
+                    <i className="fa-solid fa-video"></i>
                   </div>
-                  <div className="chat-sidebar-icon">
-                    <i className="fa-regular fa-message"></i>
-                    <p>Chat</p>
+                  <div
+                    className="icon-container add-icon"
+                    data-tooltip="New Chat"
+                  >
+                    <i className="fa-solid fa-plus"></i>
                   </div>
-                  <div className="chat-sidebar-icon">
-                    <i className="fa-solid fa-people-group"></i>
-                    <p>Teams</p>
-                  </div>
-                  <div className="chat-sidebar-icon">
-                    <i className="fa-solid fa-calendar-days"></i>
-                    <p>Calendar</p>
-                  </div>
-                  <div className="chat-sidebar-icon gear-icon">
-                    <i className="fa-solid fa-gear"></i>
-                    <p className="hidden">Setting</p>
-                  </div>
-                </div>
-                <div className="chat-sidebar-bottom">
-                <img src={avatarUrl} alt="profile" className="profile-photo" />
                 </div>
               </div>
-        
-              {/* chat-list */}
-              <div className="chat-list">
-      <div className="chat-list-header">
-        <h1>Chat</h1>
-        <div className="chat-icons">
-          <div className="icon-container video-icon" data-tooltip="Meet Now">
-            <i className="fa-solid fa-video"></i>
-          </div>
-          <div className="icon-container add-icon" data-tooltip="New Chat">
-            <i className="fa-solid fa-plus"></i>
-          </div>
-        </div>
-      </div>
-      <div className="chat-search-bar">
-        <input type="text" className="search-input" placeholder="Search..." />
-      </div>
-      <div className="chat-previews">
-       
-     {users.map((user) => (
-                <div
-                  key={user._id}
-                  className="chat-preview"
-                  onClick={() => setSelectedChat(user)}
-                >
-                  <img src={user.imageUrl || profile} alt="profile" className="img-profile" />
-                  <div className="preview-details">
-                    <div className="preview-header">
-                      <span className="preview-name">{user.firstName + " " + user.lastName}</span>
-                      <span
-                        className={`online-indicator ${onlineUsers.includes(user._id) ? "online" : "offline"}`}
-                      ></span>
+              <div className="chat-search-bar">
+                <input
+                  type="text"
+                  className="search-input"
+                  placeholder="Search..."
+                />
+              </div>
+              <div className="chat-previews">
+                {users.map((user) => (
+                  <div
+                    key={user._id}
+                    className="chat-preview"
+                    onClick={() => setSelectedChat(user)}
+                  >
+                    <img
+                      src={user.imageUrl || profile}
+                      alt="profile"
+                      className="img-profile"
+                    />
+                    <div className="preview-details">
+                      <div className="preview-header">
+                        <span className="preview-name">
+                          {user.firstName + " " + user.lastName}
+                        </span>
+                        <span
+                          className={`online-indicator ${
+                            onlineUsers.includes(user._id)
+                              ? "online"
+                              : "offline"
+                          }`}
+                        ></span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
               </div>
             </div>
 
@@ -1823,129 +1856,152 @@ function EmployeeDashboard() {
                 <div className="chat-header">
                   <div className="chat-header-left">
                     {users
-          .filter((user) => user.firstName+" "+user.lastName === selectedChat.firstName+" "+selectedChat.lastName)
-          .map((user) => (
-            <div key={user._id}>
-              <img
-                src={user.imageUrl} 
-                alt="profile"
-                className="profile-main"
-              />
-              <span className="chat-name">{user.firstName+" "+user.lastName}</span> 
-              <span
-                        className={`online-indicator ${onlineUsers.includes(user._id) ? "online" : "offline"}`}
-                      ></span>
-            </div>
-          ))}
-
-                    </div>
-                    <div className="chat-header-icons">
-                      <i className="fa-solid fa-video"></i>
-                      <i className="fa-solid fa-phone"></i>
-                      <i className="fa-solid fa-magnifying-glass"></i>
-                      <i className="fa-solid fa-ellipsis-vertical"></i>
-                    </div>
+                      .filter(
+                        (user) =>
+                          user.firstName + " " + user.lastName ===
+                          selectedChat.firstName + " " + selectedChat.lastName
+                      )
+                      .map((user) => (
+                        <div key={user._id}>
+                          <img
+                            src={user.imageUrl}
+                            alt="profile"
+                            className="profile-main"
+                          />
+                          <span className="chat-name">
+                            {user.firstName + " " + user.lastName}
+                          </span>
+                          <span
+                            className={`online-indicator ${
+                              onlineUsers.includes(user._id)
+                                ? "online"
+                                : "offline"
+                            }`}
+                          ></span>
+                        </div>
+                      ))}
                   </div>
-        
-                
-                   {/* Messages Section */}
-                   <div className="messages">
-  {messages
-    .filter(
-      (message) =>
-        (message.sender === employeedata._id && message.recipient === selectedChat._id) ||
-        (message.sender === selectedChat._id && message.recipient === employeedata._id)
-    )
-    .map((message, index) => (
-      <div
-        key={index}
-        className={message.sender === employeedata._id ? "message-right" : "message-left"}
-      >
- {message.message && <p>{message.message}</p>}
-{message.file && (
-  <div>
-    {message.file.contentType.startsWith("image/") ? (
-      <img
-        src={`data:${message.file.contentType};base64,${btoa(
-          String.fromCharCode(...new Uint8Array(message.file.data.data))
-        )}`}
-        alt={message.file.name}
-        style={{ maxWidth: "200px", maxHeight: "200px" }}
-      />
-    ) : (
-<a
-  href={`data:${message.file.contentType};base64,${btoa(
-    String.fromCharCode(...new Uint8Array(message.file.data.data))
-  )}`}
-  download={message.file.name}
-  className="download-btn"
->
-  <i className="fa-solid fa-download"></i> {message.file.name}
-</a>
-
-    )}
-  </div>
-)}
-
-      </div>
-    ))}
-  <div ref={messagesEndRef}></div> {/* Add this at the bottom */}
-</div>
-
-        
-                  {/* Message Input Box */}
-   <div className="message-input">
-        <div className="input-container">
-        <input
-          type="text"
-          placeholder="Type a new message"
-          value={file ? file.name : input}
-          onChange={(e) => setInput(e.target.value)}
-          readOnly={!!file} 
-        />
-        {file && (
-          <button
-            type="button"
-            style={{
-              backgroundColor: "red",
-              color: "white",
-              border: "none",
-              marginRight: "5%",
-            }}
-            onClick={() => setFile(null)} // Clear the file and preview
-          >
-            Remove
-          </button>
-        )}
-         
-    <i className="fa-regular fa-face-smile emoji-icon"></i>
-          <input
-    type="file"
-    id="fileUpload"
-    onChange={(e) => setFile(e.target.files[0])}
-    style={{ display: "none" }}
-  />
-  
-  <label htmlFor="fileUpload">
-    <i className="fa-solid fa-paperclip attach-icon"></i>
-  </label>
-        </div>
-        <i className="fa-solid fa-paper-plane send-icon" onClick={sendMessage}></i>
-      </div>
+                  <div className="chat-header-icons">
+                    <i className="fa-solid fa-video"></i>
+                    <i className="fa-solid fa-phone"></i>
+                    <i className="fa-solid fa-magnifying-glass"></i>
+                    <i className="fa-solid fa-ellipsis-vertical"></i>
+                  </div>
                 </div>
-              )}
-            </div>
-            );
 
-     
-              
+                {/* Messages Section */}
+                <div className="messages">
+                  {messages
+                    .filter(
+                      (message) =>
+                        (message.sender === employeedata._id &&
+                          message.recipient === selectedChat._id) ||
+                        (message.sender === selectedChat._id &&
+                          message.recipient === employeedata._id)
+                    )
+                    .map((message, index) => (
+                      <div
+                        key={index}
+                        className={
+                          message.sender === employeedata._id
+                            ? "message-right"
+                            : "message-left"
+                        }
+                      >
+                        {message.message && <p>{message.message}</p>}
+                        {message.file && (
+                          <div>
+                            {message.file.contentType.startsWith("image/") ? (
+                              <img
+                                src={`data:${
+                                  message.file.contentType
+                                };base64,${btoa(
+                                  String.fromCharCode(
+                                    ...new Uint8Array(message.file.data.data)
+                                  )
+                                )}`}
+                                alt={message.file.name}
+                                style={{
+                                  maxWidth: "200px",
+                                  maxHeight: "200px",
+                                }}
+                              />
+                            ) : (
+                              <a
+                                href={`data:${
+                                  message.file.contentType
+                                };base64,${btoa(
+                                  String.fromCharCode(
+                                    ...new Uint8Array(message.file.data.data)
+                                  )
+                                )}`}
+                                download={message.file.name}
+                                className="download-btn"
+                              >
+                                <i className="fa-solid fa-download"></i>{" "}
+                                {message.file.name}
+                              </a>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  <div ref={messagesEndRef}></div>
+                </div>
+
+                {/* Message Input Box */}
+                <div className="message-input">
+                  <div className="input-container">
+                    <input
+                      type="text"
+                      placeholder="Type a new message"
+                      value={file ? file.name : input}
+                      onChange={(e) => setInput(e.target.value)}
+                      readOnly={!!file}
+                    />
+                    {file && (
+                      <button
+                        type="button"
+                        style={{
+                          backgroundColor: "red",
+                          color: "white",
+                          border: "none",
+                          marginRight: "5%",
+                        }}
+                        onClick={() => setFile(null)} // Clear the file and preview
+                      >
+                        Remove
+                      </button>
+                    )}
+
+                    <i className="fa-regular fa-face-smile emoji-icon"></i>
+                    <input
+                      type="file"
+                      id="fileUpload"
+                      onChange={(e) => setFile(e.target.files[0])}
+                      style={{ display: "none" }}
+                    />
+
+                    <label htmlFor="fileUpload">
+                      <i className="fa-solid fa-paperclip attach-icon"></i>
+                    </label>
+                  </div>
+                  <i
+                    className="fa-solid fa-paper-plane send-icon"
+                    onClick={sendMessage}
+                  ></i>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+
       default:
         return null;
     }
   };
 
   return (
-    
     <div className="employee-dashboard">
       <NavigationBar
         activeSection={activeSection}
