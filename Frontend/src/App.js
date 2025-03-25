@@ -10,6 +10,7 @@ import AdminDashboard from './components/AdminDashboard';
 import AddEmployee from './components/AddEmployee';
 import AddManager from './components/AddManager';
 import AddInterns from './components/AddIntern';
+import UpdateEmployeeForm from './components/UpdateEmployeeForm';
 import ManagerDashboard from './components/ManagerDashboard';
 import InternDashboard from './components/InternDashboard';
 import {APIEndpoints} from "./components/endPoints"
@@ -26,6 +27,7 @@ function App() {
           <Route path="/add-employee" element={<AddEmployee />} />
           <Route path="/add-manager" element={<AddManager />} />
           <Route path="/add-intern" element={<AddInterns />} />
+          <Route path="/update-employee" element={<UpdateEmployeeForm />} />
           <Route path="/manager-dashboard" element={<ManagerDashboard />} />
           <Route path="/intern-dashboard" element={<InternDashboard />} />
         </Routes>

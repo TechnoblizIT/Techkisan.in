@@ -1,6 +1,7 @@
 import React, { useState ,useEffect} from 'react';
 import { useNavigate} from 'react-router-dom';
 import '../styles/AddIntern.css';
+import { Link } from "react-router-dom";
 import avatarImage from '../assets/avtar.png';
 import uploadImage from '../assets/upload.png';
 import axios from 'axios';
@@ -123,7 +124,7 @@ const AddInterns = () => {
     <div className='add-interns'>
       <header>
         <h1>New Intern</h1>
-        <button className="close-btn">X</button>
+         <Link to="/admin-dashboard" className="close-btn">X</Link>
       </header>
       <div className="container">
         <div className="content-section">
@@ -420,7 +421,7 @@ const AddInterns = () => {
                   </label>
                 </div>
               </div>
-              <button className='add-mngr' type="submit">Add Intern</button>
+              <button className='add-intrn' type="submit">Add Intern</button>
             </form>
           </div>
         </div>

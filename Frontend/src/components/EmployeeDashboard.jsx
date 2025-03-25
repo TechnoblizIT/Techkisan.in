@@ -1,19 +1,19 @@
-import React,{useEffect, useState,useRef} from 'react';
-import NavigationBar from './NavigationBar';
-import '../styles/EmployeeDashboard.css';
-import axios from 'axios';
-import cakeimg from '../assets/cake-img.png'
-import profile from '../assets/P.jpg';
-import image from '../assets/img-dashboard.jpg'
-import { useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
-import APIEndpoints  from "./endPoints"
+import React, { useEffect, useState, useRef } from "react";
+import NavigationBar from "./NavigationBar";
+import { DownloadTableExcel } from "react-export-table-to-excel";
+import "../styles/EmployeeDashboard.css";
+import axios from "axios";
+import cakeimg from "../assets/cake-img.png";
+import profile from "../assets/P.jpg";
+import image from "../assets/img-dashboard.jpg";
+import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import APIEndpoints from "./endPoints";
 import io from "socket.io-client";
 import { Buffer } from "buffer";
 
 function EmployeeDashboard() {
- 
-
+  const tableRef = useRef(null);
   // for chat-area
   const [selectedChat, setSelectedChat] = useState([]);
   const [unreadMessages, setUnreadMessages] = useState([]);
@@ -24,9 +24,7 @@ function EmployeeDashboard() {
   const [attendance, setAttendance] = useState([]);
   const Endpoints = new APIEndpoints();
   const socket = io(Endpoints.BASE_URL);
- 
- 
- 
+
   const formatDate = (date) => {
     if (!date) return "-";
     return new Date(date).toLocaleDateString("en-GB", {
@@ -35,11 +33,9 @@ function EmployeeDashboard() {
       year: "numeric",
     });
   };
-  
+
   const [entryconut, setentryconut] = useState(10);
-  
-  
-  
+
   const formatTime = (date) => {
     if (!date) return "-";
     return new Date(date).toLocaleTimeString("en-US", {
@@ -50,23 +46,22 @@ function EmployeeDashboard() {
       hour12: true,
     });
   };
-  
+
   const calculateWorkDuration = (punchIn, punchOut) => {
     if (!punchIn || !punchOut) return "-";
-  
+
     const inTime = new Date(punchIn);
     const outTime = new Date(punchOut);
-  
+
     const diffMs = outTime - inTime; // Difference in milliseconds
     if (diffMs <= 0) return "0 hrs 0 mins"; // Prevent negative values
-  
+
     const hours = Math.floor(diffMs / (1000 * 60 * 60)); // Convert to hours
     const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60)); // Remaining minutes
-  
+
     return `${hours} hrs ${minutes} mins`;
   };
-  
-  
+
   const calculateDays = (fromDate, toDate) => {
     const from = new Date(fromDate);
     const to = new Date(toDate);
@@ -114,8 +109,8 @@ function EmployeeDashboard() {
     vacationAddress: "",
     contactNumber: "",
   });
- 
-  const [punchRecord, setPunchRecord] = useState([])
+
+  const [punchRecord, setPunchRecord] = useState([]);
 
   const [activeSection, setActiveSection] = useState("home");
 
@@ -339,8 +334,7 @@ function EmployeeDashboard() {
     return `data:${imageType};base64,${base64String}`;
   };
   const [onlineUsers, setOnlineUsers] = useState([]);
-  
-  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -349,91 +343,105 @@ function EmployeeDashboard() {
           navigate("/");
           return;
         }
-  
+
         const decode = jwtDecode(token);
         if (decode.role !== "employee") {
           navigate("/");
           return;
         }
-  
-        const [employeeResponse, usersResponse, messagesResponse] = await Promise.all([
-          axios.get(Endpoints.EMPLOYEE_DASHBOARD, {
-            headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
-            withCredentials: true,
-          }),
-          axios.get(Endpoints.GET_USERS_EMPLOYEES, {
-            headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
-            withCredentials: true,
-          }),
-          fetch(Endpoints.GET_MESSAGES).then((res) => res.json()),
-        ]);
-  
+
+        const [employeeResponse, usersResponse, messagesResponse] =
+          await Promise.all([
+            axios.get(Endpoints.EMPLOYEE_DASHBOARD, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "multipart/form-data",
+              },
+              withCredentials: true,
+            }),
+            axios.get(Endpoints.GET_USERS_EMPLOYEES, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "multipart/form-data",
+              },
+              withCredentials: true,
+            }),
+            fetch(Endpoints.GET_MESSAGES).then((res) => res.json()),
+          ]);
+
         let empdata = null;
-  
+
         if (employeeResponse.status === 200) {
           empdata = employeeResponse.data;
           setAttendance(empdata.employee.attendance);
           setemployeedata(empdata.employee);
           setLeaves(empdata.empleaves);
           setPunchRecord(empdata.employee.punchRecords);
-  
+
           if (empdata.empimg && empdata.empimg[0]) {
-            const binaryString = new Uint8Array(empdata.empimg[0].Image.data)
-              .reduce((acc, byte) => acc + String.fromCharCode(byte), "");
-  
+            const binaryString = new Uint8Array(
+              empdata.empimg[0].Image.data
+            ).reduce((acc, byte) => acc + String.fromCharCode(byte), "");
+
             const base64String = btoa(binaryString);
-            setAvatarUrl(`data:${empdata.empimg[0].Imagetype};base64,${base64String}`);
+            setAvatarUrl(
+              `data:${empdata.empimg[0].Imagetype};base64,${base64String}`
+            );
           }
         }
-  
+
         if (empdata) {
           socket.emit("userOnline", empdata.employee._id);
         }
-  
+
         const allUsers = [
           ...usersResponse.data.filteredEmployees,
           ...usersResponse.data.managers,
           ...usersResponse.data.interns,
         ];
-  
+
         const usersWithImageUrls = allUsers.map((user) => ({
           ...user,
-          imageUrl: user.Image && user.Image[0] ? 
-            convertImageToBase64(user.Image[0].Image.data, user.Image[0].Imagetype) 
-            : "loading",
+          imageUrl:
+            user.Image && user.Image[0]
+              ? convertImageToBase64(
+                  user.Image[0].Image.data,
+                  user.Image[0].Imagetype
+                )
+              : "loading",
         }));
-  
+
         setUsers(usersWithImageUrls);
         setMessages(messagesResponse);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
-  
+
     fetchData();
-  
+
     socket.on("updateUserStatus", (users) => {
       setOnlineUsers(users);
     });
-  
+
     socket.on("receiveMessage", (newMessage) => {
       setMessages((prevMessages) => [...prevMessages, newMessage]);
     });
-  
+
     return () => {
       socket.off("updateUserStatus");
       socket.off("receiveMessage");
       socket.disconnect();
     };
   }, [navigate, selectedChat]);
-  
+
   // **New useEffect for auto-scrolling when messages update**
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
-  
+
   // for sending messages
   const sendMessage = () => {
     if (!input && !file) return;
@@ -705,7 +713,7 @@ function EmployeeDashboard() {
                   </div>
                 </div>
                 <div className="notice-board-upcoming-holidays">
-                <div className="notice-board">
+                  <div className="notice-board">
                     <div className="details">
                       <h3>
                         <i className="fa-solid fa-bullhorn"></i>&nbsp; Notice
@@ -767,7 +775,7 @@ function EmployeeDashboard() {
                       <p className="close-ticket">7</p>
                     </div>
                   </div>
-                 <div className="upcoming-holidays">
+                  <div className="upcoming-holidays">
                     <div className="details">
                       <h3>
                         <i className="fa-solid fa-paper-plane"></i>&nbsp;
@@ -796,7 +804,7 @@ function EmployeeDashboard() {
             </div>
           </div>
         );
-      case 'request':
+      case "request":
         return (
           <div className="request-section">
             <nav className="request-nav">
@@ -1136,103 +1144,104 @@ function EmployeeDashboard() {
                 </>
               )}
               {activeRequestPage === "on-duty" && (
-                <div className="on-duty-container">
-                  <div className="form-block">
-                    <form onSubmit={handleSubmitwfh}>
-                      {/* Input fields */}
-                      <div className="input-row">
-                        <div className="input-group">
-                          <label htmlFor="start-date">Start Date</label>
-                          <input
-                            type="date"
-                            id="start-date"
-                            name="start-date"
-                            value={startDate1}
-                            onChange={(e) => setStartDate1(e.target.value)}
-                          />
-                        </div>
-                        <div className="input-group">
-                          <label htmlFor="end-date">End Date</label>
-                          <input
-                            type="date"
-                            id="end-date"
-                            name="end-date"
-                            value={endDate1}
-                            onChange={(e) => setEndDate1(e.target.value)}
-                          />
-                        </div>
-                      </div>
+                // <div className="on-duty-container">
+                //   <div className="form-block">
+                //     <form onSubmit={handleSubmitwfh}>
+                //       {/* Input fields */}
+                //       <div className="input-row">
+                //         <div className="input-group">
+                //           <label htmlFor="start-date">Start Date</label>
+                //           <input
+                //             type="date"
+                //             id="start-date"
+                //             name="start-date"
+                //             value={startDate1}
+                //             onChange={(e) => setStartDate1(e.target.value)}
+                //           />
+                //         </div>
+                //         <div className="input-group">
+                //           <label htmlFor="end-date">End Date</label>
+                //           <input
+                //             type="date"
+                //             id="end-date"
+                //             name="end-date"
+                //             value={endDate1}
+                //             onChange={(e) => setEndDate1(e.target.value)}
+                //           />
+                //         </div>
+                //       </div>
 
-                      <div className="input-row">
-                        <div className="input-group day-type-group">
-                          <label htmlFor="day-type">Day Type</label>
-                          <select
-                            id="day-type"
-                            name="day-type"
-                            value={dayType}
-                            onChange={(e) => setDayType(e.target.value)}
-                          >
-                            <option value="">--Select--</option>
-                            <option value="working">Working</option>
-                            <option value="holiday">Holiday</option>
-                            <option value="sick">Sick Leave</option>
-                            <option value="half-day">Half Day</option>
-                            <option value="other">Other</option>
-                          </select>
-                        </div>
-                      </div>
+                //       <div className="input-row">
+                //         <div className="input-group day-type-group">
+                //           <label htmlFor="day-type">Day Type</label>
+                //           <select
+                //             id="day-type"
+                //             name="day-type"
+                //             value={dayType}
+                //             onChange={(e) => setDayType(e.target.value)}
+                //           >
+                //             <option value="">--Select--</option>
+                //             <option value="working">Working</option>
+                //             <option value="holiday">Holiday</option>
+                //             <option value="sick">Sick Leave</option>
+                //             <option value="half-day">Half Day</option>
+                //             <option value="other">Other</option>
+                //           </select>
+                //         </div>
+                //       </div>
 
-                      <div className="input-row">
-                        <div className="input-group">
-                          <label htmlFor="in-time">In Time</label>
-                          <input
-                            type="time"
-                            id="in-time"
-                            name="in-time"
-                            value={inTime}
-                            onChange={(e) => setInTime(e.target.value)}
-                          />
-                        </div>
-                        <div className="input-group">
-                          <label htmlFor="out-time">Out Time</label>
-                          <input
-                            type="time"
-                            id="out-time"
-                            name="out-time"
-                            value={outTime}
-                            onChange={(e) => setOutTime(e.target.value)}
-                          />
-                        </div>
-                      </div>
+                //       <div className="input-row">
+                //         <div className="input-group">
+                //           <label htmlFor="in-time">In Time</label>
+                //           <input
+                //             type="time"
+                //             id="in-time"
+                //             name="in-time"
+                //             value={inTime}
+                //             onChange={(e) => setInTime(e.target.value)}
+                //           />
+                //         </div>
+                //         <div className="input-group">
+                //           <label htmlFor="out-time">Out Time</label>
+                //           <input
+                //             type="time"
+                //             id="out-time"
+                //             name="out-time"
+                //             value={outTime}
+                //             onChange={(e) => setOutTime(e.target.value)}
+                //           />
+                //         </div>
+                //       </div>
 
-                      <div className="input-row">
-                        <div className="input-group">
-                          <label htmlFor="remark">Remark</label>
-                          <input
-                            type="text"
-                            id="remark"
-                            name="remark"
-                            value={remark}
-                            onChange={(e) => setRemark(e.target.value)}
-                          />
-                        </div>
-                      </div>
+                //       <div className="input-row">
+                //         <div className="input-group">
+                //           <label htmlFor="remark">Remark</label>
+                //           <input
+                //             type="text"
+                //             id="remark"
+                //             name="remark"
+                //             value={remark}
+                //             onChange={(e) => setRemark(e.target.value)}
+                //           />
+                //         </div>
+                //       </div>
 
-                      <div className="input-row">
-                        <button type="submit" className="save-button">
-                          Save
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-                  <div className="no-record-block">
-                    No previous record found for current month.
-                  </div>
-                </div>
+                //       <div className="input-row">
+                //         <button type="submit" className="save-button">
+                //           Save
+                //         </button>
+                //       </div>
+                //     </form>
+                //   </div>
+                //   <div className="no-record-block">
+                //     No previous record found for current month.
+                //   </div>
+                // </div>
+                <p className="comming-soon-employee">Comming Soon.....</p>
               )}
 
               {activeRequestPage === "permission" && (
-                <h1>This is the Permission Page</h1>
+                <p className="comming-soon-employee">Comming Soon.....</p>
               )}
             </div>
           </div>
@@ -1308,11 +1317,11 @@ function EmployeeDashboard() {
                       <tbody>
                         <tr>
                           <td>Casual Leave</td>
-                          <td>2</td>
-                          <td>8</td>
                           <td>0</td>
-                          <td>3</td>
-                          <td>7</td>
+                          <td>0</td>
+                          <td>0</td>
+                          <td>0</td>
+                          <td>0</td>
                           <td>
                             <button class="action-button">View Used</button>
                             <button class="action-button">View Debited</button>
@@ -1356,11 +1365,11 @@ function EmployeeDashboard() {
                         </tr>
                         <tr>
                           <td>Sick leave</td>
-                          <td>2</td>
-                          <td>8</td>
                           <td>0</td>
-                          <td>3.5</td>
-                          <td>0.5</td>
+                          <td>0</td>
+                          <td>0</td>
+                          <td>0</td>
+                          <td>0</td>
                           <td>
                             <button class="action-button">View Used</button>
                             <button class="action-button">View Debited</button>
@@ -1402,7 +1411,16 @@ function EmployeeDashboard() {
                     </div>
                     <div className="button-block">
                       <button className="searchleave-button">Search</button>
-                      <button className="export-button">Export to Excel</button>
+
+                      <DownloadTableExcel
+                        filename="in-out-table"
+                        sheet="users"
+                        currentTableRef={tableRef.current}
+                      >
+                        <button className="export-button">
+                          Export to Excel
+                        </button>
+                      </DownloadTableExcel>
                     </div>
                   </div>
                   <div class="search-btn">
@@ -1410,45 +1428,53 @@ function EmployeeDashboard() {
                   </div>
                   <div className="table-container">
                     <div className="in-out-table-section">
-                    <table className="in-out-details-table">
-                      <thead>
-                        <tr>
-                          <th>Code</th>
-                          <th>Name</th>
-                          <th>Entry Date</th>
-                          <th>Location In</th>
-                          <th>Location Out</th>
-                          <th>In Time</th>
-                          <th>Out Time</th>
-                          <th>Total Working Hour</th>
-                          <th>In Geolocation</th>
-                          <th>Out Geolocation</th>
-                          <th>Leave</th>
-                          <th>Morning Late</th>
-                          <th>Early</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredRecords.slice(-entryconut).map((record) => (
-                          <tr key={record._id}>
-                            <td>{employeedata.employeeId}</td>
-                            <td>{employeedata.firstName + " " + employeedata.lastName}</td>
-                            <td>{formatDate(record.date)}</td>
-                            <td>{record.locationIn || "-"}</td>
-                            <td>{record.locationOut || "-"}</td>
-                            <td>{formatTime(record.punchInTime)}</td>
-                            <td>{formatTime(record.punchOutTime)}</td>
-                            <td>{calculateWorkDuration(record.punchInTime, record.punchOutTime)}</td>
-                            <td>{record.inGeolocation || "-"}</td>
-                            <td>{record.outGeolocation || "-"}</td>
-                            <td>{record.leave || "-"}</td>
-                            <td>{record.morningLate ? "Yes" : "No"}</td>
-                            <td>{record.early ? "Yes" : "No"}</td>
+                      <table className="in-out-details-table" ref={tableRef}>
+                        <thead>
+                          <tr>
+                            <th>Code</th>
+                            <th>Name</th>
+                            <th>Entry Date</th>
+                            <th>Location In</th>
+                            <th>Location Out</th>
+                            <th>In Time</th>
+                            <th>Out Time</th>
+                            <th>Total Working Hour</th>
+                            <th>In Geolocation</th>
+                            <th>Out Geolocation</th>
+                            <th>Leave</th>
+                            <th>Morning Late</th>
+                            <th>Early</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-
+                        </thead>
+                        <tbody>
+                          {filteredRecords.slice(-entryconut).map((record) => (
+                            <tr key={record._id}>
+                              <td>{employeedata.employeeId}</td>
+                              <td>
+                                {employeedata.firstName +
+                                  " " +
+                                  employeedata.lastName}
+                              </td>
+                              <td>{formatDate(record.date)}</td>
+                              <td>{record.locationIn || "-"}</td>
+                              <td>{record.locationOut || "-"}</td>
+                              <td>{formatTime(record.punchInTime)}</td>
+                              <td>{formatTime(record.punchOutTime)}</td>
+                              <td>
+                                {calculateWorkDuration(
+                                  record.punchInTime,
+                                  record.punchOutTime
+                                )}
+                              </td>
+                              <td>{record.inGeolocation || "-"}</td>
+                              <td>{record.outGeolocation || "-"}</td>
+                              <td>{record.leave || "-"}</td>
+                              <td>{record.morningLate ? "Yes" : "No"}</td>
+                              <td>{record.early ? "Yes" : "No"}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                     <div className="inout-pagination">
                       <p>Showing 1 to 5 of 5 entries</p>
@@ -1603,32 +1629,40 @@ function EmployeeDashboard() {
                       <option value="2030">01/01/2030 - 31/12/2030</option>
                     </select>
                     <button className="srch-button">Search</button>
-                    <button className="exprt-button">Export to Excel</button>
+
+                    <DownloadTableExcel
+                      filename="attendance-table"
+                      sheet="users"
+                      currentTableRef={tableRef.current}
+                    >
+                      <button className="exprt-button">Export to Excel</button>
+                    </DownloadTableExcel>
                   </div>
 
                   {/* Second Block: Attendance Table */}
                   <div className="second-block">
-                  <table className="attendance-table">
-                <thead>
-                  <tr>
-                    <th>Month</th>
-                    {[...Array(31).keys()].map((day) => (
-                      <th key={day}>{day + 1}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {Object.keys(attendanceMap).map((month) => (
-                    <tr key={month}>
-                      <td>{month}</td>
-                      {attendanceMap[month].map((status, index) => (
-                        <td key={index} className={status}>{status || "-"}</td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-                   </table>
-
+                    <table className="attendance-table" ref={tableRef}>
+                      <thead>
+                        <tr>
+                          <th>Month</th>
+                          {[...Array(31).keys()].map((day) => (
+                            <th key={day}>{day + 1}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {Object.keys(attendanceMap).map((month) => (
+                          <tr key={month}>
+                            <td>{month}</td>
+                            {attendanceMap[month].map((status, index) => (
+                              <td key={index} className={status}>
+                                {status || "-"}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               )}
@@ -1636,12 +1670,24 @@ function EmployeeDashboard() {
               {activeReportPage === "holidays" && (
                 <div className="holidays-page">
                   <div className="holidays-buttons">
-                    <button className="print-btn">Print</button>
-                    <button className="excel-btn">Export to Excel</button>
+                    <button
+                      className="print-btn"
+                      onClick={() => window.print()}
+                    >
+                      Print
+                    </button>
+
+                    <DownloadTableExcel
+                      filename="holidays-table"
+                      sheet="users"
+                      currentTableRef={tableRef.current}
+                    >
+                      <button> Export excel </button>
+                    </DownloadTableExcel>
                   </div>
 
                   <div className="holidays-table-section">
-                    <table className="holidays-table">
+                    <table className="holidays-table" ref={tableRef}>
                       <thead>
                         <tr>
                           <th>Date</th>
@@ -1650,154 +1696,235 @@ function EmployeeDashboard() {
                         </tr>
                       </thead>
                       <tbody>
-                        <tr>
-                          <td>1st January, 2024</td>
-                          <td>New Year's Day</td>
-                          <td>Monday</td>
-                        </tr>
-                        <tr>
-                          <td>15th January, 2024</td>
-                          <td>Makar Sankranti</td>
-                          <td>Monday</td>
-                        </tr>
-                        <tr>
-                          <td>26th January, 2024</td>
-                          <td>Republic Day</td>
-                          <td>Friday</td>
-                        </tr>
-                        <tr>
-                          <td>8th March, 2024</td>
-                          <td>Maha Shivratri</td>
-                          <td>Friday</td>
-                        </tr>
-                        <tr>
-                          <td>25th March, 2024</td>
-                          <td>Holi</td>
-                          <td>Monday</td>
-                        </tr>
-                        <tr>
-                          <td>1st May, 2024</td>
-                          <td>Maharashtra Day</td>
-                          <td>Wednesday</td>
-                        </tr>
-                        <tr>
-                          <td>15th August, 2024</td>
-                          <td>Independence Day</td>
-                          <td>Thursday</td>
-                        </tr>
-                        <tr>
-                          <td>7th September, 2024</td>
-                          <td>Ganesh Chaturthi</td>
-                          <td>Saturday</td>
-                        </tr>
-                        <tr>
-                          <td>16th September, 2024</td>
-                          <td>Eid-e-Milad</td>
-                          <td>Monday</td>
-                        </tr>
-                        <tr>
-                          <td>2nd October, 2024</td>
-                          <td>Gandhi Jayanti</td>
-                          <td>Wednesday</td>
-                        </tr>
-                        <tr>
-                          <td>12th October, 2024</td>
-                          <td>Dussehra/Vijaya Dasami</td>
-                          <td>Saturday</td>
-                        </tr>
-                        <tr>
-                          <td>31st October, 2024</td>
-                          <td>Diwali/Deepawali</td>
-                          <td>Thursday</td>
-                        </tr>
-                        <tr>
-                          <td>1st November, 2024</td>
-                          <td>Diwali/Deepawali</td>
-                          <td>Friday</td>
-                        </tr>
-                        <tr>
-                          <td>25th December, 2024</td>
-                          <td>Christmas</td>
-                          <td>Wednesday</td>
-                        </tr>
+                        {[
+                          {
+                            date: "January 1, 2025",
+                            reason: "New Year's Day",
+                            day: "Wednesday",
+                          },
+                          {
+                            date: "January 26, 2025",
+                            reason: "Republic Day",
+                            day: "Sunday",
+                          },
+                          {
+                            date: "February 19, 2025",
+                            reason: "Chhatrapati Shivaji Maharaj Jayanti",
+                            day: "Wednesday",
+                          },
+                          {
+                            date: "February 26, 2025",
+                            reason: "Maha Shivaratri",
+                            day: "Wednesday",
+                          },
+                          {
+                            date: "March 14, 2025",
+                            reason: "Holi",
+                            day: "Friday",
+                          },
+                          {
+                            date: "March 30, 2025",
+                            reason: "Gudi Padwa",
+                            day: "Sunday",
+                          },
+                          {
+                            date: "March 31, 2025",
+                            reason: "Idul Fitr",
+                            day: "Monday",
+                          },
+                          {
+                            date: "April 6, 2025",
+                            reason: "Ram Navami",
+                            day: "Sunday",
+                          },
+                          {
+                            date: "April 10, 2025",
+                            reason: "Mahavir Jayanti",
+                            day: "Thursday",
+                          },
+                          {
+                            date: "April 14, 2025",
+                            reason: "Dr. Babasaheb Ambedkar Jayanti",
+                            day: "Monday",
+                          },
+                          {
+                            date: "April 18, 2025",
+                            reason: "Good Friday",
+                            day: "Friday",
+                          },
+                          {
+                            date: "May 1, 2025",
+                            reason: "Maharashtra Day",
+                            day: "Thursday",
+                          },
+                          {
+                            date: "May 12, 2025",
+                            reason: "Buddha Purnima",
+                            day: "Monday",
+                          },
+                          {
+                            date: "June 7, 2025",
+                            reason: "Bakri Id (Id-Uz-Zuha)",
+                            day: "Saturday",
+                          },
+                          {
+                            date: "July 6, 2025",
+                            reason: "Muharram",
+                            day: "Sunday",
+                          },
+                          {
+                            date: "August 15, 2025",
+                            reason: "Independence Day / Parsi New Year",
+                            day: "Friday",
+                          },
+                          {
+                            date: "August 27, 2025",
+                            reason: "Ganesh Chaturthi",
+                            day: "Wednesday",
+                          },
+                          {
+                            date: "September 5, 2025",
+                            reason: "Id-E-Milad",
+                            day: "Friday",
+                          },
+                          {
+                            date: "October 2, 2025",
+                            reason: "Mahatma Gandhi Jayanti / Dasara",
+                            day: "Thursday",
+                          },
+                          {
+                            date: "October 21, 2025",
+                            reason: "Diwali Amavasya (Laxmi Pujan)",
+                            day: "Tuesday",
+                          },
+                          {
+                            date: "October 22, 2025",
+                            reason: "Diwali (Bali Pratipada)",
+                            day: "Wednesday",
+                          },
+                          {
+                            date: "November 5, 2025",
+                            reason: "Guru Nanak Jayanti",
+                            day: "Wednesday",
+                          },
+                          {
+                            date: "December 25, 2025",
+                            reason: "Christmas",
+                            day: "Thursday",
+                          },
+                        ].map((holiday, index) => (
+                          <tr key={index}>
+                            <td>{holiday.date}</td>
+                            <td>{holiday.reason}</td>
+                            <td>{holiday.day}</td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>
                 </div>
               )}
 
-                {activeReportPage === 'on-duty' && <h1>This is the On Duty Page</h1>}
+              {activeReportPage === "on-duty" && (
+                <p className="comming-soon-employee">Comming Soon.....</p>
+              )}
+            </div>
+          </div>
+        );
+
+      // code for task box-------------------------------------------------------------------------------
+      case "tasks":
+        return <p className="comming-soon-employee">Comming Soon.....</p>;
+
+      case "tickets":
+        return <p className="comming-soon-employee">Comming Soon.....</p>;
+      // code for chat box ======================================================================================
+      case "chat":
+        return (
+          <div className="chat-app">
+            {/* chat-sidebar */}
+            <div className="chat-sidebar">
+              <div className="chat-sidebar-icons">
+                <div className="chat-sidebar-icon">
+                  <i className="fa-regular fa-bell"></i>
+                  <p>Activity</p>
+                </div>
+                <div className="chat-sidebar-icon">
+                  <i className="fa-regular fa-message"></i>
+                  <p>Chat</p>
+                </div>
+                <div className="chat-sidebar-icon">
+                  <i className="fa-solid fa-people-group"></i>
+                  <p>Teams</p>
+                </div>
+                <div className="chat-sidebar-icon">
+                  <i className="fa-solid fa-calendar-days"></i>
+                  <p>Calendar</p>
+                </div>
+                <div className="chat-sidebar-icon gear-icon">
+                  <i className="fa-solid fa-gear"></i>
+                  <p className="hidden">Setting</p>
+                </div>
+              </div>
+              <div className="chat-sidebar-bottom">
+                <img src={avatarUrl} alt="profile" className="profile-photo" />
               </div>
             </div>
-          );
-          // code for chat box ======================================================================================
-          case 'chat':
-            return (
-              <div className="chat-app">
-              {/* chat-sidebar */}
-              <div className="chat-sidebar">
-                <div className="chat-sidebar-icons">
-                  <div className="chat-sidebar-icon">
-                    <i className="fa-regular fa-bell"></i>
-                    <p>Activity</p>
+
+            {/* chat-list */}
+            <div className="chat-list">
+              <div className="chat-list-header">
+                <h1>Chat</h1>
+                <div className="chat-icons">
+                  <div
+                    className="icon-container video-icon"
+                    data-tooltip="Meet Now"
+                  >
+                    <i className="fa-solid fa-video"></i>
                   </div>
-                  <div className="chat-sidebar-icon">
-                    <i className="fa-regular fa-message"></i>
-                    <p>Chat</p>
+                  <div
+                    className="icon-container add-icon"
+                    data-tooltip="New Chat"
+                  >
+                    <i className="fa-solid fa-plus"></i>
                   </div>
-                  <div className="chat-sidebar-icon">
-                    <i className="fa-solid fa-people-group"></i>
-                    <p>Teams</p>
-                  </div>
-                  <div className="chat-sidebar-icon">
-                    <i className="fa-solid fa-calendar-days"></i>
-                    <p>Calendar</p>
-                  </div>
-                  <div className="chat-sidebar-icon gear-icon">
-                    <i className="fa-solid fa-gear"></i>
-                    <p className="hidden">Setting</p>
-                  </div>
-                </div>
-                <div className="chat-sidebar-bottom">
-                <img src={avatarUrl} alt="profile" className="profile-photo" />
                 </div>
               </div>
-        
-              {/* chat-list */}
-              <div className="chat-list">
-      <div className="chat-list-header">
-        <h1>Chat</h1>
-        <div className="chat-icons">
-          <div className="icon-container video-icon" data-tooltip="Meet Now">
-            <i className="fa-solid fa-video"></i>
-          </div>
-          <div className="icon-container add-icon" data-tooltip="New Chat">
-            <i className="fa-solid fa-plus"></i>
-          </div>
-        </div>
-      </div>
-      <div className="chat-search-bar">
-        <input type="text" className="search-input" placeholder="Search..." />
-      </div>
-      <div className="chat-previews">
-       
-     {users.map((user) => (
-                <div
-                  key={user._id}
-                  className="chat-preview"
-                  onClick={() => setSelectedChat(user)}
-                >
-                  <img src={user.imageUrl || profile} alt="profile" className="img-profile" />
-                  <div className="preview-details">
-                    <div className="preview-header">
-                      <span className="preview-name">{user.firstName + " " + user.lastName}</span>
-                      <span
-                        className={`online-indicator ${onlineUsers.includes(user._id) ? "online" : "offline"}`}
-                      ></span>
+              <div className="chat-search-bar">
+                <input
+                  type="text"
+                  className="search-input"
+                  placeholder="Search..."
+                />
+              </div>
+              <div className="chat-previews">
+                {users.map((user) => (
+                  <div
+                    key={user._id}
+                    className="chat-preview"
+                    onClick={() => setSelectedChat(user)}
+                  >
+                    <img
+                      src={user.imageUrl || profile}
+                      alt="profile"
+                      className="img-profile"
+                    />
+                    <div className="preview-details">
+                      <div className="preview-header">
+                        <span className="preview-name">
+                          {user.firstName + " " + user.lastName}
+                        </span>
+                        <span
+                          className={`online-indicator ${
+                            onlineUsers.includes(user._id)
+                              ? "online"
+                              : "offline"
+                          }`}
+                        ></span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
               </div>
             </div>
 
@@ -1807,125 +1934,149 @@ function EmployeeDashboard() {
                 <div className="chat-header">
                   <div className="chat-header-left">
                     {users
-          .filter((user) => user.firstName+" "+user.lastName === selectedChat.firstName+" "+selectedChat.lastName)
-          .map((user) => (
-            <div key={user._id}>
-              <img
-                src={user.imageUrl} 
-                alt="profile"
-                className="profile-main"
-              />
-              <span className="chat-name">{user.firstName+" "+user.lastName}</span> 
-              <span
-                        className={`online-indicator ${onlineUsers.includes(user._id) ? "online" : "offline"}`}>{onlineUsers.includes(user._id)}</span>
-            </div>
-          ))}
-
-                    </div>
-                    <div className="chat-header-icons">
-                      <i className="fa-solid fa-video"></i>
-                      <i className="fa-solid fa-phone"></i>
-                      <i className="fa-solid fa-magnifying-glass"></i>
-                      <i className="fa-solid fa-ellipsis-vertical"></i>
-                    </div>
+                      .filter(
+                        (user) =>
+                          user.firstName + " " + user.lastName ===
+                          selectedChat.firstName + " " + selectedChat.lastName
+                      )
+                      .map((user) => (
+                        <div key={user._id}>
+                          <img
+                            src={user.imageUrl}
+                            alt="profile"
+                            className="profile-main"
+                          />
+                          <span className="chat-name">
+                            {user.firstName + " " + user.lastName}
+                          </span>
+                          <span
+                            className={`online-indicator ${
+                              onlineUsers.includes(user._id)
+                                ? "online"
+                                : "offline"
+                            }`}
+                          >
+                            {onlineUsers.includes(user._id)}
+                          </span>
+                        </div>
+                      ))}
                   </div>
-        
-                
-                   {/* Messages Section */}
-                   <div className="messages">
-  {messages
-    .filter(
-      (message) =>
-        (message.sender === employeedata._id && message.recipient === selectedChat._id) ||
-        (message.sender === selectedChat._id && message.recipient === employeedata._id)
-    )
-    .map((message, index) => (
-      <div
-        key={index}
-        className={message.sender === employeedata._id ? "message-right" : "message-left"}
-      >
-        {message.message && <p>{message.message}</p>}
-        {message.file && (
-          <div>
-            {message.file.contentType.startsWith("image/") ? (
-              <img
-                src={`data:${message.file.contentType};base64,${Buffer.from(
-                  message.file.data
-                ).toString("base64")}`}
-                alt={message.file.name}
-                style={{ maxWidth: "200px", maxHeight: "200px" }}
-              />
-            ) : (
-              <a
-                href={`data:${message.file.contentType};base64,${Buffer.from(
-                  message.file.data
-                ).toString("base64")}`}
-                download={message.file.name}
-              >
-                Download {message.file.name}
-              </a>
+                  <div className="chat-header-icons">
+                    <i className="fa-solid fa-video"></i>
+                    <i className="fa-solid fa-phone"></i>
+                    <i className="fa-solid fa-magnifying-glass"></i>
+                    <i className="fa-solid fa-ellipsis-vertical"></i>
+                  </div>
+                </div>
+
+                {/* Messages Section */}
+                <div className="messages">
+                  {messages
+                    .filter(
+                      (message) =>
+                        (message.sender === employeedata._id &&
+                          message.recipient === selectedChat._id) ||
+                        (message.sender === selectedChat._id &&
+                          message.recipient === employeedata._id)
+                    )
+                    .map((message, index) => (
+                      <div
+                        key={index}
+                        className={
+                          message.sender === employeedata._id
+                            ? "message-right"
+                            : "message-left"
+                        }
+                      >
+                        {message.message && <p>{message.message}</p>}
+                        {message.file && (
+                          <div>
+                            {message.file.contentType.startsWith("image/") ? (
+                              <img
+                                src={`data:${
+                                  message.file.contentType
+                                };base64,${Buffer.from(
+                                  message.file.data
+                                ).toString("base64")}`}
+                                alt={message.file.name}
+                                style={{
+                                  maxWidth: "200px",
+                                  maxHeight: "200px",
+                                }}
+                              />
+                            ) : (
+                              <a
+                                href={`data:${
+                                  message.file.contentType
+                                };base64,${Buffer.from(
+                                  message.file.data
+                                ).toString("base64")}`}
+                                download={message.file.name}
+                              >
+                                Download {message.file.name}
+                              </a>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  <div ref={messagesEndRef}></div>{" "}
+                  {/* Add this at the bottom */}
+                </div>
+
+                {/* Message Input Box */}
+                <div className="message-input">
+                  <div className="input-container">
+                    <input
+                      type="text"
+                      placeholder="Type a new message"
+                      value={file ? file.name : input}
+                      onChange={(e) => setInput(e.target.value)}
+                      readOnly={!!file}
+                    />
+                    {file && (
+                      <button
+                        type="button"
+                        style={{
+                          backgroundColor: "red",
+                          color: "white",
+                          border: "none",
+                          marginRight: "5%",
+                        }}
+                        onClick={() => setFile(null)} // Clear the file and preview
+                      >
+                        Remove
+                      </button>
+                    )}
+
+                    <i className="fa-regular fa-face-smile emoji-icon"></i>
+                    <input
+                      type="file"
+                      id="fileUpload"
+                      onChange={(e) => setFile(e.target.files[0])}
+                      style={{ display: "none" }}
+                    />
+
+                    <label htmlFor="fileUpload">
+                      <i className="fa-solid fa-paperclip attach-icon"></i>
+                    </label>
+                  </div>
+                  <i
+                    className="fa-solid fa-paper-plane send-icon"
+                    onClick={sendMessage}
+                  ></i>
+                </div>
+              </div>
             )}
           </div>
-        )}
-      </div>
-    ))}
-  <div ref={messagesEndRef}></div> {/* Add this at the bottom */}
-</div>
+        );
 
-        
-                  {/* Message Input Box */}
-   <div className="message-input">
-        <div className="input-container">
-        <input
-          type="text"
-          placeholder="Type a new message"
-          value={file ? file.name : input}
-          onChange={(e) => setInput(e.target.value)}
-          readOnly={!!file} 
-        />
-        {file && (
-          <button
-            type="button"
-            style={{
-              backgroundColor: "red",
-              color: "white",
-              border: "none",
-              marginRight: "5%",
-            }}
-            onClick={() => setFile(null)} // Clear the file and preview
-          >
-            Remove
-          </button>
-        )}
-         
-    <i className="fa-regular fa-face-smile emoji-icon"></i>
-          <input
-    type="file"
-    id="fileUpload"
-    onChange={(e) => setFile(e.target.files[0])}
-    style={{ display: "none" }}
-  />
-  
-  <label htmlFor="fileUpload">
-    <i className="fa-solid fa-paperclip attach-icon"></i>
-  </label>
-        </div>
-        <i className="fa-solid fa-paper-plane send-icon" onClick={sendMessage}></i>
-      </div>
-                </div>
-              )}
-            </div>
-            );
-
-     
-              
       default:
         return null;
     }
   };
 
   return (
-    
     <div className="employee-dashboard">
       <NavigationBar
         activeSection={activeSection}

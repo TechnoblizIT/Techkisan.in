@@ -3,6 +3,7 @@ import '../styles/EmployeeDashboard.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; 
 import { useState } from 'react';
+import logo from "../assets/logo-techkisan.jpg";
 import APIEndpoints  from "./endPoints"
 
 function NavigationBar({ activeSection, onNavigate }) {
@@ -72,7 +73,7 @@ function NavigationBar({ activeSection, onNavigate }) {
 
   return (
     <nav className="navbar">
-      <div className="logo">Logo</div>
+     <div  className="company-logo"><img src={logo} alt="Company Logo" /></div>
       <div className={`menu-icon ${isOpen ? 'open' : ''}`} onClick={toggleMenu}>
         <div className="bar"></div>
         <div className="bar"></div>
@@ -109,6 +110,15 @@ function NavigationBar({ activeSection, onNavigate }) {
             onClick={() => handleLinkClick('tasks')}
           >
             Tasks
+          </a>
+        </li>
+        <li>
+          <a
+            href="#"
+            className={activeSection === 'tickets' ? 'active' : ''}
+            onClick={() => handleLinkClick('tickets')}
+          >
+            Tickets
           </a>
         </li>
         <li>

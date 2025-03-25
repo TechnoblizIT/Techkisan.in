@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import NavigationBar from "./NavigationBar";
 import "../styles/InternDashboard.css";
+import { DownloadTableExcel } from "react-export-table-to-excel";
 import axios from "axios";
 import profileimg from "../assets/img-dashboard.jpg";
 import bdayimg from "../assets/P.jpg";
@@ -14,7 +15,7 @@ import APIEndpoints from "./endPoints";
 import { Buffer } from "buffer";
 
 function InternDashboard() {
- 
+  const tableRef = useRef(null);
   // for intern-chat-area
   const [selectedChat, setSelectedChat] = useState("");
   // ============================================================
@@ -728,71 +729,72 @@ function InternDashboard() {
                 </>
               )}
               {activeRequestPage === "on-duty" && (
-                <div className="intern-on-duty-section">
-                  <div className="intern-on-duty-form-container">
-                    <form>
-                      <div className="intern-row-input">
-                        <div className="intern-group-input">
-                          <label htmlFor="start-date">Start Date</label>
-                          <input
-                            type="date"
-                            id="start-date"
-                            name="start-date"
-                          />
-                        </div>
-                        <div className="intern-group-input">
-                          <label htmlFor="end-date">End Date</label>
-                          <input type="date" id="end-date" name="end-date" />
-                        </div>
-                      </div>
+                <p className="comming-soon-employee">Comming Soon.....</p>
+                // <div className="intern-on-duty-section">
+                //   <div className="intern-on-duty-form-container">
+                //     <form>
+                //       <div className="intern-row-input">
+                //         <div className="intern-group-input">
+                //           <label htmlFor="start-date">Start Date</label>
+                //           <input
+                //             type="date"
+                //             id="start-date"
+                //             name="start-date"
+                //           />
+                //         </div>
+                //         <div className="intern-group-input">
+                //           <label htmlFor="end-date">End Date</label>
+                //           <input type="date" id="end-date" name="end-date" />
+                //         </div>
+                //       </div>
 
-                      <div className="intern-row-input">
-                        <div className="intern-group-input day-type-group">
-                          <label htmlFor="day-type">Day Type</label>
-                          <select id="day-type" name="day-type">
-                            <option value="">--Select--</option>
-                            <option value="working">Working</option>
-                            <option value="holiday">Holiday</option>
-                            <option value="sick">Sick Leave</option>
-                            <option value="half-day">Half Day</option>
-                            <option value="other">Other</option>
-                          </select>
-                        </div>
-                      </div>
+                //       <div className="intern-row-input">
+                //         <div className="intern-group-input day-type-group">
+                //           <label htmlFor="day-type">Day Type</label>
+                //           <select id="day-type" name="day-type">
+                //             <option value="">--Select--</option>
+                //             <option value="working">Working</option>
+                //             <option value="holiday">Holiday</option>
+                //             <option value="sick">Sick Leave</option>
+                //             <option value="half-day">Half Day</option>
+                //             <option value="other">Other</option>
+                //           </select>
+                //         </div>
+                //       </div>
 
-                      <div className="intern-row-input">
-                        <div className="intern-group-input">
-                          <label htmlFor="in-time">In Time</label>
-                          <input type="time" id="in-time" name="in-time" />
-                        </div>
-                        <div className="intern-group-input">
-                          <label htmlFor="out-time">Out Time</label>
-                          <input type="time" id="out-time" name="out-time" />
-                        </div>
-                      </div>
+                //       <div className="intern-row-input">
+                //         <div className="intern-group-input">
+                //           <label htmlFor="in-time">In Time</label>
+                //           <input type="time" id="in-time" name="in-time" />
+                //         </div>
+                //         <div className="intern-group-input">
+                //           <label htmlFor="out-time">Out Time</label>
+                //           <input type="time" id="out-time" name="out-time" />
+                //         </div>
+                //       </div>
 
-                      <div className="intern-row-input">
-                        <div className="intern-group-input">
-                          <label htmlFor="remark">Remark</label>
-                          <input type="text" id="remark" name="remark" />
-                        </div>
-                      </div>
+                //       <div className="intern-row-input">
+                //         <div className="intern-group-input">
+                //           <label htmlFor="remark">Remark</label>
+                //           <input type="text" id="remark" name="remark" />
+                //         </div>
+                //       </div>
 
-                      <div className="intern-row-input">
-                        <button type="submit" className="save-btn">
-                          Save
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-                  <div className="intern-no-record-block">
-                    No previous record found for current month.
-                  </div>
-                </div>
+                //       <div className="intern-row-input">
+                //         <button type="submit" className="save-btn">
+                //           Save
+                //         </button>
+                //       </div>
+                //     </form>
+                //   </div>
+                //   <div className="intern-no-record-block">
+                //     No previous record found for current month.
+                //   </div>
+                // </div>
               )}
 
               {activeRequestPage === "permission" && (
-                <h1>This is the Permission Page</h1>
+                <p className="comming-soon-employee">Comming Soon.....</p>
               )}
             </div>
           </div>
@@ -982,7 +984,15 @@ function InternDashboard() {
                     </div>
                     <div className="button-block">
                       <button className="search-button">Search</button>
-                      <button className="export-button">Export to Excel</button>
+                      <DownloadTableExcel
+                        filename="in-out-table"
+                        sheet="users"
+                        currentTableRef={tableRef.current}
+                      >
+                        <button className="export-button">
+                          Export to Excel
+                        </button>
+                      </DownloadTableExcel>
                     </div>
                   </div>
                   <div class="search-btn">
@@ -990,7 +1000,10 @@ function InternDashboard() {
                   </div>
                   <div className="intern-table-container">
                     <div className="intern-in-out-table-section">
-                      <table className="intern-in-out-details-table">
+                      <table
+                        className="intern-in-out-details-table"
+                        ref={tableRef}
+                      >
                         <thead>
                           <tr>
                             <th>Code</th>
@@ -1209,12 +1222,18 @@ function InternDashboard() {
                       <option value="2030">01/01/2030 - 31/12/2030</option>
                     </select>
                     <button className="srch-button">Search</button>
-                    <button className="exprt-button">Export to Excel</button>
+                    <DownloadTableExcel
+                      filename="attendance-table"
+                      sheet="users"
+                      currentTableRef={tableRef.current}
+                    >
+                      <button className="exprt-button">Export to Excel</button>
+                    </DownloadTableExcel>
                   </div>
 
                   {/* Second Block: Attendance Table */}
                   <div className="intern-second-block">
-                    <table className="intern-attendance-table">
+                    <table className="intern-attendance-table" ref={tableRef}>
                       <thead>
                         <tr>
                           <th>Month</th>
@@ -1573,12 +1592,24 @@ function InternDashboard() {
               {activeReportPage === "holidays" && (
                 <div className="holidays-page">
                   <div className="holidays-buttons">
-                    <button className="print-button">Print</button>
-                    <button className="excel-button">Export to Excel</button>
+                    <button
+                      className="print-btn"
+                      onClick={() => window.print()}
+                    >
+                      Print
+                    </button>
+                    {/* Implement export to Excel functionality as needed */}
+                    <DownloadTableExcel
+                      filename="holidays-table"
+                      sheet="users"
+                      currentTableRef={tableRef.current}
+                    >
+                      <button> Export excel </button>
+                    </DownloadTableExcel>
                   </div>
 
                   <div className="holidays-table-section">
-                    <table className="holidays-table">
+                    <table className="holidays-table" ref={tableRef}>
                       <thead>
                         <tr>
                           <th>Date</th>
@@ -1587,76 +1618,129 @@ function InternDashboard() {
                         </tr>
                       </thead>
                       <tbody>
-                        <tr>
-                          <td>1st January, 2024</td>
-                          <td>New Year's Day</td>
-                          <td>Monday</td>
-                        </tr>
-                        <tr>
-                          <td>15th January, 2024</td>
-                          <td>Makar Sankranti</td>
-                          <td>Monday</td>
-                        </tr>
-                        <tr>
-                          <td>26th January, 2024</td>
-                          <td>Republic Day</td>
-                          <td>Friday</td>
-                        </tr>
-                        <tr>
-                          <td>8th March, 2024</td>
-                          <td>Maha Shivratri</td>
-                          <td>Friday</td>
-                        </tr>
-                        <tr>
-                          <td>25th March, 2024</td>
-                          <td>Holi</td>
-                          <td>Monday</td>
-                        </tr>
-                        <tr>
-                          <td>1st May, 2024</td>
-                          <td>Maharashtra Day</td>
-                          <td>Wednesday</td>
-                        </tr>
-                        <tr>
-                          <td>15th August, 2024</td>
-                          <td>Independence Day</td>
-                          <td>Thursday</td>
-                        </tr>
-                        <tr>
-                          <td>7th September, 2024</td>
-                          <td>Ganesh Chaturthi</td>
-                          <td>Saturday</td>
-                        </tr>
-                        <tr>
-                          <td>16th September, 2024</td>
-                          <td>Eid-e-Milad</td>
-                          <td>Monday</td>
-                        </tr>
-                        <tr>
-                          <td>2nd October, 2024</td>
-                          <td>Gandhi Jayanti</td>
-                          <td>Wednesday</td>
-                        </tr>
-                        <tr>
-                          <td>12th October, 2024</td>
-                          <td>Dussehra/Vijaya Dasami</td>
-                          <td>Saturday</td>
-                        </tr>
-                        <tr>
-                          <td>31st October, 2024</td>
-                          <td>Diwali/Deepawali</td>
-                          <td>Thursday</td>
-                        </tr>
-                        <tr>
-                          <td>1st November, 2024</td>
-                          <td>Diwali/Deepawali</td>
-                          <td>Friday</td>
-                        </tr>
-                        <tr>
-                          <td>25th December, 2024</td>
-                          <td>Christmas</td>
-                          <td>Wednesday</td>
-                        </tr>
+                        {[
+                          {
+                            date: "January 1, 2025",
+                            reason: "New Year's Day",
+                            day: "Wednesday",
+                          },
+                          {
+                            date: "January 26, 2025",
+                            reason: "Republic Day",
+                            day: "Sunday",
+                          },
+                          {
+                            date: "February 19, 2025",
+                            reason: "Chhatrapati Shivaji Maharaj Jayanti",
+                            day: "Wednesday",
+                          },
+                          {
+                            date: "February 26, 2025",
+                            reason: "Maha Shivaratri",
+                            day: "Wednesday",
+                          },
+                          {
+                            date: "March 14, 2025",
+                            reason: "Holi",
+                            day: "Friday",
+                          },
+                          {
+                            date: "March 30, 2025",
+                            reason: "Gudi Padwa",
+                            day: "Sunday",
+                          },
+                          {
+                            date: "March 31, 2025",
+                            reason: "Idul Fitr",
+                            day: "Monday",
+                          },
+                          {
+                            date: "April 6, 2025",
+                            reason: "Ram Navami",
+                            day: "Sunday",
+                          },
+                          {
+                            date: "April 10, 2025",
+                            reason: "Mahavir Jayanti",
+                            day: "Thursday",
+                          },
+                          {
+                            date: "April 14, 2025",
+                            reason: "Dr. Babasaheb Ambedkar Jayanti",
+                            day: "Monday",
+                          },
+                          {
+                            date: "April 18, 2025",
+                            reason: "Good Friday",
+                            day: "Friday",
+                          },
+                          {
+                            date: "May 1, 2025",
+                            reason: "Maharashtra Day",
+                            day: "Thursday",
+                          },
+                          {
+                            date: "May 12, 2025",
+                            reason: "Buddha Purnima",
+                            day: "Monday",
+                          },
+                          {
+                            date: "June 7, 2025",
+                            reason: "Bakri Id (Id-Uz-Zuha)",
+                            day: "Saturday",
+                          },
+                          {
+                            date: "July 6, 2025",
+                            reason: "Muharram",
+                            day: "Sunday",
+                          },
+                          {
+                            date: "August 15, 2025",
+                            reason: "Independence Day / Parsi New Year",
+                            day: "Friday",
+                          },
+                          {
+                            date: "August 27, 2025",
+                            reason: "Ganesh Chaturthi",
+                            day: "Wednesday",
+                          },
+                          {
+                            date: "September 5, 2025",
+                            reason: "Id-E-Milad",
+                            day: "Friday",
+                          },
+                          {
+                            date: "October 2, 2025",
+                            reason: "Mahatma Gandhi Jayanti / Dasara",
+                            day: "Thursday",
+                          },
+                          {
+                            date: "October 21, 2025",
+                            reason: "Diwali Amavasya (Laxmi Pujan)",
+                            day: "Tuesday",
+                          },
+                          {
+                            date: "October 22, 2025",
+                            reason: "Diwali (Bali Pratipada)",
+                            day: "Wednesday",
+                          },
+                          {
+                            date: "November 5, 2025",
+                            reason: "Guru Nanak Jayanti",
+                            day: "Wednesday",
+                          },
+                          {
+                            date: "December 25, 2025",
+                            reason: "Christmas",
+                            day: "Thursday",
+                          },
+                        ].map((holiday, index) => (
+                          <tr key={index}>
+                            <td>{holiday.date}</td>
+                            <td>{holiday.reason}</td>
+                            <td>{holiday.day}</td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>
@@ -1664,7 +1748,7 @@ function InternDashboard() {
               )}
 
               {activeReportPage === "on-duty" && (
-                <h1>This is the On Duty Page</h1>
+                <p className="comming-soon-employee">Comming Soon.....</p>
               )}
             </div>
           </div>
@@ -1862,7 +1946,11 @@ function InternDashboard() {
             )}
           </div>
         );
-      
+
+      case "tasks":
+        return <p className="comming-soon-employee">Comming Soon.....</p>;
+      case "tickets":
+        return <p className="comming-soon-employee">Comming Soon.....</p>;
       default:
         return null;
     }

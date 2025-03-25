@@ -9,7 +9,64 @@
 body {
   font-family: Arial, sans-serif;
 }
+.comming-soon-employee {
+  margin: auto;
+  margin-top: 150px;
+  font-size: 2rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: #5849ac;
+  text-shadow: 2px 2px 10px rgba(93, 173, 226, 0.4);
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 3px solid transparent;
+  animation: blink 1s infinite, slideIn 1.5s ease-in-out;
+}
 
+.comming-soon-employee::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, #2c5ec9, #85c1e9, #d4e6f1);
+  opacity: 0.8;
+  animation: underline 1.5s infinite alternate;
+}
+@keyframes blink {
+  50% {
+    border-color: #5849ac;
+  }
+}
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+/* Media Queries for comming-soon-employee  */
+@media screen and (max-width:768px){
+  .comming-soon-employee {
+    margin-left: 20px; 
+    margin-top: 100px; 
+    font-size: 1.5rem; 
+    letter-spacing: 2px; 
+    text-align: center; 
+    border-right: 2px solid transparent; 
+  }
+
+  .comming-soon-employee::after {
+    height: 2px; 
+  }
+}
 /* Navigation bar styles */
 
 .navbar {
@@ -24,10 +81,8 @@ body {
   z-index: 1000;
 }
 
-.logo {
-  color: rgb(88, 73, 172);
-  font-size: 24px;
-  text-decoration: none;
+.company-logo {
+ width: 150px;
 }
 
 /* Menu icon for mobile */
@@ -1535,7 +1590,8 @@ select {
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  color: white;
+  color: #fff;
+  background-color: orange;
   font-size: 14px;
   transition: background-color 0.3s;
 }

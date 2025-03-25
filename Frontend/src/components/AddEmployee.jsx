@@ -1,5 +1,6 @@
 import React, { useState ,useEffect} from 'react';
 import '../styles/AddEmployee.css';
+import { Link } from "react-router-dom";
 import avatarImage from '../assets/avtar.png';
 import uploadImage from '../assets/upload.png';
 import axios from 'axios';  
@@ -130,7 +131,7 @@ const AddEmployee = () => {
     <div className='add-employee'>
       <header>
         <h1>New Employee</h1>
-        <button className="close-btn">X</button>
+         <Link to="/admin-dashboard" className="close-btn">X</Link>
       </header>
       <div className="container">
         <div className="content-section">

@@ -1,6 +1,7 @@
 import React from 'react';
 import '../styles/ManagerNavigation.css';
 import axios from 'axios';
+import logo from "../assets/logo-techkisan.jpg";
 import { useNavigate } from 'react-router-dom'; 
 import { useState } from 'react';
 import APIEndpoints  from "./endPoints"
@@ -73,7 +74,7 @@ function ManagerNavigation({ activeSection, onNavigate }) {
 
   return (
     <nav className="navigationbar">
-      <div className="logo">Logo</div>
+       <div  className="company-logo"><img src={logo} alt="Company Logo" /></div>
       <div className={`menu-icon ${isOpen ? 'open' : ''}`} onClick={toggleMenu}>
         <div className="bar"></div>
         <div className="bar"></div>
@@ -89,15 +90,7 @@ function ManagerNavigation({ activeSection, onNavigate }) {
             Home
           </a>
         </li>
-        <li>
-          <a
-            href="#"
-            className={activeSection === 'tasks' ? 'active' : ''}
-            onClick={() => handleLinkClick('tasks')}
-          >
-            Tasks
-          </a>
-        </li>
+        
         <li className={`dropdown ${openDropdown === 'leaves' ? 'open' : ''}`}>
           <a
             href="#"
@@ -111,6 +104,24 @@ function ManagerNavigation({ activeSection, onNavigate }) {
             <a href="#" onClick={() => handleLinkClick('report')}>My Report</a>
             <a href="#" onClick={() => handleLinkClick('pending')}>Pending Leave</a>
           </div>
+        </li>
+        <li>
+          <a
+            href="#"
+            className={activeSection === 'tasks' ? 'active' : ''}
+            onClick={() => handleLinkClick('tasks')}
+          >
+            Tasks
+          </a>
+        </li>
+        <li>
+          <a
+            href="#"
+            className={activeSection === 'tickets' ? 'active' : ''}
+            onClick={() => handleLinkClick('tickets')}
+          >
+            Tickets
+          </a>
         </li>
         <li>
           <a
