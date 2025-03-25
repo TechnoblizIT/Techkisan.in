@@ -1,5 +1,6 @@
 import React, { useState ,useEffect} from 'react';
 import '../styles/AddManager.css';
+import { Link } from "react-router-dom";
 import avatarImage from '../assets/avtar.png';
 import uploadImage from '../assets/upload.png';
 import { useNavigate} from 'react-router-dom';
@@ -144,7 +145,7 @@ const AddManager = () => {
     <div className='add-manager'>
       <header>
         <h1>New Manager</h1>
-        <button className="close-btn">X</button>
+         <Link to="/admin-dashboard" className="close-btn">X</Link>
       </header>
       <div className="container">
         <div className="content-section">
