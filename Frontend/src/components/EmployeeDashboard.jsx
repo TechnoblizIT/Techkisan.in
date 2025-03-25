@@ -1,8 +1,9 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef, useCallback,tableRef } from "react";
 import NavigationBar from "./NavigationBar";
 import "../styles/EmployeeDashboard.css";
 import axios from "axios";
 import cakeimg from "../assets/cake-img.png";
+import { DownloadTableExcel } from "react-export-table-to-excel";
 import profile from "../assets/P.jpg";
 // import image from "../assets/img-dashboard.jpg";
 import { useNavigate } from "react-router-dom";
@@ -19,6 +20,7 @@ function EmployeeDashboard() {
   const [unreadMessages, setUnreadMessages] = useState([]);
   // ============================================================
   const [messages, setMessages] = useState([]);
+  const [onlineUsers, setOnlineUsers] = useState([]);
   const [input, setInput] = useState("");
   const [file, setFile] = useState(null);
   const [attendance, setAttendance] = useState([]);
@@ -86,6 +88,7 @@ function EmployeeDashboard() {
   const navigate = useNavigate();
   const [startDate, setstartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+
   const [startDate2, setstartDate2] = useState("");
   const [endDate2, setEndDate2] = useState("");
   const [isPunchedIn, setIsPunchedIn] = useState(false);
@@ -334,7 +337,7 @@ function EmployeeDashboard() {
     const base64String = btoa(binaryString);
     return `data:${imageType};base64,${base64String}`;
   };
-  const [onlineUsers, setOnlineUsers] = useState([]);
+
 
   useEffect(() => {
     if (!socket.connected) {

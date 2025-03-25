@@ -1,4 +1,4 @@
-import React, { useEffect, useState ,useRef,useCallback} from "react";
+import React, { useEffect, useState ,useRef,useCallback,tableRef} from "react";
 import ManagerNavigation from "./ManagerNavigation";
 import { DownloadTableExcel } from "react-export-table-to-excel";
 import "../styles/ManagerDashboard.css";
@@ -27,6 +27,7 @@ function ManagerDashboard() {
   const Endpoints = new APIEndpoints();
   const socket = io(Endpoints.BASE_URL);
   const [employeedata, setemployeedata] = useState("");
+  const [onlineUsers, setOnlineUsers] = useState([]);
   const [avatarUrl, setAvatarUrl] = useState("");
   const navigate = useNavigate();
   const [leaves, setLeaves] = useState([]);
@@ -71,6 +72,27 @@ function ManagerDashboard() {
     diffInYears--;
     diffInMonths += 12;
   }
+
+  const formatDate = (date) => {
+    if (!date) return "-";
+    return new Date(date).toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  };
+
+
+  const formatTime = (date) => {
+    if (!date) return "-";
+    return new Date(date).toLocaleTimeString("en-US", {
+      timeZone: "Asia/Kolkata",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
+  };
 
   const handlePunchIn = async () => {
     const currentTime = new Date();
@@ -212,62 +234,89 @@ function ManagerDashboard() {
     const outTime = new Date(punchOut);
 
     const diffMs = outTime - inTime; // Difference in milliseconds
-    if (diffMs <= 0) return "0 hrs 0 mins"; // Prevent negative values
+    if (diffMs <= 0) return "0 hrs 0 mins"
+    ; // Prevent negative values
+  }
 
       // Fetch all required data in parallel
-      const [employeeResponse, usersResponse, messagesResponse] = await Promise.all([
-        axios.get(Endpoints.MANAGER_DASHBOARD, {
-          headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
-        }),
-        axios.get(Endpoints.GET_USERS_MANAGER, {
-          headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
-        }),
-        fetch(Endpoints.GET_MESSAGES).then((res) => res.json()),
-      ]);
-
-      if (employeeResponse.status === 200) {
-        const empdata = employeeResponse.data;
-        setAttendance(empdata.employee.attendance);
-        setemployeedata(empdata.employee);
-        setLeaves(empdata.empleaves);
-        setPunchRecord(empdata.employee.punchRecords);
-        if (empdata.empimg && empdata.empimg[0]) {
-          const binaryString = new Uint8Array(empdata.empimg[0].Image.data)
-            .reduce((acc, byte) => acc + String.fromCharCode(byte), "");
-
-          const base64String = btoa(binaryString);
-          setAvatarUrl(`data:${empdata.empimg[0].Imagetype};base64,${base64String}`);
-        }
-
-        if (empdata?.employee?._id) {
-          socket.emit("userOnline", empdata.employee._id); // Ensure user is marked online
-        }
-      }
-    };
-
-      setMessages(messagesResponse);
-
-    socket.on("updateUserStatus", (users) => {
-      setOnlineUsers(users);
-    });
-
-      const usersWithImageUrls = allUsers.map((user) => ({
-        ...user,
-        imageUrl: user.Image && user.Image[0]
-          ? convertImageToBase64(user.Image[0].Image.data, user.Image[0].Imagetype)
-          : "loading",
-      }));
-
-      setUsers(usersWithImageUrls);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  }, [messages]);
-
-  fetchData();
-}, []);
+      useEffect(() => {
+        const fetchData = async () => {
+          try {
+            const token = localStorage.getItem("token");
+            if (!token) {
+              navigate("/");
+              return;
+            }
+    
+            const decode = jwtDecode(token);
+            if (decode.role !== "manager") {
+              navigate("/");
+              return;
+            }
+    
+            // Fetch all required data in parallel
+            const [employeeResponse, usersResponse, messagesResponse] =
+              await Promise.all([
+                axios.get(Endpoints.MANAGER_DASHBOARD, {
+                  headers: { Authorization: `Bearer ${token}` },
+                  withCredentials: true,
+                }),
+                axios.get(Endpoints.GET_USERS_MANAGER, {
+                  headers: { Authorization: `Bearer ${token}` },
+                  withCredentials: true,
+                }),
+                fetch(Endpoints.GET_MESSAGES).then((res) => res.json()),
+              ]);
+    
+            if (employeeResponse.status === 200) {
+              const empdata = employeeResponse.data;
+              setAttendance(empdata.employee.attendance);
+              setemployeedata(empdata.employee);
+              setLeaves(empdata.empleaves);
+              setPunchRecord(empdata.employee.punchRecords);
+              if (empdata.empimg && empdata.empimg[0]) {
+                const binaryString = new Uint8Array(
+                  empdata.empimg[0].Image.data
+                ).reduce((acc, byte) => acc + String.fromCharCode(byte), "");
+    
+                const base64String = btoa(binaryString);
+                setAvatarUrl(
+                  `data:${empdata.empimg[0].Imagetype};base64,${base64String}`
+                );
+              }
+    
+              if (empdata?.employee?._id) {
+                socket.emit("userOnline", empdata.employee._id); // Ensure user is marked online
+              }
+            }
+    
+            setMessages(messagesResponse);
+    
+            const allUsers = [
+              ...usersResponse.data.employees,
+              ...usersResponse.data.filtermanager,
+              ...usersResponse.data.interns,
+            ];
+    
+            const usersWithImageUrls = allUsers.map((user) => ({
+              ...user,
+              imageUrl:
+                user.Image && user.Image[0]
+                  ? convertImageToBase64(
+                      user.Image[0].Image.data,
+                      user.Image[0].Imagetype
+                    )
+                  : "loading",
+            }));
+    
+            setUsers(usersWithImageUrls);
+          } catch (error) {
+            console.error("Error fetching data:", error);
+          }
+        };
+    
+        fetchData();
+      }, []);
 
 // ✅ Optimize socket event listeners
 useEffect(() => {
@@ -1562,272 +1611,92 @@ const sendMessage = useCallback(() => {
           </div>
         );
       // code for chat box ======================================================================================
-      case "chat":
+      case 'chat':
         return (
           <div className="chat-app">
-            {/* chat-sidebar */}
-            <div className="chat-sidebar">
-              <div className="chat-sidebar-icons">
-                <div className="chat-sidebar-icon">
-                  <i className="fa-regular fa-bell"></i>
-                  <p>Activity</p>
-                </div>
-                <div className="chat-sidebar-icon">
-                  <i className="fa-regular fa-message"></i>
-                  <p>Chat</p>
-                </div>
-                <div className="chat-sidebar-icon">
-                  <i className="fa-solid fa-people-group"></i>
-                  <p>Teams</p>
-                </div>
-                <div className="chat-sidebar-icon">
-                  <i className="fa-solid fa-calendar-days"></i>
-                  <p>Calendar</p>
-                </div>
-                <div className="chat-sidebar-icon gear-icon">
-                  <i className="fa-solid fa-gear"></i>
-                  <p className="hidden">Setting</p>
-                </div>
+          {/* chat-sidebar */}
+          <div className="chat-sidebar">
+            <div className="chat-sidebar-icons">
+              <div className="chat-sidebar-icon">
+                <i className="fa-regular fa-bell"></i>
+                <p>Activity</p>
               </div>
-              <div className="chat-sidebar-bottom">
-                <img src={avatarUrl} alt="profile" className="profile-photo" />
+              <div className="chat-sidebar-icon">
+                <i className="fa-regular fa-message"></i>
+                <p>Chat</p>
+              </div>
+              <div className="chat-sidebar-icon">
+                <i className="fa-solid fa-people-group"></i>
+                <p>Teams</p>
+              </div>
+              <div className="chat-sidebar-icon">
+                <i className="fa-solid fa-calendar-days"></i>
+                <p>Calendar</p>
+              </div>
+              <div className="chat-sidebar-icon gear-icon">
+                <i className="fa-solid fa-gear"></i>
+                <p className="hidden">Setting</p>
               </div>
             </div>
-
-            {/* chat-list */}
-            <div className="chat-list">
-              <div className="chat-list-header">
-                <h1>Chat</h1>
-                <div className="chat-icons">
-                  <div
-                    className="icon-container video-icon"
-                    data-tooltip="Meet Now"
-                  >
-                    <i className="fa-solid fa-video"></i>
-                  </div>
-                  <div
-                    className="icon-container add-icon"
-                    data-tooltip="New Chat"
-                  >
-                    <i className="fa-solid fa-plus"></i>
-                  </div>
-                </div>
-              </div>
-              <div className="chat-search-bar">
-                <input
-                  type="text"
-                  className="search-input"
-                  placeholder="Search..."
-                />
-              </div>
-              <div className="chat-previews">
-                {users.map((user) => (
-                  <div
-                    key={user._id}
-                    className="chat-preview"
-                    onClick={() => setSelectedChat(user)}
-                  >
-                    <img
-                      src={user.imageUrl || profile}
-                      alt="profile"
-                      className="img-profile"
-                    />
-                    <div className="preview-details">
-                      <div className="preview-header">
-                        <span className="preview-name">
-                          {user.firstName + " " + user.lastName}
-                        </span>
-                        <span
-                          className={`online-indicator ${
-                            onlineUsers.includes(user._id)
-                              ? "online"
-                              : "offline"
-                          }`}
-                        ></span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* chat-area */}
-            {selectedChat && (
-              <div className="chat-area">
-                <div className="chat-header">
-                  <div className="chat-header-left">
-                    {users
-                      .filter(
-                        (user) =>
-                          user.firstName + " " + user.lastName ===
-                          selectedChat.firstName + " " + selectedChat.lastName
-                      )
-                      .map((user) => (
-                        <div key={user._id}>
-                          <img
-                            src={user.imageUrl}
-                            alt="profile"
-                            className="profile-main"
-                          />
-                          <span className="chat-name">
-                            {user.firstName + " " + user.lastName}
-                          </span>
-                          <span
-                            className={`online-indicator ${
-                              onlineUsers.includes(user._id)
-                                ? "online"
-                                : "offline"
-                            }`}
-                          >
-                            {onlineUsers.includes(user._id)}
-                          </span>
-                        </div>
-                      ))}
-                  </div>
-                  <div className="chat-header-icons">
-                    <i className="fa-solid fa-video"></i>
-                    <i className="fa-solid fa-phone"></i>
-                    <i className="fa-solid fa-magnifying-glass"></i>
-                    <i className="fa-solid fa-ellipsis-vertical"></i>
-                  </div>
-                </div>
-
-                {/* Messages Section */}
-                <div className="messages">
-                  {messages
-                    .filter(
-                      (message) =>
-                        (message.sender === employeedata._id &&
-                          message.recipient === selectedChat._id) ||
-                        (message.sender === selectedChat._id &&
-                          message.recipient === employeedata._id)
-                    )
-                    .map((message, index) => (
-                      <div
-                        key={index}
-                        className={
-                          message.sender === employeedata._id
-                            ? "message-right"
-                            : "message-left"
-                        }
-                      >
-                        {message.message && <p>{message.message}</p>}
-                        {message.file && (
-                          <div>
-                            {message.file.contentType.startsWith("image/") ? (
-                              <img
-                                src={`data:${
-                                  message.file.contentType
-                                };base64,${Buffer.from(
-                                  message.file.data
-                                ).toString("base64")}`}
-                                alt={message.file.name}
-                                style={{
-                                  maxWidth: "200px",
-                                  maxHeight: "200px",
-                                }}
-                              />
-                            ) : (
-                              <a
-                                href={`data:${
-                                  message.file.contentType
-                                };base64,${Buffer.from(
-                                  message.file.data
-                                ).toString("base64")}`}
-                                download={message.file.name}
-                              >
-                                Download {message.file.name}
-                              </a>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  <div ref={messagesEndRef}></div>{" "}
-                  {/* Add this at the bottom */}
-                </div>
-
-                {/* Message Input Box */}
-                <div className="message-input">
-                  <div className="input-container">
-                    <input
-                      type="text"
-                      placeholder="Type a new message"
-                      value={file ? file.name : input}
-                      onChange={(e) => setInput(e.target.value)}
-                      readOnly={!!file}
-                    />
-                    {file && (
-                      <button
-                        type="button"
-                        style={{
-                          backgroundColor: "red",
-                          color: "white",
-                          border: "none",
-                          marginRight: "5%",
-                        }}
-                        onClick={() => setFile(null)} // Clear the file and preview
-                      >
-                        Remove
-                      </button>
-                    )}
-
-                    <i className="fa-regular fa-face-smile emoji-icon"></i>
-                    <input
-                      type="file"
-                      id="fileUpload"
-                      onChange={(e) => setFile(e.target.files[0])}
-                      style={{ display: "none" }}
-                    />
-
-                    <label htmlFor="fileUpload">
-                      <i className="fa-solid fa-paperclip attach-icon"></i>
-                    </label>
-                  </div>
-                  <i
-                    className="fa-solid fa-paper-plane send-icon"
-                    onClick={sendMessage}
-                  ></i>
-                </div>
-              </div>
-            )}
+            <div className="chat-sidebar-bottom">
+            <img src={avatarUrl} alt="profile" className="profile-photo" />
           </div>
-    
-          {/* chat-list */}
-          <div className="chat-list">
-  <div className="chat-list-header">
-    <h1>Chat</h1>
-    <div className="chat-icons">
-      <div className="icon-container video-icon" data-tooltip="Meet Now">
-        <i className="fa-solid fa-video"></i>
-      </div>
-      <div className="icon-container add-icon" data-tooltip="New Chat">
-        <i className="fa-solid fa-plus"></i>
-      </div>
-    </div>
-  </div>
-  <div className="chat-search-bar">
-    <input type="text" className="search-input" placeholder="Search..." />
-  </div>
-  <div className="chat-previews">
-   
- {users.map((user) => (
-            <div
-              key={user._id}
-              className="chat-preview"
-              onClick={() => setSelectedChat(user)}
-            >
-              <img src={user.imageUrl || profile} alt="profile" className="img-profile" />
-              <div className="preview-details">
-                <div className="preview-header">
-                  <span className="preview-name">{user.firstName + " " + user.lastName}</span>
-                  <span
-                    className={`online-indicator ${onlineUsers.includes(user._id) ? "online" : "offline"}`}
-                  ></span>
-                </div>
+        </div>
+
+        {/* chat-list */}
+        <div className="chat-list">
+          <div className="chat-list-header">
+            <h1>Chat</h1>
+            <div className="chat-icons">
+              <div
+                className="icon-container video-icon"
+                data-tooltip="Meet Now"
+              >
+                <i className="fa-solid fa-video"></i>
+              </div>
+              <div
+                className="icon-container add-icon"
+                data-tooltip="New Chat"
+              >
+                <i className="fa-solid fa-plus"></i>
               </div>
             </div>
-          ))}
+          </div>
+          <div className="chat-search-bar">
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Search..."
+            />
+          </div>
+          <div className="chat-previews">
+            {users.map((user) => (
+              <div
+                key={user._id}
+                className="chat-preview"
+                onClick={() => setSelectedChat(user)}
+              >
+                <img
+                  src={user.imageUrl || profile}
+                  alt="profile"
+                  className="img-profile"
+                />
+                <div className="preview-details">
+                  <div className="preview-header">
+                    <span className="preview-name">
+                      {user.firstName + " " + user.lastName}
+                    </span>
+                    <span
+                      className={`online-indicator ${
+                        onlineUsers.includes(user._id)
+                          ? "online"
+                          : "offline"
+                      }`}
+                    ></span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -1847,7 +1716,8 @@ const sendMessage = useCallback(() => {
           />
           <span className="chat-name">{user.firstName+" "+user.lastName}</span> 
           <span
-                    className={`online-indicator ${onlineUsers.includes(user._id) ? "online" : "offline"}`}>{onlineUsers.includes(user._id)}</span>
+                    className={`online-indicator ${onlineUsers.includes(user._id) ? "online" : "offline"}`}
+                  ></span>
         </div>
       ))}
 
@@ -1876,28 +1746,28 @@ const sendMessage = useCallback(() => {
   >
 {message.message && <p>{message.message}</p>}
 {message.file && (
-  <div>
-    {message.file.contentType.startsWith("image/") ? (
-      <img
-        src={`data:${message.file.contentType};base64,${btoa(
-          String.fromCharCode(...new Uint8Array(message.file.data.data))
-        )}`}
-        alt={message.file.name}
-        style={{ maxWidth: "200px", maxHeight: "200px" }}
-      />
-    ) : (
-      <a
-      href={`data:${message.file.contentType};base64,${btoa(
-        String.fromCharCode(...new Uint8Array(message.file.data.data))
-      )}`}
-      download={message.file.name}
-      className="download-btn"
-    >
-      <i className="fa-solid fa-download"></i> {message.file.name}
-    </a>
-    
-    )}
-  </div>
+<div>
+{message.file.contentType.startsWith("image/") ? (
+  <img
+    src={`data:${message.file.contentType};base64,${btoa(
+      String.fromCharCode(...new Uint8Array(message.file.data.data))
+    )}`}
+    alt={message.file.name}
+    style={{ maxWidth: "200px", maxHeight: "200px" }}
+  />
+) : (
+<a
+href={`data:${message.file.contentType};base64,${btoa(
+String.fromCharCode(...new Uint8Array(message.file.data.data))
+)}`}
+download={message.file.name}
+className="download-btn"
+>
+<i className="fa-solid fa-download"></i> {message.file.name}
+</a>
+
+)}
+</div>
 )}
 
   </div>
@@ -1949,16 +1819,14 @@ style={{ display: "none" }}
           )}
         </div>
         );
-      case "tasks":
-        return <p className="comming-soon-employee">Comming Soon.....</p>;
-      case "tickets":
-        return <p className="comming-soon-employee">Comming Soon.....</p>;
-      default:
-        return null;
-    }
-  };
 
-  return (
+ 
+          
+  default:
+    return null;
+}
+};
+return (
     <div className="manager-dashboard">
       <ManagerNavigation
         activeSection={activeSection}
@@ -1967,6 +1835,6 @@ style={{ display: "none" }}
       {renderSection()}
     </div>
   );
-}
+  }
 
 export default ManagerDashboard;
