@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState ,useRef,useCallback} from "react";
 import ManagerNavigation from "./ManagerNavigation";
 import { DownloadTableExcel } from "react-export-table-to-excel";
 import "../styles/ManagerDashboard.css";
@@ -120,6 +120,8 @@ function ManagerDashboard() {
       console.error("Error punching out:", error);
     }
   };
+  const notificationSound = new Audio("/sounds/notificationChat.mp3"); // Sound file in 'public' folder
+
 
   //this is for handling the leave approve
   const handleApprove = (leaveId) => {
@@ -212,152 +214,119 @@ function ManagerDashboard() {
     const diffMs = outTime - inTime; // Difference in milliseconds
     if (diffMs <= 0) return "0 hrs 0 mins"; // Prevent negative values
 
-    const hours = Math.floor(diffMs / (1000 * 60 * 60)); // Convert to hours
-    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60)); // Remaining minutes
+      // Fetch all required data in parallel
+      const [employeeResponse, usersResponse, messagesResponse] = await Promise.all([
+        axios.get(Endpoints.MANAGER_DASHBOARD, {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        }),
+        axios.get(Endpoints.GET_USERS_MANAGER, {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        }),
+        fetch(Endpoints.GET_MESSAGES).then((res) => res.json()),
+      ]);
 
-    return `${hours} hrs ${minutes} mins`;
-  };
-  // this is for coverting the datetime into readable format
-  const formatTime = (date) => {
-    if (!date) return "-";
-    return new Date(date).toLocaleTimeString("en-US", {
-      timeZone: "Asia/Kolkata",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: true,
-    });
-  };
-  // this is for coverting the datetime into readable format
-  const formatDate = (date) => {
-    if (!date) return "-";
-    return new Date(date).toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  };
-  // this is useeffect  works on screen onload
-  const [onlineUsers, setOnlineUsers] = useState([]);
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          navigate("/");
-          return;
+      if (employeeResponse.status === 200) {
+        const empdata = employeeResponse.data;
+        setAttendance(empdata.employee.attendance);
+        setemployeedata(empdata.employee);
+        setLeaves(empdata.empleaves);
+        setPunchRecord(empdata.employee.punchRecords);
+        if (empdata.empimg && empdata.empimg[0]) {
+          const binaryString = new Uint8Array(empdata.empimg[0].Image.data)
+            .reduce((acc, byte) => acc + String.fromCharCode(byte), "");
+
+          const base64String = btoa(binaryString);
+          setAvatarUrl(`data:${empdata.empimg[0].Imagetype};base64,${base64String}`);
         }
 
-        const decode = jwtDecode(token);
-        if (decode.role !== "manager") {
-          navigate("/");
-          return;
+        if (empdata?.employee?._id) {
+          socket.emit("userOnline", empdata.employee._id); // Ensure user is marked online
         }
-
-        const [employeeResponse, usersResponse, messagesResponse] =
-          await Promise.all([
-            axios.get(Endpoints.MANAGER_DASHBOARD, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "multipart/form-data",
-              },
-              withCredentials: true,
-            }),
-            axios.get(Endpoints.GET_USERS_MANAGER, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "multipart/form-data",
-              },
-              withCredentials: true,
-            }),
-            fetch(Endpoints.GET_MESSAGES).then((res) => res.json()),
-          ]);
-
-        let empdata = null;
-
-        if (employeeResponse.status === 200) {
-          empdata = employeeResponse.data;
-          setAttendance(empdata.employee.attendance);
-          setemployeedata(empdata.employee);
-          setLeaves(empdata.empleaves);
-          setPunchRecord(empdata.employee.punchRecords);
-
-          if (empdata.empimg && empdata.empimg[0]) {
-            const binaryString = new Uint8Array(
-              empdata.empimg[0].Image.data
-            ).reduce((acc, byte) => acc + String.fromCharCode(byte), "");
-
-            const base64String = btoa(binaryString);
-            setAvatarUrl(
-              `data:${empdata.empimg[0].Imagetype};base64,${base64String}`
-            );
-          }
-        }
-
-        if (empdata) {
-          socket.emit("userOnline", empdata.employee._id);
-        }
-        console.log(usersResponse.data);
-
-        const allUsers = [
-          ...usersResponse.data.employees,
-          ...usersResponse.data.filtermanager,
-          ...usersResponse.data.interns,
-        ];
-
-        const usersWithImageUrls = allUsers.map((user) => ({
-          ...user,
-          imageUrl:
-            user.Image && user.Image[0]
-              ? convertImageToBase64(
-                  user.Image[0].Image.data,
-                  user.Image[0].Imagetype
-                )
-              : "loading",
-        }));
-
-        setUsers(usersWithImageUrls);
-        setMessages(messagesResponse);
-      } catch (error) {
-        console.error("Error fetching data:", error);
       }
     };
 
-    fetchData();
+      setMessages(messagesResponse);
 
     socket.on("updateUserStatus", (users) => {
       setOnlineUsers(users);
     });
 
-    socket.on("receiveMessage", (newMessage) => {
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
-    });
+      const usersWithImageUrls = allUsers.map((user) => ({
+        ...user,
+        imageUrl: user.Image && user.Image[0]
+          ? convertImageToBase64(user.Image[0].Image.data, user.Image[0].Imagetype)
+          : "loading",
+      }));
 
-    return () => {
-      socket.off("updateUserStatus");
-      socket.off("receiveMessage");
-      socket.disconnect();
-    };
-  }, [navigate, selectedChat]);
-
-  // **New useEffect for auto-scrolling when messages update**
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+      setUsers(usersWithImageUrls);
+    } catch (error) {
+      console.error("Error fetching data:", error);
     }
   }, [messages]);
 
-  //this for send new message as per socket emit
-  const sendMessage = () => {
-    const messageData = {
-      senderId: employeedata._id,
-      receiverId: selectedChat._id,
-      text: input,
-    };
+  fetchData();
+}, []);
 
-    socket.emit("sendMessage", messageData);
-    setInput("");
+// ✅ Optimize socket event listeners
+useEffect(() => {
+  const handleReceiveMessage = (newMessage) => {
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
+    notificationSound.currentTime = 0; // Reset playback position for instant play
+    notificationSound.play().catch(error => console.error("Sound play error:", error))
   };
+
+  const handleUpdateUserStatus = (users) => {
+    setOnlineUsers(users);
+  };
+
+  socket.on("receiveMessage", handleReceiveMessage);
+  socket.on("updateUserStatus", handleUpdateUserStatus);
+
+  return () => {
+    socket.off("receiveMessage", handleReceiveMessage);
+    socket.off("updateUserStatus", handleUpdateUserStatus);
+  };
+}, []);
+
+// ✅ Auto-scroll to the latest message
+useEffect(() => {
+  messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}, [messages]);
+
+// ✅ Optimized sendMessage function
+const sendMessage = useCallback(() => {
+  if (!input && !file) return;
+
+  const messageData = {
+    senderId: employeedata._id,
+    receiverId: selectedChat._id,
+    text: input,
+    file: null,
+  };
+
+  setMessages((prevMessages) => [...prevMessages, { ...messageData, temp: true }]);
+
+  if (file) {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      messageData.file = {
+        data: reader.result.split(",")[1],
+        contentType: file.type,
+        name: file.name,
+      };
+
+      socket.emit("sendMessage", messageData);
+      setFile(null);
+    };
+    reader.readAsDataURL(file);
+  } else {
+    socket.emit("sendMessage", messageData);
+  }
+
+  setInput("");
+}, [input, file, employeedata, selectedChat]);
 
   //filtering out the most recent messages
   const userMessages = messages.filter(
@@ -1823,6 +1792,162 @@ function ManagerDashboard() {
               </div>
             )}
           </div>
+    
+          {/* chat-list */}
+          <div className="chat-list">
+  <div className="chat-list-header">
+    <h1>Chat</h1>
+    <div className="chat-icons">
+      <div className="icon-container video-icon" data-tooltip="Meet Now">
+        <i className="fa-solid fa-video"></i>
+      </div>
+      <div className="icon-container add-icon" data-tooltip="New Chat">
+        <i className="fa-solid fa-plus"></i>
+      </div>
+    </div>
+  </div>
+  <div className="chat-search-bar">
+    <input type="text" className="search-input" placeholder="Search..." />
+  </div>
+  <div className="chat-previews">
+   
+ {users.map((user) => (
+            <div
+              key={user._id}
+              className="chat-preview"
+              onClick={() => setSelectedChat(user)}
+            >
+              <img src={user.imageUrl || profile} alt="profile" className="img-profile" />
+              <div className="preview-details">
+                <div className="preview-header">
+                  <span className="preview-name">{user.firstName + " " + user.lastName}</span>
+                  <span
+                    className={`online-indicator ${onlineUsers.includes(user._id) ? "online" : "offline"}`}
+                  ></span>
+                </div>
+              </div>
+            </div>
+          ))}
+          </div>
+        </div>
+
+        {/* chat-area */}
+        {selectedChat && (
+          <div className="chat-area">
+            <div className="chat-header">
+              <div className="chat-header-left">
+                {users
+      .filter((user) => user.firstName+" "+user.lastName === selectedChat.firstName+" "+selectedChat.lastName)
+      .map((user) => (
+        <div key={user._id}>
+          <img
+            src={user.imageUrl} 
+            alt="profile"
+            className="profile-main"
+          />
+          <span className="chat-name">{user.firstName+" "+user.lastName}</span> 
+          <span
+                    className={`online-indicator ${onlineUsers.includes(user._id) ? "online" : "offline"}`}>{onlineUsers.includes(user._id)}</span>
+        </div>
+      ))}
+
+                </div>
+                <div className="chat-header-icons">
+                  <i className="fa-solid fa-video"></i>
+                  <i className="fa-solid fa-phone"></i>
+                  <i className="fa-solid fa-magnifying-glass"></i>
+                  <i className="fa-solid fa-ellipsis-vertical"></i>
+                </div>
+              </div>
+    
+            
+               {/* Messages Section */}
+               <div className="messages">
+{messages
+.filter(
+  (message) =>
+    (message.sender === employeedata._id && message.recipient === selectedChat._id) ||
+    (message.sender === selectedChat._id && message.recipient === employeedata._id)
+)
+.map((message, index) => (
+  <div
+    key={index}
+    className={message.sender === employeedata._id ? "message-right" : "message-left"}
+  >
+{message.message && <p>{message.message}</p>}
+{message.file && (
+  <div>
+    {message.file.contentType.startsWith("image/") ? (
+      <img
+        src={`data:${message.file.contentType};base64,${btoa(
+          String.fromCharCode(...new Uint8Array(message.file.data.data))
+        )}`}
+        alt={message.file.name}
+        style={{ maxWidth: "200px", maxHeight: "200px" }}
+      />
+    ) : (
+      <a
+      href={`data:${message.file.contentType};base64,${btoa(
+        String.fromCharCode(...new Uint8Array(message.file.data.data))
+      )}`}
+      download={message.file.name}
+      className="download-btn"
+    >
+      <i className="fa-solid fa-download"></i> {message.file.name}
+    </a>
+    
+    )}
+  </div>
+)}
+
+  </div>
+))}
+<div ref={messagesEndRef}></div> {/* Add this at the bottom */}
+</div>
+
+    
+              {/* Message Input Box */}
+<div className="message-input">
+    <div className="input-container">
+    <input
+      type="text"
+      placeholder="Type a new message"
+      value={file ? file.name : input}
+      onChange={(e) => setInput(e.target.value)}
+      readOnly={!!file} 
+    />
+    {file && (
+      <button
+        type="button"
+        style={{
+          backgroundColor: "red",
+          color: "white",
+          border: "none",
+          marginRight: "5%",
+        }}
+        onClick={() => setFile(null)} // Clear the file and preview
+      >
+        Remove
+      </button>
+    )}
+     
+<i className="fa-regular fa-face-smile emoji-icon"></i>
+      <input
+type="file"
+id="fileUpload"
+onChange={(e) => setFile(e.target.files[0])}
+style={{ display: "none" }}
+/>
+
+<label htmlFor="fileUpload">
+<i className="fa-solid fa-paperclip attach-icon"></i>
+</label>
+    </div>
+    <i className="fa-solid fa-paper-plane send-icon" onClick={sendMessage}></i>
+  </div>
+            </div>
+          )}
+        </div>
         );
       case "tasks":
         return <p className="comming-soon-employee">Comming Soon.....</p>;

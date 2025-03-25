@@ -56,7 +56,7 @@ const io = new Server(server, {
 const onlineUsers = new Map();
 
 io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
+ 
 
   socket.on("userOnline", (userId) => {
     onlineUsers.set(userId, socket.id);
@@ -73,11 +73,12 @@ io.on("connection", (socket) => {
       }
     }
     io.emit("updateUserStatus", Array.from(onlineUsers.keys())); // Update UI
-    console.log("User disconnected:", disconnectedUserId);
+   
   });
 
   // Handling message sending
   socket.on("sendMessage", async (messageData) => {
+   console.log("message")
     const { senderId, receiverId, text, file } = messageData;
     const fileData = file
       ? {
@@ -109,17 +110,18 @@ cron.schedule('59 23 * * *', async () => {
     // Function to update attendance
     const updateAttendance = async (users) => {
       for (const user of users) {
-        const punchedInToday = user.punchRecords.some(
-          punch => new Date(punch).setHours(0, 0, 0, 0) === today.getTime()
-        );
+        const punchedInToday = user.punchRecords.some(punch => {
+          const punchDate = new Date(punch);
+          punchDate.setHours(0, 0, 0, 0);
+          return punchDate.getTime() === today.getTime();
+        });
 
-        if (!punchedInToday) {
-          // Check if the user is on leave
-          if (!['CL', 'SL', 'H'].includes(user.status)) {
+        if (punchedInToday) {
+          user.attendance.push({ date: today, status: 'P' });
+        } else {
+          if (!['CL', 'SL', 'H', 'P'].includes(user.status)) {
             user.attendance.push({ date: today, status: 'A' });
           }
-        } else {
-          user.attendance.push({ date: today, status: 'P' });
         }
 
         await user.save();
@@ -141,6 +143,7 @@ cron.schedule('59 23 * * *', async () => {
     console.error('Error updating attendance:', error);
   }
 });
+
 
 
 

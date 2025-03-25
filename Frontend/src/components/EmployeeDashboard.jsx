@@ -1,14 +1,13 @@
-import React, { useEffect, useState, useRef } from "react";
-import NavigationBar from "./NavigationBar";
-import { DownloadTableExcel } from "react-export-table-to-excel";
-import "../styles/EmployeeDashboard.css";
-import axios from "axios";
-import cakeimg from "../assets/cake-img.png";
-import profile from "../assets/P.jpg";
-import image from "../assets/img-dashboard.jpg";
-import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
-import APIEndpoints from "./endPoints";
+import React,{useEffect, useState,useRef,useCallback} from 'react';
+import NavigationBar from './NavigationBar';
+import '../styles/EmployeeDashboard.css';
+import axios from 'axios';
+import cakeimg from '../assets/cake-img.png'
+import profile from '../assets/P.jpg';
+import image from '../assets/img-dashboard.jpg'
+import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
+import APIEndpoints  from "./endPoints"
 import io from "socket.io-client";
 import { Buffer } from "buffer";
 
@@ -35,7 +34,9 @@ function EmployeeDashboard() {
   };
 
   const [entryconut, setentryconut] = useState(10);
-
+  
+  
+  const notificationSound = new Audio("/sounds/notificationChat.mp3"); // Sound file in 'public' folder
   const formatTime = (date) => {
     if (!date) return "-";
     return new Date(date).toLocaleTimeString("en-US", {
@@ -336,6 +337,14 @@ function EmployeeDashboard() {
   const [onlineUsers, setOnlineUsers] = useState([]);
 
   useEffect(() => {
+    if (!socket.connected) {
+      socket.connect();
+    }
+    socket.emit("userOnline", employeedata?._id);
+  }, [employeedata]);
+
+  // ✅ Fetch data as early as possible
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("token");
@@ -350,34 +359,25 @@ function EmployeeDashboard() {
           return;
         }
 
-        const [employeeResponse, usersResponse, messagesResponse] =
-          await Promise.all([
-            axios.get(Endpoints.EMPLOYEE_DASHBOARD, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "multipart/form-data",
-              },
-              withCredentials: true,
-            }),
-            axios.get(Endpoints.GET_USERS_EMPLOYEES, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "multipart/form-data",
-              },
-              withCredentials: true,
-            }),
-            fetch(Endpoints.GET_MESSAGES).then((res) => res.json()),
-          ]);
-
-        let empdata = null;
+        // Fetch all required data in parallel
+        const [employeeResponse, usersResponse, messagesResponse] = await Promise.all([
+          axios.get(Endpoints.EMPLOYEE_DASHBOARD, {
+            headers: { Authorization: `Bearer ${token}` },
+            withCredentials: true,
+          }),
+          axios.get(Endpoints.GET_USERS_EMPLOYEES, {
+            headers: { Authorization: `Bearer ${token}` },
+            withCredentials: true,
+          }),
+          fetch(Endpoints.GET_MESSAGES).then((res) => res.json()),
+        ]);
 
         if (employeeResponse.status === 200) {
-          empdata = employeeResponse.data;
+          const empdata = employeeResponse.data;
           setAttendance(empdata.employee.attendance);
           setemployeedata(empdata.employee);
           setLeaves(empdata.empleaves);
           setPunchRecord(empdata.employee.punchRecords);
-
           if (empdata.empimg && empdata.empimg[0]) {
             const binaryString = new Uint8Array(
               empdata.empimg[0].Image.data
@@ -388,11 +388,13 @@ function EmployeeDashboard() {
               `data:${empdata.empimg[0].Imagetype};base64,${base64String}`
             );
           }
+
+          if (empdata?.employee?._id) {
+            socket.emit("userOnline", empdata.employee._id); // Ensure user is marked online
+          }
         }
 
-        if (empdata) {
-          socket.emit("userOnline", empdata.employee._id);
-        }
+        setMessages(messagesResponse);
 
         const allUsers = [
           ...usersResponse.data.filteredEmployees,
@@ -402,48 +404,50 @@ function EmployeeDashboard() {
 
         const usersWithImageUrls = allUsers.map((user) => ({
           ...user,
-          imageUrl:
-            user.Image && user.Image[0]
-              ? convertImageToBase64(
-                  user.Image[0].Image.data,
-                  user.Image[0].Imagetype
-                )
-              : "loading",
+          imageUrl: user.Image && user.Image[0]
+            ? convertImageToBase64(user.Image[0].Image.data, user.Image[0].Imagetype)
+            : "loading",
         }));
 
         setUsers(usersWithImageUrls);
-        setMessages(messagesResponse);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
 
     fetchData();
+  }, []);
 
-    socket.on("updateUserStatus", (users) => {
-      setOnlineUsers(users);
-    });
-
-    socket.on("receiveMessage", (newMessage) => {
+  // ✅ Optimize socket event listeners
+  useEffect(() => {
+    const handleReceiveMessage = (newMessage) => {
       setMessages((prevMessages) => [...prevMessages, newMessage]);
-    });
+     
+      notificationSound.currentTime = 0; // Reset playback position for instant play
+      notificationSound.play().catch(error => console.error("Sound play error:", error))
+
+    };
+
+    const handleUpdateUserStatus = (users) => {
+      setOnlineUsers(users);
+    };
+
+    socket.on("receiveMessage", handleReceiveMessage);
+    socket.on("updateUserStatus", handleUpdateUserStatus);
 
     return () => {
-      socket.off("updateUserStatus");
-      socket.off("receiveMessage");
-      socket.disconnect();
+      socket.off("receiveMessage", handleReceiveMessage);
+      socket.off("updateUserStatus", handleUpdateUserStatus);
     };
-  }, [navigate, selectedChat]);
+  }, []);
 
-  // **New useEffect for auto-scrolling when messages update**
+  // ✅ Auto-scroll to the latest message
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [messages]);
 
-  // for sending messages
-  const sendMessage = () => {
+  // ✅ Optimized sendMessage function
+  const sendMessage = useCallback(() => {
     if (!input && !file) return;
 
     const messageData = {
@@ -452,28 +456,30 @@ function EmployeeDashboard() {
       text: input,
       file: null,
     };
+
+    setMessages((prevMessages) => [...prevMessages, { ...messageData, temp: true }]);
+
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
         messageData.file = {
-          data: reader.result.split(",")[1], // Extract Base64 data
-          contentType: file.type, // MIME type
-          name: file.name, // Original file name
+          data: reader.result.split(",")[1],
+          contentType: file.type,
+          name: file.name,
         };
 
-        // Emit the message with the file
         socket.emit("sendMessage", messageData);
-        setInput("");
         setFile(null);
       };
       reader.readAsDataURL(file);
     } else {
-      // Emit the message without a file
       socket.emit("sendMessage", messageData);
-      setInput("");
     }
-  };
 
+    setInput("");
+  }, [input, file, employeedata, selectedChat]);
+
+  
   //filtering out the most recent messages
   const userMessages = messages.filter(
     (message) =>
@@ -1934,142 +1940,74 @@ function EmployeeDashboard() {
                 <div className="chat-header">
                   <div className="chat-header-left">
                     {users
-                      .filter(
-                        (user) =>
-                          user.firstName + " " + user.lastName ===
-                          selectedChat.firstName + " " + selectedChat.lastName
-                      )
-                      .map((user) => (
-                        <div key={user._id}>
-                          <img
-                            src={user.imageUrl}
-                            alt="profile"
-                            className="profile-main"
-                          />
-                          <span className="chat-name">
-                            {user.firstName + " " + user.lastName}
-                          </span>
-                          <span
-                            className={`online-indicator ${
-                              onlineUsers.includes(user._id)
-                                ? "online"
-                                : "offline"
-                            }`}
-                          >
-                            {onlineUsers.includes(user._id)}
-                          </span>
-                        </div>
-                      ))}
+          .filter((user) => user.firstName+" "+user.lastName === selectedChat.firstName+" "+selectedChat.lastName)
+          .map((user) => (
+            <div key={user._id}>
+              <img
+                src={user.imageUrl} 
+                alt="profile"
+                className="profile-main"
+              />
+              <span className="chat-name">{user.firstName+" "+user.lastName}</span> 
+              <span
+                        className={`online-indicator ${onlineUsers.includes(user._id) ? "online" : "offline"}`}
+                      ></span>
+            </div>
+          ))}
+
+                    </div>
+                    <div className="chat-header-icons">
+                      <i className="fa-solid fa-video"></i>
+                      <i className="fa-solid fa-phone"></i>
+                      <i className="fa-solid fa-magnifying-glass"></i>
+                      <i className="fa-solid fa-ellipsis-vertical"></i>
+                    </div>
                   </div>
-                  <div className="chat-header-icons">
-                    <i className="fa-solid fa-video"></i>
-                    <i className="fa-solid fa-phone"></i>
-                    <i className="fa-solid fa-magnifying-glass"></i>
-                    <i className="fa-solid fa-ellipsis-vertical"></i>
-                  </div>
-                </div>
+        
+                
+                   {/* Messages Section */}
+                   <div className="messages">
+  {messages
+    .filter(
+      (message) =>
+        (message.sender === employeedata._id && message.recipient === selectedChat._id) ||
+        (message.sender === selectedChat._id && message.recipient === employeedata._id)
+    )
+    .map((message, index) => (
+      <div
+        key={index}
+        className={message.sender === employeedata._id ? "message-right" : "message-left"}
+      >
+ {message.message && <p>{message.message}</p>}
+{message.file && (
+  <div>
+    {message.file.contentType.startsWith("image/") ? (
+      <img
+        src={`data:${message.file.contentType};base64,${btoa(
+          String.fromCharCode(...new Uint8Array(message.file.data.data))
+        )}`}
+        alt={message.file.name}
+        style={{ maxWidth: "200px", maxHeight: "200px" }}
+      />
+    ) : (
+<a
+  href={`data:${message.file.contentType};base64,${btoa(
+    String.fromCharCode(...new Uint8Array(message.file.data.data))
+  )}`}
+  download={message.file.name}
+  className="download-btn"
+>
+  <i className="fa-solid fa-download"></i> {message.file.name}
+</a>
 
-                {/* Messages Section */}
-                <div className="messages">
-                  {messages
-                    .filter(
-                      (message) =>
-                        (message.sender === employeedata._id &&
-                          message.recipient === selectedChat._id) ||
-                        (message.sender === selectedChat._id &&
-                          message.recipient === employeedata._id)
-                    )
-                    .map((message, index) => (
-                      <div
-                        key={index}
-                        className={
-                          message.sender === employeedata._id
-                            ? "message-right"
-                            : "message-left"
-                        }
-                      >
-                        {message.message && <p>{message.message}</p>}
-                        {message.file && (
-                          <div>
-                            {message.file.contentType.startsWith("image/") ? (
-                              <img
-                                src={`data:${
-                                  message.file.contentType
-                                };base64,${Buffer.from(
-                                  message.file.data
-                                ).toString("base64")}`}
-                                alt={message.file.name}
-                                style={{
-                                  maxWidth: "200px",
-                                  maxHeight: "200px",
-                                }}
-                              />
-                            ) : (
-                              <a
-                                href={`data:${
-                                  message.file.contentType
-                                };base64,${Buffer.from(
-                                  message.file.data
-                                ).toString("base64")}`}
-                                download={message.file.name}
-                              >
-                                Download {message.file.name}
-                              </a>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  <div ref={messagesEndRef}></div>{" "}
-                  {/* Add this at the bottom */}
-                </div>
+    )}
+  </div>
+)}
 
-                {/* Message Input Box */}
-                <div className="message-input">
-                  <div className="input-container">
-                    <input
-                      type="text"
-                      placeholder="Type a new message"
-                      value={file ? file.name : input}
-                      onChange={(e) => setInput(e.target.value)}
-                      readOnly={!!file}
-                    />
-                    {file && (
-                      <button
-                        type="button"
-                        style={{
-                          backgroundColor: "red",
-                          color: "white",
-                          border: "none",
-                          marginRight: "5%",
-                        }}
-                        onClick={() => setFile(null)} // Clear the file and preview
-                      >
-                        Remove
-                      </button>
-                    )}
-
-                    <i className="fa-regular fa-face-smile emoji-icon"></i>
-                    <input
-                      type="file"
-                      id="fileUpload"
-                      onChange={(e) => setFile(e.target.files[0])}
-                      style={{ display: "none" }}
-                    />
-
-                    <label htmlFor="fileUpload">
-                      <i className="fa-solid fa-paperclip attach-icon"></i>
-                    </label>
-                  </div>
-                  <i
-                    className="fa-solid fa-paper-plane send-icon"
-                    onClick={sendMessage}
-                  ></i>
-                </div>
-              </div>
-            )}
-          </div>
-        );
+      </div>
+    ))}
+  <div ref={messagesEndRef}></div> {/* Add this at the bottom */}
+</div>
 
       default:
         return null;
