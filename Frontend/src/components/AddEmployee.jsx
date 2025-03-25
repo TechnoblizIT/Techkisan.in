@@ -22,18 +22,20 @@ const AddEmployee = () => {
       const token = localStorage.getItem('token'); 
       if (!token) {
         navigate('/admin-login'); 
-        return;
+       
       }
 
       const decode = jwtDecode(token); 
       if (decode.role !== 'admin') {
         navigate('/admin-login'); 
-        return;
+       
       }
     } catch (err) {
       console.error('Error in admin dashboard:', err.message || 'Server error');
     }
-  }, [navigate]); 
+    
+  }, [navigate]);
+
   const [formData, setFormData] = useState({
     firstName: '',
     middleName: '',

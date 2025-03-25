@@ -83,7 +83,7 @@ function ManagerDashboard() {
   };
 
 
-  const formatTime = (date) => {
+    const formatTime = (date) => {
     if (!date) return "-";
     return new Date(date).toLocaleTimeString("en-US", {
       timeZone: "Asia/Kolkata",

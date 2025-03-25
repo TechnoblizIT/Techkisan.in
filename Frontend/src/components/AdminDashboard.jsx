@@ -70,35 +70,54 @@ const AdminDashboard = ({ handleMenuClick }) => {
     setTopMenuOpen(false);
   };
 
-  useEffect(async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        navigate("/admin-login");
-        return;
-      }
+  useEffect(() => {
+    let isMounted = true; // Prevent state updates on unmounted components
 
-      const decode = jwtDecode(token);
-      if (decode.role !== "admin") {
-        navigate("/admin-login");
-        return;
+    // ✅ Move async function inside useEffect
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          navigate("/admin-login");
+          return;
+        }
+
+        const decode = jwtDecode(token);
+        if (decode.role !== "admin") {
+          navigate("/admin-login");
+          return;
+        }
+
+        // Fetch data only if component is mounted
+        const response = await axios.get(Endpoints.ADMIN_DASHBOARD, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (isMounted) {
+          setEmployeecount(response.data.employeeCount);
+          setInternCount(response.data.internCount);
+        }
+      } catch (err) {
+        console.error("Error in admin dashboard:", err.message || "Server error");
       }
-      // Fetch employee count
-      const response = await axios.get(Endpoints.ADMIN_DASHBOARD, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      setEmployeecount(response.data.employeeCount);
-      setInternCount(response.data.internCount);
-    } catch (err) {
-      console.error("Error in admin dashboard:", err.message || "Server error");
-    }
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    };
+
+    fetchData(); // Call the async function
+
+    const handleResize = () => {
+      if (isMounted) setIsMobile(window.innerWidth < 768);
+    };
+
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+
+    return () => {
+      isMounted = false; // Prevent updates on unmounted component
+      window.removeEventListener("resize", handleResize); // ✅ Proper cleanup
+    };
+  }, [navigate]);
 
   // -----------------------------------------------------------------------------------------------------------//
   const componentRef = useRef();
