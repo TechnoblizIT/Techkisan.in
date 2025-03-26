@@ -18,6 +18,9 @@ function EmployeeDashboard() {
   // for chat-area
   const [selectedChat, setSelectedChat] = useState([]);
   const [unreadMessages, setUnreadMessages] = useState([]);
+  const [holidays, setHolidays] = useState([]);
+  const [upcomingHolidays, setUpcomingHolidays] = useState([]);
+  const tableRef = useRef(null);
   // ============================================================
   const [messages, setMessages] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
@@ -364,7 +367,7 @@ function EmployeeDashboard() {
         }
 
         // Fetch all required data in parallel
-        const [employeeResponse, usersResponse, messagesResponse] =
+        const [employeeResponse, usersResponse, messagesResponse, holidaysResponse] =
           await Promise.all([
             axios.get(Endpoints.EMPLOYEE_DASHBOARD, {
               headers: { Authorization: `Bearer ${token}` },
@@ -375,6 +378,9 @@ function EmployeeDashboard() {
               withCredentials: true,
             }),
             fetch(Endpoints.GET_MESSAGES).then((res) => res.json()),
+            fetch(
+              `https://www.googleapis.com/calendar/v3/calendars/en.indian%23holiday@group.v.calendar.google.com/events?key=${process.env.REACT_APP_GOOGLE_CALENDAR_API_KEY}`
+            ).then((res) => res.json()),
           ]);
 
         if (employeeResponse.status === 200) {
@@ -384,6 +390,7 @@ function EmployeeDashboard() {
           setLeaves(empdata.empleaves);
           setPunchRecord(empdata.employee.punchRecords);
           setAnnouncements(empdata.Announcement);
+          
           if (empdata.empimg && empdata.empimg[0]) {
             const binaryString = new Uint8Array(
               empdata.empimg[0].Image.data
@@ -396,7 +403,7 @@ function EmployeeDashboard() {
           }
 
           if (empdata?.employee?._id) {
-            socket.emit("userOnline", empdata.employee._id); // Ensure user is marked online
+            socket.emit("userOnline", empdata.employee._id);
           }
         }
 
@@ -420,13 +427,38 @@ function EmployeeDashboard() {
         }));
 
         setUsers(usersWithImageUrls);
+
+        // Extract holidays data
+        if (holidaysResponse.items) {
+          const today = new Date();
+          const holidayList = holidaysResponse.items
+            .map((event) => ({
+              name: event.summary,
+              date: new Date(event.start.date), 
+            }))
+            .filter((holiday) => holiday.date >= today) 
+            .sort((a, b) => a.date - b.date) 
+            .slice(0, 4); 
+
+            const holidayList1 = holidaysResponse.items
+            .map((event) => ({
+              name: event.summary,
+              date: new Date(event.start.date), 
+            }))
+            .filter((holiday) => holiday.date >= today) 
+            .sort((a, b) => a.date - b.date) 
+          
+
+          setHolidays(holidayList1);
+          setUpcomingHolidays(holidayList)
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
 
     fetchData();
-  }, []);
+  }, [navigate]);
 
   // ✅ Optimize socket event listeners
   useEffect(() => {
@@ -699,12 +731,12 @@ function EmployeeDashboard() {
                     <hr />
                     <p>
                       Local Address:
-                      {employeedata ? employeedata.address1 : "Loading..."}
+                      {employeedata.address1 ? employeedata.address1 : "NA"}
                     </p>
                     <hr />
                     <p>
                       Permanent Address:{" "}
-                      {employeedata ? employeedata.address2 : "Loading..."}
+                      {employeedata.address2 ? employeedata.address2 : "NA"}
                     </p>
                   </div>
                   <div className="company-details">
@@ -721,12 +753,12 @@ function EmployeeDashboard() {
                     <hr></hr>
                     <p>
                       Department:{" "}
-                      {employeedata ? employeedata.department : "Loading..."}
+                      {employeedata.department? employeedata.department : "NA"}
                     </p>
                     <hr></hr>
                     <p>
                       Designation:{" "}
-                      {employeedata ? employeedata.jobTitle : "Loading"}
+                      {employeedata.jobTitle ? employeedata.jobTitle : "NA"}
                     </p>
                   </div>
                 </div>
@@ -777,29 +809,19 @@ function EmployeeDashboard() {
                     </div>
                   </div>
                   <div className="upcoming-holidays">
-                    <div className="details">
-                      <h3>
-                        <i className="fa-solid fa-paper-plane"></i>&nbsp;
-                        Upcoming Holidays
-                      </h3>
-                    </div>
-                    <div className="holiday">
-                      <p>Office Off</p>
-                      <p>01/01/2024</p>
-                    </div>
-                    <div className="holiday">
-                      <p>Office Off</p>
-                      <p>15/08/2024</p>
-                    </div>
-                    <div className="holiday">
-                      <p>Office Off</p>
-                      <p>25/12/2024</p>
-                    </div>
-                    <div className="holiday">
-                      <p>Office Off</p>
-                      <p>01/05/2024</p>
-                    </div>
-                  </div>
+      <div className="details">
+        <h3>
+          <i className="fa-solid fa-paper-plane"></i>&nbsp; Upcoming Holidays
+        </h3>
+      </div>
+     
+      {upcomingHolidays.map((holiday, index) => (
+        <div className="holiday" key={index}>
+          <p>{holiday.name}</p>
+          <p>{formatDate(holiday.date)}</p>
+        </div>
+      ))}
+    </div>
                 </div>
               </div>
             </div>
@@ -1679,141 +1701,32 @@ function EmployeeDashboard() {
                   </div>
 
                   <div className="holidays-table-section">
-                    <table className="holidays-table" ref={tableRef}>
-                      <thead>
-                        <tr>
-                          <th>Date</th>
-                          <th>Reason</th>
-                          <th>Day</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {[
-                          {
-                            date: "January 1, 2025",
-                            reason: "New Year's Day",
-                            day: "Wednesday",
-                          },
-                          {
-                            date: "January 26, 2025",
-                            reason: "Republic Day",
-                            day: "Sunday",
-                          },
-                          {
-                            date: "February 19, 2025",
-                            reason: "Chhatrapati Shivaji Maharaj Jayanti",
-                            day: "Wednesday",
-                          },
-                          {
-                            date: "February 26, 2025",
-                            reason: "Maha Shivaratri",
-                            day: "Wednesday",
-                          },
-                          {
-                            date: "March 14, 2025",
-                            reason: "Holi",
-                            day: "Friday",
-                          },
-                          {
-                            date: "March 30, 2025",
-                            reason: "Gudi Padwa",
-                            day: "Sunday",
-                          },
-                          {
-                            date: "March 31, 2025",
-                            reason: "Idul Fitr",
-                            day: "Monday",
-                          },
-                          {
-                            date: "April 6, 2025",
-                            reason: "Ram Navami",
-                            day: "Sunday",
-                          },
-                          {
-                            date: "April 10, 2025",
-                            reason: "Mahavir Jayanti",
-                            day: "Thursday",
-                          },
-                          {
-                            date: "April 14, 2025",
-                            reason: "Dr. Babasaheb Ambedkar Jayanti",
-                            day: "Monday",
-                          },
-                          {
-                            date: "April 18, 2025",
-                            reason: "Good Friday",
-                            day: "Friday",
-                          },
-                          {
-                            date: "May 1, 2025",
-                            reason: "Maharashtra Day",
-                            day: "Thursday",
-                          },
-                          {
-                            date: "May 12, 2025",
-                            reason: "Buddha Purnima",
-                            day: "Monday",
-                          },
-                          {
-                            date: "June 7, 2025",
-                            reason: "Bakri Id (Id-Uz-Zuha)",
-                            day: "Saturday",
-                          },
-                          {
-                            date: "July 6, 2025",
-                            reason: "Muharram",
-                            day: "Sunday",
-                          },
-                          {
-                            date: "August 15, 2025",
-                            reason: "Independence Day / Parsi New Year",
-                            day: "Friday",
-                          },
-                          {
-                            date: "August 27, 2025",
-                            reason: "Ganesh Chaturthi",
-                            day: "Wednesday",
-                          },
-                          {
-                            date: "September 5, 2025",
-                            reason: "Id-E-Milad",
-                            day: "Friday",
-                          },
-                          {
-                            date: "October 2, 2025",
-                            reason: "Mahatma Gandhi Jayanti / Dasara",
-                            day: "Thursday",
-                          },
-                          {
-                            date: "October 21, 2025",
-                            reason: "Diwali Amavasya (Laxmi Pujan)",
-                            day: "Tuesday",
-                          },
-                          {
-                            date: "October 22, 2025",
-                            reason: "Diwali (Bali Pratipada)",
-                            day: "Wednesday",
-                          },
-                          {
-                            date: "November 5, 2025",
-                            reason: "Guru Nanak Jayanti",
-                            day: "Wednesday",
-                          },
-                          {
-                            date: "December 25, 2025",
-                            reason: "Christmas",
-                            day: "Thursday",
-                          },
-                        ].map((holiday, index) => (
-                          <tr key={index}>
-                            <td>{holiday.date}</td>
-                            <td>{holiday.reason}</td>
-                            <td>{holiday.day}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+        <table className="holidays-table" ref={tableRef}>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Reason</th>
+              <th>Day</th>
+            </tr>
+          </thead>
+          <tbody>
+            {console.log(holidays)}
+            {holidays.length > 0 ? (
+              holidays.map((holiday, index) => (
+                <tr key={index}>
+                  <td>{formatDate(holiday.date)}</td>
+                  <td>{holiday.name}</td>
+                  <td>{holiday.date.toLocaleDateString("en-US", { weekday: "long" })}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="3">No holidays found.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
                 </div>
               )}
 
