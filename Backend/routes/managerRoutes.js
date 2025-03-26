@@ -11,6 +11,8 @@ const leaveModel=require("../models/leave-model")
 const empimageModel=require("../models/employeeimg-model")
 const upload=require("../configs/mutler-setup")
 const {punchIn, punchOut}=require("../controllers/managerPunchController")
+const AnnouncementModel = require('../models/Announcement-model');
+
 router.post("/create", upload.single("Image"), async (req, res) => {
   try {
     const { firstName, lastName, email } = req.body;
@@ -99,7 +101,7 @@ router.get('/managerdata', async (req, res) => {
     }
 
     const employeeImages = await empimageModel.find({ employee: manager._id });
-   
+    const Announcement=await AnnouncementModel.find()
     const empleaves = await leaveModel.find({ employeeId: manager._id });
     res.status(200).json({ employee: manager, empimg:employeeImages ,empleaves:empleaves});
 } catch (error) {

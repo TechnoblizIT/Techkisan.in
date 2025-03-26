@@ -27,6 +27,7 @@ function ManagerDashboard() {
   const Endpoints = new APIEndpoints();
   const socket = io(Endpoints.BASE_URL);
   const [employeedata, setemployeedata] = useState("");
+  const [announcements, setAnnouncements] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [avatarUrl, setAvatarUrl] = useState("");
   const navigate = useNavigate();
@@ -274,6 +275,7 @@ function ManagerDashboard() {
               setemployeedata(empdata.employee);
               setLeaves(empdata.empleaves);
               setPunchRecord(empdata.employee.punchRecords);
+              setAnnouncements(empdata.Announcement);
               if (empdata.empimg && empdata.empimg[0]) {
                 const binaryString = new Uint8Array(
                   empdata.empimg[0].Image.data
@@ -601,30 +603,14 @@ const sendMessage = useCallback(() => {
                       </h3>
                     </div>
                     <div className="manager-notice-space">
-                      <p>
-                        Office will be closed on the upcoming national holiday.
-                        Enjoy your day off!
-                      </p>
-                      <p>
-                        Monthly team meeting scheduled for tomorrow at 10 AM.
-                        Please be on time.
-                      </p>
-                      <p>
-                        Reminder: Annual office holiday party is scheduled for
-                        this Friday. Don't miss it!
-                      </p>
-                      <p>
-                        Important: Please submit your vacation requests before
-                        the end of the week.
-                      </p>
-                      <p>
-                        Office closed for maintenance on Saturday. Apologies for
-                        any inconvenience.
-                      </p>
-                      <p>
-                        Urgent: Team meeting on Monday to discuss upcoming
-                        projects. Make sure you're prepared!
-                      </p>
+                    {announcements && announcements.length > 0 ? (
+                      announcements.map((item, index) => (
+                        <p key={index}>{item.Announcement}</p> 
+                      ))
+                    ) : (
+                      <p>No New Announcements</p>
+                    )}
+               
                     </div>
                   </div>
                   <div className="manager-overall-ticket">

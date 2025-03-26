@@ -14,7 +14,6 @@ const {punchIn,punchOut}=require("../controllers/employeePunchController")
 const {addWfh}=require("../controllers/employeeWfhController");
 const nodemailer = require("nodemailer");
 const messageModel = require('../models/message-model');
-const announcementModel = require('../models/Announcement-model');
 const AnnouncementModel = require('../models/Announcement-model');
 router.post('/login',loginUser)
 
