@@ -14,6 +14,8 @@ const {punchIn,punchOut}=require("../controllers/employeePunchController")
 const {addWfh}=require("../controllers/employeeWfhController");
 const nodemailer = require("nodemailer");
 const messageModel = require('../models/message-model');
+const announcementModel = require('../models/Announcement-model');
+const AnnouncementModel = require('../models/Announcement-model');
 router.post('/login',loginUser)
 
 
@@ -46,8 +48,9 @@ router.get('/empdata', async (req, res) => {
         return res.status(404).json({ message: 'Employee not found' });
     }
     const employeeImages = await empimageModel.find({ employee: employee._id });
+    const Announcement=await AnnouncementModel.find()
     const empleaves = await leaveModel.find({ employeeId: employee._id });
-    res.json({ employee: employee, empimg:employeeImages ,empleaves:empleaves});
+    res.json({ employee: employee, empimg:employeeImages ,empleaves:empleaves,Announcement:Announcement});
 } catch (error) {
     res.status(401).json({ message: 'Unauthorized' });
 }

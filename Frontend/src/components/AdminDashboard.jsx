@@ -22,6 +22,8 @@ import paymenticons from "../assets/invoice/paymenticons.png";
 const AdminDashboard = ({ handleMenuClick }) => {
   const Endpoints = new APIEndpoints();
   const [activeSection, setActiveSection] = useState("HR");
+  const [message, setMessage] = useState("");
+  const [announcements, setAnnouncements] = useState([]);
   const [activePage, setActivePage] = useState("Overview");
   const [menuOpen, setMenuOpen] = useState(false);
   const [topMenuOpen, setTopMenuOpen] = useState(false);
@@ -29,6 +31,7 @@ const AdminDashboard = ({ handleMenuClick }) => {
   const [employeecount, setEmployeecount] = useState(0);
   const [internCount, setInternCount] = useState(0);
   const navigate = useNavigate();
+  const [allUsers, setAllUsers] = useState([])
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null); // Track active button
   const [rows, setRows] = useState(Array(4).fill({ desc: "", hsn: "", qty: "", rate: "", amount: "" }));
@@ -59,6 +62,27 @@ const AdminDashboard = ({ handleMenuClick }) => {
     "Management",
     "Help",
   ];
+  const handlePost = async () => {
+    if (!message.trim()) return alert("Please write an announcement!");
+    try {
+        await axios.post(Endpoints.ADMIN_ADD_ANNOUNCEMENT, { message });
+        setMessage(""); // Clear input after posting
+        setAnnouncements([...announcements, { message, date: formatDate(new Date.now) }]);
+    } catch (error) {
+        console.error("Error posting announcement:", error);
+    }
+};
+
+// Handle delete
+const handleDelete = async (id) => {
+    try {
+      await axios.delete(`${Endpoints.ADMIN_DELETE_ANNOUNCEMENT}/${id}`);
+        setAnnouncements(announcements.filter(announcement => announcement._id !== id));
+    } catch (error) {
+        console.error("Error deleting announcement:", error);
+    }
+};
+
 
   const handleSectionClick = (section) => {
     setActiveSection(section);
@@ -72,6 +96,14 @@ const AdminDashboard = ({ handleMenuClick }) => {
     setTopMenuOpen(false);
   };
 
+  const formatDate = (date) => {
+    if (!date) return "-";
+    return new Date(date).toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  };
 //---------------------------------------------------------------------------------------------//
 const handleChange = (index, field, value) => {
   const updatedRows = [...rows];
@@ -170,8 +202,11 @@ const totalInWords = numberToWords(roundedTotal);
         });
 
         if (isMounted) {
+          console.log(response.data)
           setEmployeecount(response.data.employeeCount);
           setInternCount(response.data.internCount);
+          setEmployees((response.data.employee));
+          setAnnouncements((response.data.Announcement)); 
         }
       } catch (err) {
         console.error("Error in admin dashboard:", err.message || "Server error");
@@ -259,15 +294,15 @@ const totalInWords = numberToWords(roundedTotal);
   const [searchQuery, setSearchQuery] = useState("");
 
   //  Search filter function
-  const filteredEmployees = employees.filter(
-    (emp) =>
-      emp.id.toString().includes(searchQuery) ||
-      emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      emp.department.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      emp.designation.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      emp.joiningDate.includes(searchQuery) ||
-      emp.assignManager.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // const filteredEmployees = employees.filter(
+  //   (emp) =>
+  //     emp?.id.toString().includes(searchQuery) ||
+  //     emp?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //     emp?.department.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //     emp?.designation.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //     emp?.joiningDate.includes(searchQuery) ||
+  //     emp?.assignManager.toLowerCase().includes(searchQuery.toLowerCase())
+  // );
 
   // -----------------------------------------------------------------------------------------------------------//
 
@@ -491,17 +526,17 @@ const totalInWords = numberToWords(roundedTotal);
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredEmployees.length > 0 ? (
-                        filteredEmployees.map((emp) => (
+                      {employees.length > 0 ? (
+                        employees.map((emp,index) => (
                           <tr key={emp.id}>
-                            <td>{emp.id}</td>
-                            <td>{emp.name}</td>
-                            <td>{emp.email}</td>
-                            <td>{emp.mobile}</td>
-                            <td>{emp.department}</td>
-                            <td>{emp.designation}</td>
-                            <td>{emp.joiningDate}</td>
-                            <td>{emp.assignManager}</td>
+                            <td>{index+1}</td>
+                            <td>{emp? emp.firstName +  " "+emp.lastName :"NA"}</td>
+                            <td>{emp.email?emp.email:"NA"}</td>
+                            <td>{emp.mobile?emp.mobile:"NA"}</td>
+                            <td>{emp.department?emp.department:"NA"}</td>
+                            <td>{emp.jobTitle?emp.jobTitle:"NA"}</td>
+                            <td>{emp.dateOfHire? formatDate(emp.dateOfHire):"NA"}</td>
+                            <td>{emp.assignManager?emp.assignManager:"NA"}</td>
                             <td>
                               <Link to="/update-employee">
                                 <button className="search-update-btn">
@@ -534,42 +569,42 @@ const totalInWords = numberToWords(roundedTotal);
           {/* Announcement section */}
           {activeSection === "HR" && activePage === "Announcement" && (
             <div className="announcement-section">
-              {/* Input Area */}
-              <div className="announcement-input">
+            {/* Input Area */}
+            <div className="announcement-input">
                 <textarea
-                  className="announcement-textarea"
-                  placeholder="Write your announcement..."
+                    className="announcement-textarea"
+                    placeholder="Write your announcement..."
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
                 ></textarea>
-                <button className="post-button">Post</button>
-              </div>
-
-              {/* Announcements Box */}
-              <div className="announcements-box">
-                <div className="announcements-list">
-                  <div className="announcement-item">
-                    <span className="announcement-date">24-Mar-2025</span>
-                    <p className="announcement-message">
-                      HR Meeting at 3 PM today. Please join on time as important
-                      updates will be shared.
-                    </p>
-                    <span className="delete-icon">
-                      <i class="fa-solid fa-trash"></i>
-                    </span>
-                  </div>
-
-                  <div className="announcement-item">
-                    <span className="announcement-date">23-Mar-2025</span>
-                    <p className="announcement-message">
-                      Work-from-home policy updated. Check your email for the
-                      latest guidelines.
-                    </p>
-                    <span className="delete-icon">
-                      <i class="fa-solid fa-trash"></i>
-                    </span>
-                  </div>
-                </div>
-              </div>
+                <button className="post-button" onClick={handlePost}>Post</button>
             </div>
+
+            {/* Announcements Box */}
+            <div className="announcements-box">
+            <div className="announcements-list">
+  {announcements && announcements.length > 0 ? (
+    announcements.map((announcement, index) => (
+      <div className="announcement-item" key={index}>
+        {console.log(announcement)}
+        <span className="announcement-date">
+          {announcement.Date ? formatDate(announcement.Date) : "No Date"}
+        </span>
+        <p className="announcement-message">
+          {announcement.Announcement || "No Announcement"}
+        </p>
+        <span className="delete-icon" onClick={() => handleDelete(announcement._id)}>
+          <i className="fa-solid fa-trash"></i>
+        </span>
+      </div>
+    ))
+  ) : (
+    <p className="no-announcements">No new announcements</p>
+  )}
+</div>
+
+            </div>
+        </div>
           )}
 
           {activeSection === "HR" && activePage === "Reports" && (

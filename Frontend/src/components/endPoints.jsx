@@ -7,6 +7,9 @@ class APIEndpoints {
       // Admin Endpoints
       this.ADMIN_LOGIN = `${this.BASE_URL}/admin/login`;
       this.ADMIN_DASHBOARD = `${this.BASE_URL}/admin/admindata`;
+      this.ADMIN_ADD_ANNOUNCEMENT = `${this.BASE_URL}/admin/add_announcement`;
+      this.ADMIN_DELETE_ANNOUNCEMENT = `${this.BASE_URL}/admin/delete_announcement`;
+
 
   
       // Employee Endpoints

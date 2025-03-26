@@ -6,6 +6,8 @@ const employeeModel=require('../models/employee-model');
 const {loginUser}=require("../controllers/adminController");
 const managerModel = require('../models/manager-model');
 const internModel=require("../models/intern-model")
+const announcementModel=require("../models/Announcement-model");
+const AnnouncementModel = require('../models/Announcement-model');
 router.post('/create', async(req, res) => {
     try{ bcrypt.genSalt("admin123", async function (err, salt) {
      const hashedPassword = await bcrypt.hash("admin123", 10);
@@ -39,6 +41,15 @@ router.get('/admindata',async function (req, res){
         }
     
         const employee = await employeeModel.find()
+        const manager = await managerModel.find()
+        const intern = await internModel.find()
+        const Announcement=await announcementModel.find()
+        const [employeeData, managerData, internData] = await Promise.all([
+            employee,
+            manager,
+            intern
+        ]);
+        const allUsers = [...employeeData, ...managerData, ...internData];
         const employeeCount = await employeeModel.countDocuments()
         const managerCount=await managerModel.countDocuments()
         const internCount=await internModel.countDocuments()
@@ -55,10 +66,34 @@ router.get('/admindata',async function (req, res){
             success: true,
             employeeCount: totalsEmployess,
             internCount: internCount,
+            employee: allUsers,
+            Announcement:Announcement
+
         })
     } catch (error) {
         res.status(401).json({ message: 'Unauthorized' });
     }
+    });
+    router.post('/add_announcement', async (req, res) => {
+        try {
+            const { message } = req.body;
+            const newAnnouncement = new announcementModel({
+                Announcement: message,
+            });
+    
+            await newAnnouncement.save();
+            res.status(201).json({ success: true, message: "Announcement posted successfully!" });
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    });
+    router.delete('/delete_announcement/:id', async (req, res) => {
+        try {
+            await AnnouncementModel.findByIdAndDelete(req.params.id);
+            res.json({ success: true, message: "Announcement deleted!" });
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
     });
     
     
