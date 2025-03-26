@@ -2129,7 +2129,6 @@ h4 {
 
 .invoice-container {
   width: 753px;
-  height: 1084px;
   margin: 20px auto;
   margin-left: 2.5%;
   padding: 20px;
@@ -2232,27 +2231,6 @@ h4 {
   background-color: #f0f0f0;
 }
 
-.tax-section {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end; /* Align everything to the right */
-}
-
-.tax-row {
-  display: flex;
-  align-items: center; /* Align label and input in the same line */
-  gap: 10px; /* Adds spacing between label and input */
-}
-.tax-row label {
-  white-space: nowrap; /* Prevents labels from breaking into multiple lines */
-}
-
-.tax-row input:focus {
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-}
-
 .footer-section {
   margin-top: 2px;
   border-top: 1px solid #000;
@@ -2328,12 +2306,12 @@ h4 {
 
 .invoice-table th:nth-child(1),
 .invoice-table td:nth-child(1) {
-  width: 5%; /* Adjust as needed */
+  width: 4%; /* Adjust as needed */
 }
 
 .invoice-table th:nth-child(2),
 .invoice-table td:nth-child(2) {
-  width: 35%; /* Adjust as needed */
+  width: 34%; /* Adjust as needed */
 }
 
 .invoice-table th:nth-child(3),
@@ -2343,17 +2321,17 @@ h4 {
 
 .invoice-table th:nth-child(4),
 .invoice-table td:nth-child(4) {
-  width: 10%; /* Adjust as needed */
+  width: 9%; /* Adjust as needed */
 }
 
 .invoice-table th:nth-child(5),
 .invoice-table td:nth-child(5) {
-  width: 10%; /* Adjust as needed */
+  width: 11%; /* Adjust as needed */
 }
 
 .invoice-table th:nth-child(6),
 .invoice-table td:nth-child(6) {
-  width: 10%; /* Adjust as needed */
+  width: 12%; /* Adjust as needed */
 }
 
 .invoice-table th:nth-child(7),

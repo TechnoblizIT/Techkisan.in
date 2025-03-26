@@ -31,6 +31,8 @@ const AdminDashboard = ({ handleMenuClick }) => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null); // Track active button
+  const [rows, setRows] = useState(Array(4).fill({ desc: "", hsn: "", qty: "", rate: "", amount: "" }));
+
   const handleItemClick = (item) => {
     setActiveItem(item); // Set active page
     setIsMenuOpen(false); // Close menu on mobile after click
@@ -70,6 +72,77 @@ const AdminDashboard = ({ handleMenuClick }) => {
     setTopMenuOpen(false);
   };
 
+//---------------------------------------------------------------------------------------------//
+const handleChange = (index, field, value) => {
+  const updatedRows = [...rows];
+  updatedRows[index] = { ...updatedRows[index], [field]: value };
+
+  const qty = parseFloat(updatedRows[index].qty);
+  const rate = parseFloat(updatedRows[index].rate);
+
+  // Ensure Amount is empty if either Qty or Rate is missing
+  if (!qty || !rate) {
+    updatedRows[index].amount = "";
+  } else {
+    updatedRows[index].amount = (qty * rate).toFixed(2);
+  }
+
+  setRows(updatedRows);
+};
+
+
+const handleKeyPress = (index, field, event) => {
+  if (event.key === "Enter" && field === "rate") {
+    event.preventDefault(); // Prevents any default form submission or behavior
+
+    setRows((prevRows) => [
+      ...prevRows,
+      { desc: "", hsn: "", qty: "", rate: "", amount: "" },
+    ]);
+
+    // Wait for the state update and focus on the next row's first input
+    setTimeout(() => {
+      const nextRowInput = document.querySelector(
+        `textarea[data-index="${index + 1}"]`
+      );
+      if (nextRowInput) nextRowInput.focus();
+    }, 100);
+  }
+
+  if (event.key === "Backspace" && field === "desc" && index !== 0) {
+    if (!rows[index].desc && !rows[index].hsn && !rows[index].qty && !rows[index].rate) {
+      setRows((prevRows) => prevRows.filter((_, i) => i !== index));
+    }
+  }
+};
+
+
+const numberToWords = (num) => {
+  const a = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
+    "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen",
+    "Seventeen", "Eighteen", "Nineteen"];
+  const b = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+
+  const convertToWords = (n) => {
+    if (n === 0) return "Zero";
+    if (n < 20) return a[n];
+    if (n < 100) return b[Math.floor(n / 10)] + " " + a[n % 10];
+    if (n < 1000) return a[Math.floor(n / 100)] + " Hundred " + convertToWords(n % 100);
+    if (n < 100000) return convertToWords(Math.floor(n / 1000)) + " Thousand " + convertToWords(n % 1000);
+    if (n < 10000000) return convertToWords(Math.floor(n / 100000)) + " Lakh " + convertToWords(n % 100000);
+    return convertToWords(Math.floor(n / 10000000)) + " Crore " + convertToWords(n % 10000000);
+  };
+
+  return convertToWords(num).trim();
+};
+
+const totalAmount = rows.reduce((sum, row) => sum + parseFloat(row.amount || 0), 0);
+const roundedTotal = Math.floor(totalAmount);
+const roundOff = (roundedTotal - totalAmount).toFixed(2);
+const totalInWords = numberToWords(roundedTotal);
+
+
+//------------------------------------------------------------------------------------------//
   useEffect(() => {
     let isMounted = true; // Prevent state updates on unmounted components
 
@@ -1531,62 +1604,80 @@ const AdminDashboard = ({ handleMenuClick }) => {
                           <table>
                             <thead>
                               <tr>
-                                <th>Sr.</th>
+                                <th>S.N.</th>
                                 <th>Product Description</th>
                                 <th>HSN</th>
-                                <th>Qty</th>
-                                <th>Rate</th>
-                                <th>Amount</th>
+                                <th>Qty(N)</th>
+                                <th>Rate(₹)</th>
+                                <th>Amount(₹)</th>
                               </tr>
                             </thead>
                             <tbody>
-                              {[...Array(10)].map((_, index) => (
-                                <tr
-                                  key={index}
-                                  className={index >= 5 ? "hidden-row" : ""}
-                                >
-                                  <td>
-                                    <input type="text" />
-                                  </td>
+                              {rows.map((row, index) => (
+                                <tr key={index}>
+                                  <td>{index + 1}</td>
                                   <td>
                                     <textarea
                                       rows="3"
                                       style={{ width: "100%" }}
+                                      value={row.desc}
+                                      onChange={(e) => handleChange(index, "desc", e.target.value)}
+                                      onKeyDown={(e) => handleKeyPress(index, "desc", e)}
                                     />
                                   </td>
                                   <td>
-                                    <input type="text" />
+                                    <input
+                                      type="text"
+                                      value={row.hsn}
+                                      onChange={(e) => handleChange(index, "hsn", e.target.value)}
+                                    />
                                   </td>
                                   <td>
-                                    <input type="text" />
+                                    <input
+                                      type="number"
+                                      value={row.qty}
+                                      onChange={(e) => handleChange(index, "qty", e.target.value)}
+                                    />
                                   </td>
                                   <td>
-                                    <input type="text" />
+                                    <input
+                                      type="number"
+                                      value={row.rate}
+                                      onChange={(e) => handleChange(index, "rate", e.target.value)}
+                                      onKeyDown={(e) => handleKeyPress(index, "rate", e)}
+                                    />
                                   </td>
                                   <td>
-                                    <input type="text" />
+                                    <input
+                                      type="text"
+                                      value={row.amount}
+                                      readOnly
+                                      onKeyDown={(e) => handleKeyPress(index, "amount", e)}
+                                    />
                                   </td>
                                 </tr>
                               ))}
+                              <tr>
+                                <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold" }}>Total (₹):</td>
+                                <td><input type="text" value={totalAmount.toFixed(2)} readOnly /></td>
+                              </tr>
+                              <tr>
+                                <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold" }}>Round Off (₹):</td>
+                                <td><input type="text" value={roundOff} readOnly /></td>
+                              </tr>
+                              <tr>
+                                <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold" }}>Final Total (₹):</td>
+                                <td><input type="text" value={roundedTotal} readOnly /></td>
+                              </tr>
+                              <tr>
+                                <td colSpan="6" style={{ textAlign: "right" }}>
+                                  <b>Amount in Words: </b><p>{totalInWords} Rupees Only</p>
+                                </td>
+                              </tr>
                             </tbody>
                           </table>
                         </div>
-
-                        <div className="tax-section">
-                          <div className="tax-row">
-                            <label>Round Off:</label>
-                            <input type="text" style={{ width: "100px" }} />
-                          </div>
-                          <div className="tax-row">
-                            <label>Total:</label>
-                            <input type="text" style={{ width: "100px" }} />
-                          </div>
-                          <div className="tax-row">
-                            <label>In words:</label>
-                            <input type="text" style={{ width: "350px" }} />
-                          </div>
-                        </div>
-
+ 
                         <div className="footer-section">
                           <div className="payment-section">
                             <h4>BANK DETAILS</h4>
