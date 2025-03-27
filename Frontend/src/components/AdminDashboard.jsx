@@ -31,64 +31,65 @@ const AdminDashboard = ({ handleMenuClick }) => {
   const [employeecount, setEmployeecount] = useState(0);
   const [internCount, setInternCount] = useState(0);
   const navigate = useNavigate();
-  const [allUsers, setAllUsers] = useState([])
+  const [allUsers, setAllUsers] = useState([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null); // Track active button
-  const [rows, setRows] = useState(Array(4).fill({ desc: "", hsn: "", qty: "", rate: "", amount: "" }));
-//-------------------------------------start-invoice setup---------------------------------------------//
-const componentRef = useRef();
-const [invoiceNumber, setInvoiceNumber] = useState("");
-const [isSaved, setIsSaved] = useState(false);
-useEffect(() => {
-  const fetchInvoiceNumber = async () => {
+  const [rows, setRows] = useState(
+    Array(4).fill({ desc: "", hsn: "", qty: "", rate: "", amount: "" })
+  );
+  //-------------------------------------start-invoice setup---------------------------------------------//
+  const componentRef = useRef();
+  const [invoiceNumber, setInvoiceNumber] = useState("");
+  const [isSaved, setIsSaved] = useState(false);
+  useEffect(() => {
+    const fetchInvoiceNumber = async () => {
+      try {
+        const response = await axios.get("/api/invoice/latest");
+        setInvoiceNumber(response.data.invoiceNumber || "TKN-INV-00");
+      } catch (error) {
+        console.error("Error fetching invoice number:", error);
+      }
+    };
+
+    fetchInvoiceNumber();
+  }, []);
+
+  // Function to generate the next invoice number
+  const generateNextInvoiceNumber = (currentNumber) => {
+    const match = currentNumber.match(/TKN-INV-(\d+)/);
+    if (match) {
+      const nextNumber = String(parseInt(match[1]) + 1).padStart(2, "0");
+      return `TKN-INV-${nextNumber}`;
+    }
+    return "TKN-INV-01";
+  };
+
+  // Function to save invoice before printing
+  const handleSaveInvoice = async () => {
+    const invoiceHTML = componentRef.current.innerHTML;
+    const newInvoiceNumber = generateNextInvoiceNumber(invoiceNumber);
+
     try {
-      const response = await axios.get("/api/invoice/latest");
-      setInvoiceNumber(response.data.invoiceNumber || "TKN-INV-00");
+      const response = await axios.post("/api/invoice/save", {
+        invoiceNumber: newInvoiceNumber,
+        invoiceHTML,
+      });
+
+      if (response.data.message === "Invoice saved successfully") {
+        setInvoiceNumber(newInvoiceNumber);
+        setIsSaved(true); // Enable print button
+      }
     } catch (error) {
-      console.error("Error fetching invoice number:", error);
+      console.error("Error saving invoice:", error);
     }
   };
 
-  fetchInvoiceNumber();
-}, []);
-
-// Function to generate the next invoice number
-const generateNextInvoiceNumber = (currentNumber) => {
-  const match = currentNumber.match(/TKN-INV-(\d+)/);
-  if (match) {
-    const nextNumber = String(parseInt(match[1]) + 1).padStart(2, "0");
-    return `TKN-INV-${nextNumber}`;
-  }
-  return "TKN-INV-01";
-};
-
-// Function to save invoice before printing
-const handleSaveInvoice = async () => {
-  const invoiceHTML = componentRef.current.innerHTML;
-  const newInvoiceNumber = generateNextInvoiceNumber(invoiceNumber);
-
-  try {
-    const response = await axios.post("/api/invoice/save", {
-      invoiceNumber: newInvoiceNumber,
-      invoiceHTML,
-    });
-
-    if (response.data.message === "Invoice saved successfully") {
-      setInvoiceNumber(newInvoiceNumber);
-      setIsSaved(true); // Enable print button
-    }
-  } catch (error) {
-    console.error("Error saving invoice:", error);
-  }
-};
-
-// Function to print the invoice
-const handlePrint = useReactToPrint({
-  content: () => componentRef.current,
-  documentTitle: invoiceNumber,
-});
-//---------------------------------------end-invoice setup----------------------------------------------//
-
+  // Function to print the invoice
+  const handlePrint = useReactToPrint({
+    content: () => componentRef.current,
+    documentTitle: invoiceNumber,
+  });
+  //---------------------------------------end-invoice setup----------------------------------------------//
 
   const handleItemClick = (item) => {
     setActiveItem(item); // Set active page
@@ -119,24 +120,40 @@ const handlePrint = useReactToPrint({
   const handlePost = async () => {
     if (!message.trim()) return alert("Please write an announcement!");
     try {
-        await axios.post(Endpoints.ADMIN_ADD_ANNOUNCEMENT, { message });
-        setMessage(""); // Clear input after posting
-        setAnnouncements([...announcements, { message, date: formatDate(new Date.now) }]);
+      await axios.post(Endpoints.ADMIN_ADD_ANNOUNCEMENT, { message });
+      setMessage(""); // Clear input after posting
+      setAnnouncements([
+        ...announcements,
+        { message, date: formatDate(new Date.now()) },
+      ]);
     } catch (error) {
-        console.error("Error posting announcement:", error);
+      console.error("Error posting announcement:", error);
     }
-};
+  };
 
-// Handle delete
-const handleDelete = async (id) => {
+  // handle delete for employee page
+  const handleDeleteEmployee = async (id) => {
+    try {
+      await axios.delete(`${Endpoints.ADMIN_DELETE_EMPLOYEE}/${id}`);
+
+      // Update the state after successful deletion
+      setEmployees(employees.filter((employee) => employee._id !== id));
+    } catch (error) {
+      console.error("Error deleting employee:", error);
+    }
+  };
+
+  // Handle delete for announcement page
+  const handleDelete = async (id) => {
     try {
       await axios.delete(`${Endpoints.ADMIN_DELETE_ANNOUNCEMENT}/${id}`);
-        setAnnouncements(announcements.filter(announcement => announcement._id !== id));
+      setAnnouncements(
+        announcements.filter((announcement) => announcement._id !== id)
+      );
     } catch (error) {
-        console.error("Error deleting announcement:", error);
+      console.error("Error deleting announcement:", error);
     }
-};
-
+  };
 
   const handleSectionClick = (section) => {
     setActiveSection(section);
@@ -158,77 +175,127 @@ const handleDelete = async (id) => {
       year: "numeric",
     });
   };
-//---------------------------------------------------------------------------------------------//
-const handleChange = (index, field, value) => {
-  const updatedRows = [...rows];
-  updatedRows[index] = { ...updatedRows[index], [field]: value };
+  //---------------------------------------------------------------------------------------------//
+  const handleChange = (index, field, value) => {
+    const updatedRows = [...rows];
+    updatedRows[index] = { ...updatedRows[index], [field]: value };
 
-  const qty = parseFloat(updatedRows[index].qty);
-  const rate = parseFloat(updatedRows[index].rate);
+    const qty = parseFloat(updatedRows[index].qty);
+    const rate = parseFloat(updatedRows[index].rate);
 
-  // Ensure Amount is empty if either Qty or Rate is missing
-  if (!qty || !rate) {
-    updatedRows[index].amount = "";
-  } else {
-    updatedRows[index].amount = (qty * rate).toFixed(2);
-  }
-
-  setRows(updatedRows);
-};
-
-
-const handleKeyPress = (index, field, event) => {
-  if (event.key === "Enter" && field === "rate") {
-    event.preventDefault(); // Prevents any default form submission or behavior
-
-    setRows((prevRows) => [
-      ...prevRows,
-      { desc: "", hsn: "", qty: "", rate: "", amount: "" },
-    ]);
-
-    // Wait for the state update and focus on the next row's first input
-    setTimeout(() => {
-      const nextRowInput = document.querySelector(
-        `textarea[data-index="${index + 1}"]`
-      );
-      if (nextRowInput) nextRowInput.focus();
-    }, 100);
-  }
-
-  if (event.key === "Backspace" && field === "desc" && index !== 0) {
-    if (!rows[index].desc && !rows[index].hsn && !rows[index].qty && !rows[index].rate) {
-      setRows((prevRows) => prevRows.filter((_, i) => i !== index));
+    // Ensure Amount is empty if either Qty or Rate is missing
+    if (!qty || !rate) {
+      updatedRows[index].amount = "";
+    } else {
+      updatedRows[index].amount = (qty * rate).toFixed(2);
     }
-  }
-};
 
-
-const numberToWords = (num) => {
-  const a = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
-    "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen",
-    "Seventeen", "Eighteen", "Nineteen"];
-  const b = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
-
-  const convertToWords = (n) => {
-    if (n === 0) return "Zero";
-    if (n < 20) return a[n];
-    if (n < 100) return b[Math.floor(n / 10)] + " " + a[n % 10];
-    if (n < 1000) return a[Math.floor(n / 100)] + " Hundred " + convertToWords(n % 100);
-    if (n < 100000) return convertToWords(Math.floor(n / 1000)) + " Thousand " + convertToWords(n % 1000);
-    if (n < 10000000) return convertToWords(Math.floor(n / 100000)) + " Lakh " + convertToWords(n % 100000);
-    return convertToWords(Math.floor(n / 10000000)) + " Crore " + convertToWords(n % 10000000);
+    setRows(updatedRows);
   };
 
-  return convertToWords(num).trim();
-};
+  const handleKeyPress = (index, field, event) => {
+    if (event.key === "Enter" && field === "rate") {
+      event.preventDefault(); // Prevents any default form submission or behavior
 
-const totalAmount = rows.reduce((sum, row) => sum + parseFloat(row.amount || 0), 0);
-const roundedTotal = Math.floor(totalAmount);
-const roundOff = (roundedTotal - totalAmount).toFixed(2);
-const totalInWords = numberToWords(roundedTotal);
+      setRows((prevRows) => [
+        ...prevRows,
+        { desc: "", hsn: "", qty: "", rate: "", amount: "" },
+      ]);
 
+      // Wait for the state update and focus on the next row's first input
+      setTimeout(() => {
+        const nextRowInput = document.querySelector(
+          `textarea[data-index="${index + 1}"]`
+        );
+        if (nextRowInput) nextRowInput.focus();
+      }, 100);
+    }
 
-//------------------------------------------------------------------------------------------//
+    if (event.key === "Backspace" && field === "desc" && index !== 0) {
+      if (
+        !rows[index].desc &&
+        !rows[index].hsn &&
+        !rows[index].qty &&
+        !rows[index].rate
+      ) {
+        setRows((prevRows) => prevRows.filter((_, i) => i !== index));
+      }
+    }
+  };
+
+  const numberToWords = (num) => {
+    const a = [
+      "",
+      "One",
+      "Two",
+      "Three",
+      "Four",
+      "Five",
+      "Six",
+      "Seven",
+      "Eight",
+      "Nine",
+      "Ten",
+      "Eleven",
+      "Twelve",
+      "Thirteen",
+      "Fourteen",
+      "Fifteen",
+      "Sixteen",
+      "Seventeen",
+      "Eighteen",
+      "Nineteen",
+    ];
+    const b = [
+      "",
+      "",
+      "Twenty",
+      "Thirty",
+      "Forty",
+      "Fifty",
+      "Sixty",
+      "Seventy",
+      "Eighty",
+      "Ninety",
+    ];
+
+    const convertToWords = (n) => {
+      if (n === 0) return "Zero";
+      if (n < 20) return a[n];
+      if (n < 100) return b[Math.floor(n / 10)] + " " + a[n % 10];
+      if (n < 1000)
+        return a[Math.floor(n / 100)] + " Hundred " + convertToWords(n % 100);
+      if (n < 100000)
+        return (
+          convertToWords(Math.floor(n / 1000)) +
+          " Thousand " +
+          convertToWords(n % 1000)
+        );
+      if (n < 10000000)
+        return (
+          convertToWords(Math.floor(n / 100000)) +
+          " Lakh " +
+          convertToWords(n % 100000)
+        );
+      return (
+        convertToWords(Math.floor(n / 10000000)) +
+        " Crore " +
+        convertToWords(n % 10000000)
+      );
+    };
+
+    return convertToWords(num).trim();
+  };
+
+  const totalAmount = rows.reduce(
+    (sum, row) => sum + parseFloat(row.amount || 0),
+    0
+  );
+  const roundedTotal = Math.floor(totalAmount);
+  const roundOff = (roundedTotal - totalAmount).toFixed(2);
+  const totalInWords = numberToWords(roundedTotal);
+
+  //------------------------------------------------------------------------------------------//
   useEffect(() => {
     let isMounted = true; // Prevent state updates on unmounted components
 
@@ -256,14 +323,17 @@ const totalInWords = numberToWords(roundedTotal);
         });
 
         if (isMounted) {
-          console.log(response.data)
+          console.log(response.data);
           setEmployeecount(response.data.employeeCount);
           setInternCount(response.data.internCount);
-          setEmployees((response.data.employee));
-          setAnnouncements((response.data.Announcement)); 
+          setEmployees(response.data.employee);
+          setAnnouncements(response.data.Announcement);
         }
       } catch (err) {
-        console.error("Error in admin dashboard:", err.message || "Server error");
+        console.error(
+          "Error in admin dashboard:",
+          err.message || "Server error"
+        );
       }
     };
 
@@ -576,22 +646,44 @@ const totalInWords = numberToWords(roundedTotal);
                     </thead>
                     <tbody>
                       {employees.length > 0 ? (
-                        employees.map((emp,index) => (
+                        employees.map((emp, index) => (
                           <tr key={emp.id}>
-                            <td>{index+1}</td>
-                            <td>{emp? emp.firstName +  " "+emp.lastName :"NA"}</td>
-                            <td>{emp.email?emp.email:"NA"}</td>
-                            <td>{emp.mobile?emp.mobile:"NA"}</td>
-                            <td>{emp.department?emp.department:"NA"}</td>
-                            <td>{emp.jobTitle?emp.jobTitle:"NA"}</td>
-                            <td>{emp.dateOfHire? formatDate(emp.dateOfHire):"NA"}</td>
-                            <td>{emp.assignManager?emp.assignManager:"NA"}</td>
+                            <td>{index + 1}</td>
                             <td>
-                              <Link to="/update-employee">
-                                <button className="search-update-btn">
-                                  Update
+                              {emp ? emp.firstName + " " + emp.lastName : "NA"}
+                            </td>
+                            <td>{emp.email ? emp.email : "NA"}</td>
+                            <td>{emp.mobile ? emp.mobile : "NA"}</td>
+                            <td>{emp.department ? emp.department : "NA"}</td>
+                            <td>{emp.jobTitle ? emp.jobTitle : "NA"}</td>
+                            <td>
+                              {emp.dateOfHire
+                                ? formatDate(emp.dateOfHire)
+                                : "NA"}
+                            </td>
+                            <td>
+                              {emp.assignManager ? emp.assignManager : "NA"}
+                            </td>
+                            <td>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "10px",
+                                }}
+                              >
+                                <Link to="/update-employee">
+                                  <button className="search-update-btn">
+                                    Update
+                                  </button>
+                                </Link>
+                                <button
+                                  style={{ color: "#dc3545" }}
+                                  onClick={() => handleDeleteEmployee(emp._id)}
+                                >
+                                  <i className="fa-solid fa-trash"></i>
                                 </button>
-                              </Link>
+                              </div>
                             </td>
                           </tr>
                         ))
@@ -610,59 +702,65 @@ const totalInWords = numberToWords(roundedTotal);
           )}
 
           {activeSection === "HR" && activePage === "Designation" && (
-            <p className="comming-soon">Comming Soon.....</p>
+            <p className="comming-soon">Coming Soon.....</p>
           )}
           {activeSection === "HR" && activePage === "Departments" && (
-            <p className="comming-soon">Comming Soon.....</p>
+            <p className="comming-soon">Coming Soon.....</p>
           )}
           {/* Announcement section */}
           {activeSection === "HR" && activePage === "Announcement" && (
             <div className="announcement-section">
-            {/* Input Area */}
-            <div className="announcement-input">
+              {/* Input Area */}
+              <div className="announcement-input">
                 <textarea
-                    className="announcement-textarea"
-                    placeholder="Write your announcement..."
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
+                  className="announcement-textarea"
+                  placeholder="Write your announcement..."
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
                 ></textarea>
-                <button className="post-button" onClick={handlePost}>Post</button>
-            </div>
+                <button className="post-button" onClick={handlePost}>
+                  Post
+                </button>
+              </div>
 
-            {/* Announcements Box */}
-            <div className="announcements-box">
-            <div className="announcements-list">
-  {announcements && announcements.length > 0 ? (
-    announcements.reverse().map((announcement, index) => (
-      <div className="announcement-item" key={index}>
-        <span className="announcement-date">
-          {announcement.Date ? formatDate(announcement.Date) : "No Date"}
-        </span>
-        <p className="announcement-message">
-          {announcement.Announcement || "No Announcement"}
-        </p>
-        <span className="delete-icon" onClick={() => handleDelete(announcement._id)}>
-          <i className="fa-solid fa-trash"></i>
-        </span>
-      </div>
-    ))
-  ) : (
-    <p className="no-announcements">No new announcements</p>
-  )}
-</div>
-
+              {/* Announcements Box */}
+              <div className="announcements-box">
+                <div className="announcements-list">
+                  {announcements && announcements.length > 0 ? (
+                    announcements.reverse().map((announcement, index) => (
+                      <div className="announcement-item" key={index}>
+                        <span className="announcement-date">
+                          {announcement.Date
+                            ? formatDate(announcement.Date)
+                            : "No Date"}
+                        </span>
+                        <p className="announcement-message">
+                          {announcement.Announcement || "No Announcement"}
+                        </p>
+                        <span
+                          className="delete-icon"
+                          onClick={() => handleDelete(announcement._id)}
+                        >
+                          <i className="fa-solid fa-trash"></i>
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="no-announcements">No new announcements</p>
+                  )}
+                </div>
+              </div>
             </div>
-        </div>
           )}
 
           {activeSection === "HR" && activePage === "Reports" && (
-            <p className="comming-soon">Comming Soon.....</p>
+            <p className="comming-soon">Coming Soon.....</p>
           )}
           {activeSection === "HR" && activePage === "Management" && (
-            <p className="comming-soon">Comming Soon.....</p>
+            <p className="comming-soon">Coming Soon.....</p>
           )}
           {activeSection === "HR" && activePage === "Help" && (
-            <p className="comming-soon">Comming Soon.....</p>
+            <p className="comming-soon">Coming Soon.....</p>
           )}
           {/* sales and purchase section */}
           {activeSection === "Sales/Purchase" && (
@@ -1593,18 +1691,25 @@ const totalInWords = numberToWords(roundedTotal);
                   <div className="content-box">
                     {/* <h2>Add-Reciept</h2> */}
                     <div>
-                    <div className="button-container-invoice">
-                      {/* Save Button */}
-                      <button className="save-button-invoice" onClick={handleSave} disabled={isSaved}>
-                        Save
-                      </button>
+                      <div className="button-container-invoice">
+                        {/* Save Button */}
+                        <button
+                          className="save-button-invoice"
+                          onClick={handleSave}
+                          disabled={isSaved}
+                        >
+                          Save
+                        </button>
 
-                      {/* Print Button */}
-                      <button className="print-button-invoice" onClick={handlePrint} disabled={!isSaved}>
-                        Print
-                      </button>
-                    </div>
-                    
+                        {/* Print Button */}
+                        <button
+                          className="print-button-invoice"
+                          onClick={handlePrint}
+                          disabled={!isSaved}
+                        >
+                          Print
+                        </button>
+                      </div>
 
                       <div className="invoice-container" ref={componentRef}>
                         <div>
@@ -1629,8 +1734,14 @@ const totalInWords = numberToWords(roundedTotal);
                           </div>
                           <div className="invoice-info">
                             <div className="invoice-info-row">
-                            <label htmlFor="invoice-no">Invoice No.:</label>
-                            <input type="text" id="invoice-no" name="invoice-no" value={invoiceNumber} readOnly />
+                              <label htmlFor="invoice-no">Invoice No.:</label>
+                              <input
+                                type="text"
+                                id="invoice-no"
+                                name="invoice-no"
+                                value={invoiceNumber}
+                                readOnly
+                              />
                             </div>
                             <div className="invoice-info-row">
                               <label htmlFor="date-of-issue">
@@ -1707,30 +1818,58 @@ const totalInWords = numberToWords(roundedTotal);
                                       rows="3"
                                       style={{ width: "100%" }}
                                       value={row.desc}
-                                      onChange={(e) => handleChange(index, "desc", e.target.value)}
-                                      onKeyDown={(e) => handleKeyPress(index, "desc", e)}
+                                      onChange={(e) =>
+                                        handleChange(
+                                          index,
+                                          "desc",
+                                          e.target.value
+                                        )
+                                      }
+                                      onKeyDown={(e) =>
+                                        handleKeyPress(index, "desc", e)
+                                      }
                                     />
                                   </td>
                                   <td>
                                     <input
                                       type="text"
                                       value={row.hsn}
-                                      onChange={(e) => handleChange(index, "hsn", e.target.value)}
+                                      onChange={(e) =>
+                                        handleChange(
+                                          index,
+                                          "hsn",
+                                          e.target.value
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
                                     <input
                                       type="number"
                                       value={row.qty}
-                                      onChange={(e) => handleChange(index, "qty", e.target.value)}
+                                      onChange={(e) =>
+                                        handleChange(
+                                          index,
+                                          "qty",
+                                          e.target.value
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
                                     <input
                                       type="number"
                                       value={row.rate}
-                                      onChange={(e) => handleChange(index, "rate", e.target.value)}
-                                      onKeyDown={(e) => handleKeyPress(index, "rate", e)}
+                                      onChange={(e) =>
+                                        handleChange(
+                                          index,
+                                          "rate",
+                                          e.target.value
+                                        )
+                                      }
+                                      onKeyDown={(e) =>
+                                        handleKeyPress(index, "rate", e)
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -1738,32 +1877,77 @@ const totalInWords = numberToWords(roundedTotal);
                                       type="text"
                                       value={row.amount}
                                       readOnly
-                                      onKeyDown={(e) => handleKeyPress(index, "amount", e)}
+                                      onKeyDown={(e) =>
+                                        handleKeyPress(index, "amount", e)
+                                      }
                                     />
                                   </td>
                                 </tr>
                               ))}
                               <tr>
-                                <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold" }}>Total (₹):</td>
-                                <td><input type="text" value={totalAmount.toFixed(2)} readOnly /></td>
+                                <td
+                                  colSpan="5"
+                                  style={{
+                                    textAlign: "right",
+                                    fontWeight: "bold",
+                                  }}
+                                >
+                                  Total (₹):
+                                </td>
+                                <td>
+                                  <input
+                                    type="text"
+                                    value={totalAmount.toFixed(2)}
+                                    readOnly
+                                  />
+                                </td>
                               </tr>
                               <tr>
-                                <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold" }}>Round Off (₹):</td>
-                                <td><input type="text" value={roundOff} readOnly /></td>
+                                <td
+                                  colSpan="5"
+                                  style={{
+                                    textAlign: "right",
+                                    fontWeight: "bold",
+                                  }}
+                                >
+                                  Round Off (₹):
+                                </td>
+                                <td>
+                                  <input
+                                    type="text"
+                                    value={roundOff}
+                                    readOnly
+                                  />
+                                </td>
                               </tr>
                               <tr>
-                                <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold" }}>Final Total (₹):</td>
-                                <td><input type="text" value={roundedTotal} readOnly /></td>
+                                <td
+                                  colSpan="5"
+                                  style={{
+                                    textAlign: "right",
+                                    fontWeight: "bold",
+                                  }}
+                                >
+                                  Final Total (₹):
+                                </td>
+                                <td>
+                                  <input
+                                    type="text"
+                                    value={roundedTotal}
+                                    readOnly
+                                  />
+                                </td>
                               </tr>
                               <tr>
                                 <td colSpan="6" style={{ textAlign: "right" }}>
-                                  <b>Amount in Words: </b><p>{totalInWords} Rupees Only</p>
+                                  <b>Amount in Words: </b>
+                                  <p>{totalInWords} Rupees Only</p>
                                 </td>
                               </tr>
                             </tbody>
                           </table>
                         </div>
- 
+
                         <div className="footer-section">
                           <div className="payment-section">
                             <h4>BANK DETAILS</h4>
@@ -3120,22 +3304,22 @@ const totalInWords = numberToWords(roundedTotal);
           )}
           {/* accounting section */}
           {activeSection === "Accounting" && (
-            <p className="comming-soon">Comming Soon.....</p>
+            <p className="comming-soon">Coming Soon.....</p>
           )}
           {activeSection === "Company" && (
-            <p className="comming-soon">Comming Soon.....</p>
+            <p className="comming-soon">Coming Soon.....</p>
           )}
           {activeSection === "Tools" && (
-            <p className="comming-soon">Comming Soon.....</p>
+            <p className="comming-soon">Coming Soon.....</p>
           )}
           {activeSection === "Modules" && (
-            <p className="comming-soon">Comming Soon.....</p>
+            <p className="comming-soon">Coming Soon.....</p>
           )}
           {activeSection === "Add-Ons" && (
-            <p className="comming-soon">Comming Soon.....</p>
+            <p className="comming-soon">Coming Soon.....</p>
           )}
           {activeSection === "Setting" && (
-            <p className="comming-soon">Comming Soon.....</p>
+            <p className="comming-soon">Coming Soon.....</p>
           )}
         </div>
       </div>
