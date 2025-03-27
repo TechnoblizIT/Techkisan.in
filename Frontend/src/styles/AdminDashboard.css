@@ -2139,21 +2139,63 @@ h4 {
   font-size: smaller;
 }
 
-.print-button-invoice {
-  display: block;
-  /* margin: 20px auto; */
-  margin-left: 45%;
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: #fff;
+/* Container for buttons */
+.button-container-Invoice {
+  display: flex;
+  justify-content: flex-end; /* Align buttons to the right (end) */
+  gap: 10px; /* Add spacing between buttons */
+  margin-top: 20px; /* Add some margin for spacing */
+}
+
+/* Save Button */
+.save-button-invoice {
+  background-color: #28a745; /* Green */
+  color: white;
+  padding: 5px 10px;
+  font-size: 16px;
+  font-weight: bold;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  transition: background 0.3s ease, opacity 0.3s ease;
+  margin-right: 20px;
+}
+
+.save-button-invoice:hover {
+  background-color: #218838; /* Darker Green */
+}
+
+/* Disabled Save Button */
+.save-button-invoice:disabled {
+  background-color: #a5d6a7; /* Light green */
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Print Button */
+.print-button-invoice {
+  background-color: #007bff; /* Blue */
+  color: white;
+  padding: 5px 10px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease, opacity 0.3s ease;
 }
 
 .print-button-invoice:hover {
-  background-color: #0056b3;
+  background-color: #0056b3; /* Darker Blue */
 }
+
+/* Disabled Print Button */
+.print-button-invoice:disabled {
+  background-color: #a3c1e1; /* Light Blue */
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 
 .logo-sectionin {
   text-align: center;

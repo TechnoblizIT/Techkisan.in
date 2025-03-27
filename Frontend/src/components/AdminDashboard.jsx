@@ -35,6 +35,60 @@ const AdminDashboard = ({ handleMenuClick }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null); // Track active button
   const [rows, setRows] = useState(Array(4).fill({ desc: "", hsn: "", qty: "", rate: "", amount: "" }));
+//-------------------------------------start-invoice setup---------------------------------------------//
+const componentRef = useRef();
+const [invoiceNumber, setInvoiceNumber] = useState("");
+const [isSaved, setIsSaved] = useState(false);
+useEffect(() => {
+  const fetchInvoiceNumber = async () => {
+    try {
+      const response = await axios.get("/api/invoice/latest");
+      setInvoiceNumber(response.data.invoiceNumber || "TKN-INV-00");
+    } catch (error) {
+      console.error("Error fetching invoice number:", error);
+    }
+  };
+
+  fetchInvoiceNumber();
+}, []);
+
+// Function to generate the next invoice number
+const generateNextInvoiceNumber = (currentNumber) => {
+  const match = currentNumber.match(/TKN-INV-(\d+)/);
+  if (match) {
+    const nextNumber = String(parseInt(match[1]) + 1).padStart(2, "0");
+    return `TKN-INV-${nextNumber}`;
+  }
+  return "TKN-INV-01";
+};
+
+// Function to save invoice before printing
+const handleSaveInvoice = async () => {
+  const invoiceHTML = componentRef.current.innerHTML;
+  const newInvoiceNumber = generateNextInvoiceNumber(invoiceNumber);
+
+  try {
+    const response = await axios.post("/api/invoice/save", {
+      invoiceNumber: newInvoiceNumber,
+      invoiceHTML,
+    });
+
+    if (response.data.message === "Invoice saved successfully") {
+      setInvoiceNumber(newInvoiceNumber);
+      setIsSaved(true); // Enable print button
+    }
+  } catch (error) {
+    console.error("Error saving invoice:", error);
+  }
+};
+
+// Function to print the invoice
+const handlePrint = useReactToPrint({
+  content: () => componentRef.current,
+  documentTitle: invoiceNumber,
+});
+//---------------------------------------end-invoice setup----------------------------------------------//
+
 
   const handleItemClick = (item) => {
     setActiveItem(item); // Set active page
@@ -228,12 +282,7 @@ const totalInWords = numberToWords(roundedTotal);
   }, [navigate]);
 
   // -----------------------------------------------------------------------------------------------------------//
-  const componentRef = useRef();
 
-  const handlePrint = useReactToPrint({
-    content: () => componentRef.current,
-    documentTitle: "Invoice",
-  });
   const [openMenu, setOpenMenu] = useState(null);
 
   const toggleMenu = (index) => {
@@ -1544,12 +1593,19 @@ const totalInWords = numberToWords(roundedTotal);
                   <div className="content-box">
                     {/* <h2>Add-Reciept</h2> */}
                     <div>
-                      <button
-                        className="print-button-invoice"
-                        onClick={handlePrint}
-                      >
-                        Print Invoice
+                    <div className="button-container-invoice">
+                      {/* Save Button */}
+                      <button className="save-button-invoice" onClick={handleSave} disabled={isSaved}>
+                        Save
                       </button>
+
+                      {/* Print Button */}
+                      <button className="print-button-invoice" onClick={handlePrint} disabled={!isSaved}>
+                        Print
+                      </button>
+                    </div>
+                    
+
                       <div className="invoice-container" ref={componentRef}>
                         <div>
                           <h2
@@ -1573,12 +1629,8 @@ const totalInWords = numberToWords(roundedTotal);
                           </div>
                           <div className="invoice-info">
                             <div className="invoice-info-row">
-                              <label htmlFor="invoice-no.">Invoice No.:</label>
-                              <input
-                                type="text"
-                                id="invoice-no."
-                                name="invoice-no."
-                              />
+                            <label htmlFor="invoice-no">Invoice No.:</label>
+                            <input type="text" id="invoice-no" name="invoice-no" value={invoiceNumber} readOnly />
                             </div>
                             <div className="invoice-info-row">
                               <label htmlFor="date-of-issue">
