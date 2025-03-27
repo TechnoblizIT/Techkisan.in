@@ -49,7 +49,6 @@ function EmployeeDashboard() {
       timeZone: "Asia/Kolkata",
       hour: "2-digit",
       minute: "2-digit",
-      second: "2-digit",
       hour12: true,
     });
   };
@@ -698,25 +697,6 @@ function EmployeeDashboard() {
                     </p>
                     <hr />
                     <p>
-                      Father's Name:
-                      {employeedata ? employeedata.fatherName : "Loading..."}
-                    </p>
-                    <hr />
-                    <p>
-                      Date of Birth:{" "}
-                      {employeedata
-                        ? new Date(employeedata.dob).toLocaleDateString(
-                            "en-GB",
-                            {
-                              day: "2-digit",
-                              month: "2-digit",
-                              year: "2-digit",
-                            }
-                          )
-                        : "Loading..."}
-                    </p>
-                    <hr />
-                    <p>
                       Gender:{" "}
                       {employeedata ? employeedata.gender : "Loading..."}
                     </p>
@@ -773,7 +753,10 @@ function EmployeeDashboard() {
                     <div className="notice-space">
                     {announcements && announcements.length > 0 ? (
                       announcements.map((item, index) => (
-                        <p key={index}>{item.Announcement}</p> 
+                        <>
+                        <p key={index}>{item.Announcement} {"("+formatTime((item.Date)).toString()+" "+formatDate((item.Date)).toString()+")"} </p> 
+                        
+                        </>
                       ))
                     ) : (
                       <p>No New Announcements</p>

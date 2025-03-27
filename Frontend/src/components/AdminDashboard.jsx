@@ -584,9 +584,8 @@ const totalInWords = numberToWords(roundedTotal);
             <div className="announcements-box">
             <div className="announcements-list">
   {announcements && announcements.length > 0 ? (
-    announcements.map((announcement, index) => (
+    announcements.reverse().map((announcement, index) => (
       <div className="announcement-item" key={index}>
-        {console.log(announcement)}
         <span className="announcement-date">
           {announcement.Date ? formatDate(announcement.Date) : "No Date"}
         </span>
