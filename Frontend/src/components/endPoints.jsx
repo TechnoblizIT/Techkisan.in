@@ -9,6 +9,8 @@ class APIEndpoints {
       this.ADMIN_DASHBOARD = `${this.BASE_URL}/admin/admindata`;
       this.ADMIN_ADD_ANNOUNCEMENT = `${this.BASE_URL}/admin/add_announcement`;
       this.ADMIN_DELETE_ANNOUNCEMENT = `${this.BASE_URL}/admin/delete_announcement`;
+      this.ADMIN_SAVE_NOTAXINVOICE = `${this.BASE_URL}/admin/save_notaxinvoice`;
+      this.ADMIN_FETCH_LATEST_NOTAXINVOICE_ID = `${this.BASE_URL}/admin/invoice/latest`;
 
 
   

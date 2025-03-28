@@ -13,6 +13,9 @@ import APIEndpoints from "./endPoints";
 import barcode from "../assets/invoice/barcode.png";
 import signature from "../assets/invoice/signature.png";
 import paymenticons from "../assets/invoice/paymenticons.png";
+import { Buffer } from "buffer";
+import html2pdf from "html2pdf.js";
+
 
 // function getCookie(name) {
 //   const value = `; ${document.cookie}`;
@@ -44,7 +47,7 @@ const AdminDashboard = ({ handleMenuClick }) => {
   useEffect(() => {
     const fetchInvoiceNumber = async () => {
       try {
-        const response = await axios.get("/api/invoice/latest");
+        const response = await axios.get(Endpoints.ADMIN_FETCH_LATEST_NOTAXINVOICE_ID);
         setInvoiceNumber(response.data.invoiceNumber || "TKN-INV-00");
       } catch (error) {
         console.error("Error fetching invoice number:", error);
@@ -65,29 +68,13 @@ const AdminDashboard = ({ handleMenuClick }) => {
   };
 
   // Function to save invoice before printing
-  const handleSaveInvoice = async () => {
-    const invoiceHTML = componentRef.current.innerHTML;
-    const newInvoiceNumber = generateNextInvoiceNumber(invoiceNumber);
 
-    try {
-      const response = await axios.post("/api/invoice/save", {
-        invoiceNumber: newInvoiceNumber,
-        invoiceHTML,
-      });
-
-      if (response.data.message === "Invoice saved successfully") {
-        setInvoiceNumber(newInvoiceNumber);
-        setIsSaved(true); // Enable print button
-      }
-    } catch (error) {
-      console.error("Error saving invoice:", error);
-    }
-  };
 
   // Function to print the invoice
   const handlePrint = useReactToPrint({
     content: () => componentRef.current,
     documentTitle: invoiceNumber,
+    onAfterPrint: () =>{window.location.reload();}
   });
   //---------------------------------------end-invoice setup----------------------------------------------//
 
@@ -359,12 +346,45 @@ const AdminDashboard = ({ handleMenuClick }) => {
     setOpenMenu(openMenu === index ? null : index);
   };
 
-  const handleSave = (event) => {
-    event.preventDefault();
-    // Logic to handle save action
-    console.log("Superuser saved");
-  };
 
+  const handleSave = async (event) => {
+    event.preventDefault();
+    const invoiceElement = componentRef.current;
+    const newInvoiceNumber = invoiceNumber
+  
+    try {
+      // Convert HTML to PDF
+      const pdfBlob = await html2pdf()
+        .from(invoiceElement)
+        .set({
+          margin: 10,
+          filename: `Invoice_${newInvoiceNumber}.pdf`,
+          image: { type: "jpeg", quality: 1 },
+          html2canvas: { scale: 3, useCORS: true, letterRendering: true, scrollY: 0 },
+          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        })
+        .outputPdf("blob");
+  
+      // Create FormData to send the PDF file
+      const formData = new FormData();
+      formData.append("invoiceNumber", newInvoiceNumber);
+      formData.append("invoicePDF", pdfBlob, `Invoice_${newInvoiceNumber}.pdf`);
+  
+      // Send PDF to backend
+      const response = await axios.post(Endpoints.ADMIN_SAVE_NOTAXINVOICE, formData, {
+        headers: { "Content-Type": "multipart/form-data" }, // Important for sending files
+      });
+  
+      if (response.data.message === "Invoice saved successfully") {
+        setInvoiceNumber(newInvoiceNumber);
+        setIsSaved(true);
+      }
+    } catch (error) {
+      console.error("Error saving invoice:", error);
+    }
+  };
+  
+  
   const handleQuit = () => {
     // Logic to handle quit action
     console.log("Quit action triggered");
@@ -1619,7 +1639,7 @@ const AdminDashboard = ({ handleMenuClick }) => {
                     </div>
                   </div>
                 )}
-
+              {/* NO TAX INVOICE  */}
                 {activeItem === "notax-receipt" && (
                   <div className="content-box">
                     {/* <h2>Add-Reciept</h2> */}

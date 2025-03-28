@@ -8,6 +8,8 @@ const managerModel = require('../models/manager-model');
 const internModel=require("../models/intern-model")
 const announcementModel=require("../models/Announcement-model");
 const AnnouncementModel = require('../models/Announcement-model');
+const upload=require("../configs/mutler-setup")
+const noTaxinvoiceModel = require('../models/no-taxinvoice-model');
 router.post('/create', async(req, res) => {
     try{ bcrypt.genSalt("admin123", async function (err, salt) {
      const hashedPassword = await bcrypt.hash("admin123", 10);
@@ -95,7 +97,49 @@ router.get('/admindata',async function (req, res){
             res.status(500).json({ error: error.message });
         }
     });
-    
+
+    router.post("/save_notaxinvoice", upload.single("invoicePDF"), async (req, res) => {
+        try {
+          const { invoiceNumber } = req.body;
+          
+          // Validate file
+          if (!req.file) {
+            return res.status(400).json({ message: "No PDF uploaded" });
+          }
+      
+          // Create new invoice entry
+          const newInvoice = new noTaxinvoiceModel({
+            invoiceNumber,
+            invoicePDF: req.file.buffer, // Store as Buffer
+          });
+      
+          await newInvoice.save();
+          res.json({ message: "Invoice saved successfully" });
+        } catch (error) {
+          console.error("Error saving invoice:", error);
+          res.status(500).json({ message: "Failed to save invoice" });
+        }
+      });
+      
+      router.get("/invoice/latest", async (req, res) => {
+        try {
+          const lastInvoice = await noTaxinvoiceModel.findOne().sort({ _id: -1 }); // Fetch the latest inserted invoice
+      
+          let nextInvoiceNumber = "TKN-INV-01"; // Default for the first invoice
+      
+          if (lastInvoice && lastInvoice.invoiceNumber) {
+            const match = lastInvoice.invoiceNumber.match(/TKN-INV-(\d+)/);
+            if (match) {
+              const nextNumber = String(parseInt(match[1]) + 1).padStart(2, "0");
+              nextInvoiceNumber = `TKN-INV-${nextNumber}`;
+            }
+          }
+      
+          res.json({ invoiceNumber: nextInvoiceNumber });
+        } catch (error) {
+          res.status(500).json({ error: "Error fetching invoice number" });
+        }
+      });
     
 
 
