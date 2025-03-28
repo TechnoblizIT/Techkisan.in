@@ -15,7 +15,10 @@ import APIEndpoints from "./endPoints";
 import { Buffer } from "buffer";
 
 function InternDashboard() {
-  const tableRef = useRef(null);
+  const tableRef9 = useRef(null);
+  const tableRef10= useRef(null);
+  const tableRef11 = useRef(null);
+  const tableRef12 = useRef(null);
   // for intern-chat-area
   const [selectedChat, setSelectedChat] = useState("");
   // ============================================================
@@ -729,7 +732,7 @@ function InternDashboard() {
                 </>
               )}
               {activeRequestPage === "on-duty" && (
-                <p className="comming-soon-employee">Comming Soon.....</p>
+                <p className="comming-soon-employee">Coming Soon.....</p>
                 // <div className="intern-on-duty-section">
                 //   <div className="intern-on-duty-form-container">
                 //     <form>
@@ -794,7 +797,7 @@ function InternDashboard() {
               )}
 
               {activeRequestPage === "permission" && (
-                <p className="comming-soon-employee">Comming Soon.....</p>
+                <p className="comming-soon-employee">Coming Soon.....</p>
               )}
             </div>
           </div>
@@ -987,7 +990,7 @@ function InternDashboard() {
                       <DownloadTableExcel
                         filename="in-out-table"
                         sheet="users"
-                        currentTableRef={tableRef.current}
+                        currentTableRef={tableRef9.current}
                       >
                         <button className="export-button">
                           Export to Excel
@@ -1002,7 +1005,7 @@ function InternDashboard() {
                     <div className="intern-in-out-table-section">
                       <table
                         className="intern-in-out-details-table"
-                        ref={tableRef}
+                        ref={tableRef9}
                       >
                         <thead>
                           <tr>
@@ -1133,13 +1136,22 @@ function InternDashboard() {
                       <button className="intern-searchleave-button">
                         Search
                       </button>
-                      <button className="intern-download-button">
+                      {/* <button className="intern-download-button">
+                        Download
+                      </button> */}
+                      <DownloadTableExcel
+                        filename="leave-details"
+                        sheet="users"
+                        currentTableRef={tableRef10.current}
+                      >
+                        <button className="intern-download-button">
                         Download
                       </button>
+                      </DownloadTableExcel>
                     </div>
                   </div>
                   <div className="intern-table-block">
-                    <table className="intern-leave-details-table">
+                    <table className="intern-leave-details-table" ref={tableRef10}>
                       <thead>
                         <tr>
                           <th>Status</th>
@@ -1225,7 +1237,7 @@ function InternDashboard() {
                     <DownloadTableExcel
                       filename="attendance-table"
                       sheet="users"
-                      currentTableRef={tableRef.current}
+                      currentTableRef={tableRef11.current}
                     >
                       <button className="exprt-button">Export to Excel</button>
                     </DownloadTableExcel>
@@ -1233,7 +1245,7 @@ function InternDashboard() {
 
                   {/* Second Block: Attendance Table */}
                   <div className="intern-second-block">
-                    <table className="intern-attendance-table" ref={tableRef}>
+                    <table className="intern-attendance-table" ref={tableRef11}>
                       <thead>
                         <tr>
                           <th>Month</th>
@@ -1602,14 +1614,14 @@ function InternDashboard() {
                     <DownloadTableExcel
                       filename="holidays-table"
                       sheet="users"
-                      currentTableRef={tableRef.current}
+                      currentTableRef={tableRef12.current}
                     >
                       <button> Export excel </button>
                     </DownloadTableExcel>
                   </div>
 
                   <div className="holidays-table-section">
-                    <table className="holidays-table" ref={tableRef}>
+                    <table className="holidays-table" ref={tableRef12}>
                       <thead>
                         <tr>
                           <th>Date</th>
@@ -1748,7 +1760,7 @@ function InternDashboard() {
               )}
 
               {activeReportPage === "on-duty" && (
-                <p className="comming-soon-employee">Comming Soon.....</p>
+                <p className="comming-soon-employee">Coming Soon.....</p>
               )}
             </div>
           </div>
@@ -1948,9 +1960,9 @@ function InternDashboard() {
         );
 
       case "tasks":
-        return <p className="comming-soon-employee">Comming Soon.....</p>;
+        return <p className="comming-soon-employee">Coming Soon.....</p>;
       case "tickets":
-        return <p className="comming-soon-employee">Comming Soon.....</p>;
+        return <p className="comming-soon-employee">Coming Soon.....</p>;
       default:
         return null;
     }

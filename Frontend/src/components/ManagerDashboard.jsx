@@ -1,4 +1,10 @@
-import React, { useEffect, useState ,useRef,useCallback,tableRef} from "react";
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+  tableRef,
+} from "react";
 import ManagerNavigation from "./ManagerNavigation";
 import { DownloadTableExcel } from "react-export-table-to-excel";
 import "../styles/ManagerDashboard.css";
@@ -15,7 +21,11 @@ import APIEndpoints from "./endPoints";
 import io from "socket.io-client";
 
 function ManagerDashboard() {
-  const tableRef = useRef(null);
+  // for export to excel
+  const tableRef5 = useRef(null);
+  const tableRef6 = useRef(null);
+  const tableRef7 = useRef(null);
+  const tableRef8 = useRef(null);
   // for manager-chat-area
   const [selectedChat, setSelectedChat] = useState("");
   // ============================================================
@@ -83,8 +93,7 @@ function ManagerDashboard() {
     });
   };
 
-
-    const formatTime = (date) => {
+  const formatTime = (date) => {
     if (!date) return "-";
     return new Date(date).toLocaleTimeString("en-US", {
       timeZone: "Asia/Kolkata",
@@ -144,7 +153,6 @@ function ManagerDashboard() {
     }
   };
   const notificationSound = new Audio("/sounds/notificationChat.mp3"); // Sound file in 'public' folder
-
 
   //this is for handling the leave approve
   const handleApprove = (leaveId) => {
@@ -235,149 +243,156 @@ function ManagerDashboard() {
     const outTime = new Date(punchOut);
 
     const diffMs = outTime - inTime; // Difference in milliseconds
-    if (diffMs <= 0) return "0 hrs 0 mins"
-    ; // Prevent negative values
-  }
+    if (diffMs <= 0) return "0 hrs 0 mins"; // Prevent negative values
+  };
 
-      // Fetch all required data in parallel
-      useEffect(() => {
-        const fetchData = async () => {
-          try {
-            const token = localStorage.getItem("token");
-            if (!token) {
-              navigate("/");
-              return;
-            }
-    
-            const decode = jwtDecode(token);
-            if (decode.role !== "manager") {
-              navigate("/");
-              return;
-            }
-    
-            // Fetch all required data in parallel
-            const [employeeResponse, usersResponse, messagesResponse] =
-              await Promise.all([
-                axios.get(Endpoints.MANAGER_DASHBOARD, {
-                  headers: { Authorization: `Bearer ${token}` },
-                  withCredentials: true,
-                }),
-                axios.get(Endpoints.GET_USERS_MANAGER, {
-                  headers: { Authorization: `Bearer ${token}` },
-                  withCredentials: true,
-                }),
-                fetch(Endpoints.GET_MESSAGES).then((res) => res.json()),
-              ]);
-    
-            if (employeeResponse.status === 200) {
-              const empdata = employeeResponse.data;
-              setAttendance(empdata.employee.attendance);
-              setemployeedata(empdata.employee);
-              setLeaves(empdata.empleaves);
-              setPunchRecord(empdata.employee.punchRecords);
-              setAnnouncements(empdata.Announcement);
-              if (empdata.empimg && empdata.empimg[0]) {
-                const binaryString = new Uint8Array(
-                  empdata.empimg[0].Image.data
-                ).reduce((acc, byte) => acc + String.fromCharCode(byte), "");
-    
-                const base64String = btoa(binaryString);
-                setAvatarUrl(
-                  `data:${empdata.empimg[0].Imagetype};base64,${base64String}`
-                );
-              }
-    
-              if (empdata?.employee?._id) {
-                socket.emit("userOnline", empdata.employee._id); // Ensure user is marked online
-              }
-            }
-    
-            setMessages(messagesResponse);
-    
-            const allUsers = [
-              ...usersResponse.data.employees,
-              ...usersResponse.data.filtermanager,
-              ...usersResponse.data.interns,
-            ];
-    
-            const usersWithImageUrls = allUsers.map((user) => ({
-              ...user,
-              imageUrl:
-                user.Image && user.Image[0]
-                  ? convertImageToBase64(
-                      user.Image[0].Image.data,
-                      user.Image[0].Imagetype
-                    )
-                  : "loading",
-            }));
-    
-            setUsers(usersWithImageUrls);
-          } catch (error) {
-            console.error("Error fetching data:", error);
+  // Fetch all required data in parallel
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          navigate("/");
+          return;
+        }
+
+        const decode = jwtDecode(token);
+        if (decode.role !== "manager") {
+          navigate("/");
+          return;
+        }
+
+        // Fetch all required data in parallel
+        const [employeeResponse, usersResponse, messagesResponse] =
+          await Promise.all([
+            axios.get(Endpoints.MANAGER_DASHBOARD, {
+              headers: { Authorization: `Bearer ${token}` },
+              withCredentials: true,
+            }),
+            axios.get(Endpoints.GET_USERS_MANAGER, {
+              headers: { Authorization: `Bearer ${token}` },
+              withCredentials: true,
+            }),
+            fetch(Endpoints.GET_MESSAGES).then((res) => res.json()),
+          ]);
+
+        if (employeeResponse.status === 200) {
+          const empdata = employeeResponse.data;
+          setAttendance(empdata.employee.attendance);
+          setemployeedata(empdata.employee);
+          setLeaves(empdata.empleaves);
+          setPunchRecord(empdata.employee.punchRecords);
+          setAnnouncements(empdata.Announcement);
+          if (empdata.empimg && empdata.empimg[0]) {
+            const binaryString = new Uint8Array(
+              empdata.empimg[0].Image.data
+            ).reduce((acc, byte) => acc + String.fromCharCode(byte), "");
+
+            const base64String = btoa(binaryString);
+            setAvatarUrl(
+              `data:${empdata.empimg[0].Imagetype};base64,${base64String}`
+            );
           }
-        };
-    
-        fetchData();
-      }, []);
 
-// ✅ Optimize socket event listeners
-useEffect(() => {
-  const handleReceiveMessage = (newMessage) => {
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
-    notificationSound.currentTime = 0; // Reset playback position for instant play
-    notificationSound.play().catch(error => console.error("Sound play error:", error))
-  };
+          if (empdata?.employee?._id) {
+            socket.emit("userOnline", empdata.employee._id); // Ensure user is marked online
+          }
+        }
 
-  const handleUpdateUserStatus = (users) => {
-    setOnlineUsers(users);
-  };
+        setMessages(messagesResponse);
 
-  socket.on("receiveMessage", handleReceiveMessage);
-  socket.on("updateUserStatus", handleUpdateUserStatus);
+        const allUsers = [
+          ...usersResponse.data.employees,
+          ...usersResponse.data.filtermanager,
+          ...usersResponse.data.interns,
+        ];
 
-  return () => {
-    socket.off("receiveMessage", handleReceiveMessage);
-    socket.off("updateUserStatus", handleUpdateUserStatus);
-  };
-}, []);
+        const usersWithImageUrls = allUsers.map((user) => ({
+          ...user,
+          imageUrl:
+            user.Image && user.Image[0]
+              ? convertImageToBase64(
+                  user.Image[0].Image.data,
+                  user.Image[0].Imagetype
+                )
+              : "loading",
+        }));
 
-// ✅ Auto-scroll to the latest message
-useEffect(() => {
-  messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-}, [messages]);
-
-// ✅ Optimized sendMessage function
-const sendMessage = useCallback(() => {
-  if (!input && !file) return;
-
-  const messageData = {
-    senderId: employeedata._id,
-    receiverId: selectedChat._id,
-    text: input,
-    file: null,
-  };
-
-  setMessages((prevMessages) => [...prevMessages, { ...messageData, temp: true }]);
-
-  if (file) {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      messageData.file = {
-        data: reader.result.split(",")[1],
-        contentType: file.type,
-        name: file.name,
-      };
-
-      socket.emit("sendMessage", messageData);
-      setFile(null);
+        setUsers(usersWithImageUrls);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
     };
-    reader.readAsDataURL(file);
-  } else {
-    socket.emit("sendMessage", messageData);
-  }
 
-  setInput("");
-}, [input, file, employeedata, selectedChat]);
+    fetchData();
+  }, []);
+
+  // ✅ Optimize socket event listeners
+  useEffect(() => {
+    const handleReceiveMessage = (newMessage) => {
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+      notificationSound.currentTime = 0; // Reset playback position for instant play
+      notificationSound
+        .play()
+        .catch((error) => console.error("Sound play error:", error));
+    };
+
+    const handleUpdateUserStatus = (users) => {
+      setOnlineUsers(users);
+    };
+
+    socket.on("receiveMessage", handleReceiveMessage);
+    socket.on("updateUserStatus", handleUpdateUserStatus);
+
+    return () => {
+      socket.off("receiveMessage", handleReceiveMessage);
+      socket.off("updateUserStatus", handleUpdateUserStatus);
+    };
+  }, []);
+
+  // ✅ Auto-scroll to the latest message
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+    });
+  }, [messages]);
+
+  // ✅ Optimized sendMessage function
+  const sendMessage = useCallback(() => {
+    if (!input && !file) return;
+
+    const messageData = {
+      senderId: employeedata._id,
+      receiverId: selectedChat._id,
+      text: input,
+      file: null,
+    };
+
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      { ...messageData, temp: true },
+    ]);
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        messageData.file = {
+          data: reader.result.split(",")[1],
+          contentType: file.type,
+          name: file.name,
+        };
+
+        socket.emit("sendMessage", messageData);
+        setFile(null);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      socket.emit("sendMessage", messageData);
+    }
+
+    setInput("");
+  }, [input, file, employeedata, selectedChat]);
 
   //filtering out the most recent messages
   const userMessages = messages.filter(
@@ -603,14 +618,28 @@ const sendMessage = useCallback(() => {
                       </h3>
                     </div>
                     <div className="manager-notice-space">
-                    {announcements && announcements.length > 0 ? (
-                      announcements.map((item, index) => (
-                        <p key={index}>{item.Announcement}</p> 
-                      ))
-                    ) : (
-                      <p>No New Announcements</p>
-                    )}
-               
+                      {announcements && announcements.length > 0 ? (
+                        announcements.map((item, index) => (
+                          <p key={index}>
+                            {item.Announcement}{" "}
+                            <span
+                              style={{
+                                float: "right",
+                                fontWeight: "bold",
+                                color: "#007bff",
+                              }}
+                            >
+                              {"(" +
+                                formatTime(item.Date).toString() +
+                                " " +
+                                formatDate(item.Date).toString() +
+                                ")"}
+                            </span>
+                          </p>
+                        ))
+                      ) : (
+                        <p>No New Announcements</p>
+                      )}
                     </div>
                   </div>
                   <div className="manager-overall-ticket">
@@ -919,7 +948,7 @@ const sendMessage = useCallback(() => {
                 </>
               )}
               {activeRequestPage === "on-duty" && (
-                <p className="comming-soon-employee">Comming Soon.....</p>
+                <p className="comming-soon-employee">Coming Soon.....</p>
                 // <div className="on-duty-section">
                 //   <div className="on-duty-form-container">
                 //     <form>
@@ -984,7 +1013,7 @@ const sendMessage = useCallback(() => {
               )}
 
               {activeRequestPage === "permission" && (
-                <p className="comming-soon-employee">Comming Soon.....</p>
+                <p className="comming-soon-employee">Coming Soon.....</p>
               )}
             </div>
           </div>
@@ -1135,7 +1164,7 @@ const sendMessage = useCallback(() => {
                       <DownloadTableExcel
                         filename="in-out-table"
                         sheet="users"
-                        currentTableRef={tableRef.current}
+                        currentTableRef={tableRef5.current}
                       >
                         <button className="export-btn">Export to Excel</button>
                       </DownloadTableExcel>
@@ -1147,7 +1176,7 @@ const sendMessage = useCallback(() => {
                   <div className="in-out-table-block">
                     <div className="in-out-table-container">
                       <div className="in-out-table-section">
-                        <table className="in-out-details-table" ref={tableRef}>
+                        <table className="in-out-details-table" ref={tableRef5}>
                           <thead>
                             <tr>
                               <th>Code</th>
@@ -1244,11 +1273,21 @@ const sendMessage = useCallback(() => {
                     </div>
                     <div className="button-container">
                       <button className="srch-button">Search</button>
-                      <button className="dwnld-button">Download</button>
+                      {/* <button className="dwnld-button">Download</button> */}
+                      <DownloadTableExcel
+                        filename="leave-details"
+                        sheet="users"
+                        currentTableRef={tableRef6.current}
+                      >
+                        <button className="dwnld-button">Download</button>
+                      </DownloadTableExcel>
                     </div>
                   </div>
                   <div className="table-container">
-                    <table className="leave-details-table-container">
+                    <table
+                      className="leave-details-table-container"
+                      ref={tableRef6}
+                    >
                       <thead>
                         <tr>
                           <th>Status</th>
@@ -1334,7 +1373,7 @@ const sendMessage = useCallback(() => {
                     <DownloadTableExcel
                       filename="attendance-table"
                       sheet="users"
-                      currentTableRef={tableRef.current}
+                      currentTableRef={tableRef7.current}
                     >
                       <button className="exprt-button">Export to Excel</button>
                     </DownloadTableExcel>
@@ -1342,7 +1381,7 @@ const sendMessage = useCallback(() => {
 
                   {/* Second Block: Attendance Table */}
                   <div className="manager-second-block">
-                    <table className="manager-attendance-table" ref={tableRef}>
+                    <table className="manager-attendance-table" ref={tableRef7}>
                       <thead>
                         <tr>
                           <th>Month</th>
@@ -1380,14 +1419,14 @@ const sendMessage = useCallback(() => {
                     <DownloadTableExcel
                       filename="holiday-table"
                       sheet="users"
-                      currentTableRef={tableRef.current}
+                      currentTableRef={tableRef8.current}
                     >
                       <button> Export excel </button>
                     </DownloadTableExcel>
                   </div>
 
                   <div className="holidays-table-section">
-                    <table className="holidays-table" ref={tableRef}>
+                    <table className="holidays-table" ref={tableRef8}>
                       <thead>
                         <tr>
                           <th>Date</th>
@@ -1526,7 +1565,7 @@ const sendMessage = useCallback(() => {
               )}
 
               {activeReportPage === "on-duty" && (
-                <p className="comming-soon-employee">Comming Soon.....</p>
+                <p className="comming-soon-employee">Coming Soon.....</p>
               )}
             </div>
           </div>
@@ -1597,222 +1636,252 @@ const sendMessage = useCallback(() => {
           </div>
         );
       // code for chat box ======================================================================================
-      case 'chat':
+      case "chat":
         return (
           <div className="chat-app">
-          {/* chat-sidebar */}
-          <div className="chat-sidebar">
-            <div className="chat-sidebar-icons">
-              <div className="chat-sidebar-icon">
-                <i className="fa-regular fa-bell"></i>
-                <p>Activity</p>
+            {/* chat-sidebar */}
+            <div className="chat-sidebar">
+              <div className="chat-sidebar-icons">
+                <div className="chat-sidebar-icon">
+                  <i className="fa-regular fa-bell"></i>
+                  <p>Activity</p>
+                </div>
+                <div className="chat-sidebar-icon">
+                  <i className="fa-regular fa-message"></i>
+                  <p>Chat</p>
+                </div>
+                <div className="chat-sidebar-icon">
+                  <i className="fa-solid fa-people-group"></i>
+                  <p>Teams</p>
+                </div>
+                <div className="chat-sidebar-icon">
+                  <i className="fa-solid fa-calendar-days"></i>
+                  <p>Calendar</p>
+                </div>
+                <div className="chat-sidebar-icon gear-icon">
+                  <i className="fa-solid fa-gear"></i>
+                  <p className="hidden">Setting</p>
+                </div>
               </div>
-              <div className="chat-sidebar-icon">
-                <i className="fa-regular fa-message"></i>
-                <p>Chat</p>
-              </div>
-              <div className="chat-sidebar-icon">
-                <i className="fa-solid fa-people-group"></i>
-                <p>Teams</p>
-              </div>
-              <div className="chat-sidebar-icon">
-                <i className="fa-solid fa-calendar-days"></i>
-                <p>Calendar</p>
-              </div>
-              <div className="chat-sidebar-icon gear-icon">
-                <i className="fa-solid fa-gear"></i>
-                <p className="hidden">Setting</p>
+              <div className="chat-sidebar-bottom">
+                <img src={avatarUrl} alt="profile" className="profile-photo" />
               </div>
             </div>
-            <div className="chat-sidebar-bottom">
-            <img src={avatarUrl} alt="profile" className="profile-photo" />
-          </div>
-        </div>
 
-        {/* chat-list */}
-        <div className="chat-list">
-          <div className="chat-list-header">
-            <h1>Chat</h1>
-            <div className="chat-icons">
-              <div
-                className="icon-container video-icon"
-                data-tooltip="Meet Now"
-              >
-                <i className="fa-solid fa-video"></i>
-              </div>
-              <div
-                className="icon-container add-icon"
-                data-tooltip="New Chat"
-              >
-                <i className="fa-solid fa-plus"></i>
-              </div>
-            </div>
-          </div>
-          <div className="chat-search-bar">
-            <input
-              type="text"
-              className="search-input"
-              placeholder="Search..."
-            />
-          </div>
-          <div className="chat-previews">
-            {users.map((user) => (
-              <div
-                key={user._id}
-                className="chat-preview"
-                onClick={() => setSelectedChat(user)}
-              >
-                <img
-                  src={user.imageUrl || profile}
-                  alt="profile"
-                  className="img-profile"
-                />
-                <div className="preview-details">
-                  <div className="preview-header">
-                    <span className="preview-name">
-                      {user.firstName + " " + user.lastName}
-                    </span>
-                    <span
-                      className={`online-indicator ${
-                        onlineUsers.includes(user._id)
-                          ? "online"
-                          : "offline"
-                      }`}
-                    ></span>
+            {/* chat-list */}
+            <div className="chat-list">
+              <div className="chat-list-header">
+                <h1>Chat</h1>
+                <div className="chat-icons">
+                  <div
+                    className="icon-container video-icon"
+                    data-tooltip="Meet Now"
+                  >
+                    <i className="fa-solid fa-video"></i>
+                  </div>
+                  <div
+                    className="icon-container add-icon"
+                    data-tooltip="New Chat"
+                  >
+                    <i className="fa-solid fa-plus"></i>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
+              <div className="chat-search-bar">
+                <input
+                  type="text"
+                  className="search-input"
+                  placeholder="Search..."
+                />
+              </div>
+              <div className="chat-previews">
+                {users.map((user) => (
+                  <div
+                    key={user._id}
+                    className="chat-preview"
+                    onClick={() => setSelectedChat(user)}
+                  >
+                    <img
+                      src={user.imageUrl || profile}
+                      alt="profile"
+                      className="img-profile"
+                    />
+                    <div className="preview-details">
+                      <div className="preview-header">
+                        <span className="preview-name">
+                          {user.firstName + " " + user.lastName}
+                        </span>
+                        <span
+                          className={`online-indicator ${
+                            onlineUsers.includes(user._id)
+                              ? "online"
+                              : "offline"
+                          }`}
+                        ></span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-        {/* chat-area */}
-        {selectedChat && (
-          <div className="chat-area">
-            <div className="chat-header">
-              <div className="chat-header-left">
-                {users
-      .filter((user) => user.firstName+" "+user.lastName === selectedChat.firstName+" "+selectedChat.lastName)
-      .map((user) => (
-        <div key={user._id}>
-          <img
-            src={user.imageUrl} 
-            alt="profile"
-            className="profile-main"
-          />
-          <span className="chat-name">{user.firstName+" "+user.lastName}</span> 
-          <span
-                    className={`online-indicator ${onlineUsers.includes(user._id) ? "online" : "offline"}`}
-                  ></span>
-        </div>
-      ))}
-
+            {/* chat-area */}
+            {selectedChat && (
+              <div className="chat-area">
+                <div className="chat-header">
+                  <div className="chat-header-left">
+                    {users
+                      .filter(
+                        (user) =>
+                          user.firstName + " " + user.lastName ===
+                          selectedChat.firstName + " " + selectedChat.lastName
+                      )
+                      .map((user) => (
+                        <div key={user._id}>
+                          <img
+                            src={user.imageUrl}
+                            alt="profile"
+                            className="profile-main"
+                          />
+                          <span className="chat-name">
+                            {user.firstName + " " + user.lastName}
+                          </span>
+                          <span
+                            className={`online-indicator ${
+                              onlineUsers.includes(user._id)
+                                ? "online"
+                                : "offline"
+                            }`}
+                          ></span>
+                        </div>
+                      ))}
+                  </div>
+                  <div className="chat-header-icons">
+                    <i className="fa-solid fa-video"></i>
+                    <i className="fa-solid fa-phone"></i>
+                    <i className="fa-solid fa-magnifying-glass"></i>
+                    <i className="fa-solid fa-ellipsis-vertical"></i>
+                  </div>
                 </div>
-                <div className="chat-header-icons">
-                  <i className="fa-solid fa-video"></i>
-                  <i className="fa-solid fa-phone"></i>
-                  <i className="fa-solid fa-magnifying-glass"></i>
-                  <i className="fa-solid fa-ellipsis-vertical"></i>
+
+                {/* Messages Section */}
+                <div className="messages">
+                  {messages
+                    .filter(
+                      (message) =>
+                        (message.sender === employeedata._id &&
+                          message.recipient === selectedChat._id) ||
+                        (message.sender === selectedChat._id &&
+                          message.recipient === employeedata._id)
+                    )
+                    .map((message, index) => (
+                      <div
+                        key={index}
+                        className={
+                          message.sender === employeedata._id
+                            ? "message-right"
+                            : "message-left"
+                        }
+                      >
+                        {message.message && <p>{message.message}</p>}
+                        {message.file && (
+                          <div>
+                            {message.file.contentType.startsWith("image/") ? (
+                              <img
+                                src={`data:${
+                                  message.file.contentType
+                                };base64,${btoa(
+                                  String.fromCharCode(
+                                    ...new Uint8Array(message.file.data.data)
+                                  )
+                                )}`}
+                                alt={message.file.name}
+                                style={{
+                                  maxWidth: "200px",
+                                  maxHeight: "200px",
+                                }}
+                              />
+                            ) : (
+                              <a
+                                href={`data:${
+                                  message.file.contentType
+                                };base64,${btoa(
+                                  String.fromCharCode(
+                                    ...new Uint8Array(message.file.data.data)
+                                  )
+                                )}`}
+                                download={message.file.name}
+                                className="download-btn"
+                              >
+                                <i className="fa-solid fa-download"></i>{" "}
+                                {message.file.name}
+                              </a>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  <div ref={messagesEndRef}></div>{" "}
+                  {/* Add this at the bottom */}
+                </div>
+
+                {/* Message Input Box */}
+                <div className="message-input">
+                  <div className="input-container">
+                    <input
+                      type="text"
+                      placeholder="Type a new message"
+                      value={file ? file.name : input}
+                      onChange={(e) => setInput(e.target.value)}
+                      readOnly={!!file}
+                    />
+                    {file && (
+                      <button
+                        type="button"
+                        style={{
+                          backgroundColor: "red",
+                          color: "white",
+                          border: "none",
+                          marginRight: "5%",
+                        }}
+                        onClick={() => setFile(null)} // Clear the file and preview
+                      >
+                        Remove
+                      </button>
+                    )}
+
+                    <i className="fa-regular fa-face-smile emoji-icon"></i>
+                    <input
+                      type="file"
+                      id="fileUpload"
+                      onChange={(e) => setFile(e.target.files[0])}
+                      style={{ display: "none" }}
+                    />
+
+                    <label htmlFor="fileUpload">
+                      <i className="fa-solid fa-paperclip attach-icon"></i>
+                    </label>
+                  </div>
+                  <i
+                    className="fa-solid fa-paper-plane send-icon"
+                    onClick={sendMessage}
+                  ></i>
                 </div>
               </div>
-    
-            
-               {/* Messages Section */}
-               <div className="messages">
-{messages
-.filter(
-  (message) =>
-    (message.sender === employeedata._id && message.recipient === selectedChat._id) ||
-    (message.sender === selectedChat._id && message.recipient === employeedata._id)
-)
-.map((message, index) => (
-  <div
-    key={index}
-    className={message.sender === employeedata._id ? "message-right" : "message-left"}
-  >
-{message.message && <p>{message.message}</p>}
-{message.file && (
-<div>
-{message.file.contentType.startsWith("image/") ? (
-  <img
-    src={`data:${message.file.contentType};base64,${btoa(
-      String.fromCharCode(...new Uint8Array(message.file.data.data))
-    )}`}
-    alt={message.file.name}
-    style={{ maxWidth: "200px", maxHeight: "200px" }}
-  />
-) : (
-<a
-href={`data:${message.file.contentType};base64,${btoa(
-String.fromCharCode(...new Uint8Array(message.file.data.data))
-)}`}
-download={message.file.name}
-className="download-btn"
->
-<i className="fa-solid fa-download"></i> {message.file.name}
-</a>
-
-)}
-</div>
-)}
-
-  </div>
-))}
-<div ref={messagesEndRef}></div> {/* Add this at the bottom */}
-</div>
-
-    
-              {/* Message Input Box */}
-<div className="message-input">
-    <div className="input-container">
-    <input
-      type="text"
-      placeholder="Type a new message"
-      value={file ? file.name : input}
-      onChange={(e) => setInput(e.target.value)}
-      readOnly={!!file} 
-    />
-    {file && (
-      <button
-        type="button"
-        style={{
-          backgroundColor: "red",
-          color: "white",
-          border: "none",
-          marginRight: "5%",
-        }}
-        onClick={() => setFile(null)} // Clear the file and preview
-      >
-        Remove
-      </button>
-    )}
-     
-<i className="fa-regular fa-face-smile emoji-icon"></i>
-      <input
-type="file"
-id="fileUpload"
-onChange={(e) => setFile(e.target.files[0])}
-style={{ display: "none" }}
-/>
-
-<label htmlFor="fileUpload">
-<i className="fa-solid fa-paperclip attach-icon"></i>
-</label>
-    </div>
-    <i className="fa-solid fa-paper-plane send-icon" onClick={sendMessage}></i>
-  </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
         );
 
- 
-          
-  default:
-    return null;
-}
-};
-return (
+      case "tasks":
+        return <p className="comming-soon-employee">Coming Soon.....</p>;
+      case "tickets":
+        return <p className="comming-soon-employee">Coming Soon.....</p>;
+
+      default:
+        return null;
+    }
+  };
+  return (
     <div className="manager-dashboard">
       <ManagerNavigation
         activeSection={activeSection}
@@ -1821,6 +1890,6 @@ return (
       {renderSection()}
     </div>
   );
-  }
+}
 
 export default ManagerDashboard;
