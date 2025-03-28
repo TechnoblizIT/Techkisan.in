@@ -17,10 +17,10 @@
 
 /* Sidebar */
 .sidebar {
-  width: 15%;
+  width: 13%;
   background-color: #333;
   color: #fff;
-  padding: 15px;
+  padding: 10px;
   position: fixed;
   top: 0;
   left: 0;
@@ -2413,4 +2413,93 @@ h4 {
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
+}
+
+/* ------------------------------------solar-invoice---------------------------------------------- */
+
+.solar-invoice-container {
+  width: 766px;
+  margin: auto;
+  padding: 10px;
+  border: 1px solid #000;
+  background-color: #fff;
+  font-family: Arial, sans-serif;
+  overflow: auto;
+  font-size: smaller;
+}
+
+.solar-invoice-header {
+  text-align: left;
+  border-bottom: 1px solid #000;
+  padding-bottom: 10px;
+  margin-bottom: 5px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.solar-invoice-header h1 {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.solar-invoice-header p {
+  font-size: 12px;
+  margin: 2px 0;
+}
+
+.solar-invoice-details {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.solar-customer-details {
+  display: flex;
+  justify-content: space-between;
+  border: 1px solid #000;
+  padding: 10px;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.solar-customer-details h3 {
+  font-size: 16px;
+  text-decoration: underline;
+  margin-bottom: 5px;
+}
+
+.solar-invoice-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.solar-invoice-table th, .solar-invoice-table td {
+  border: 2px solid #000;
+  padding: 8px;
+  text-align: center;
+}
+
+.solar-invoice-table th {
+  background: #ddd;
+  font-weight: bold;
+}
+
+.solar-invoice-summary {
+  font-size: 14px;
+  text-align: right;
+  margin-bottom: 20px;
+  border-top: 2px solid #000;
+  padding-top: 10px;
+}
+
+.solar-invoice-footer {
+  font-size: 14px;
+  text-align: center;
+  border-top: 2px solid #000;
+  padding-top: 10px;
 }

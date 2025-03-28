@@ -352,6 +352,11 @@ const totalInWords = numberToWords(roundedTotal);
   //     emp?.joiningDate.includes(searchQuery) ||
   //     emp?.assignManager.toLowerCase().includes(searchQuery.toLowerCase())
   // );
+  const printRef = useRef();
+
+  const handlePrint2 = useReactToPrint({
+    content: () => printRef.current,
+  });
 
   // -----------------------------------------------------------------------------------------------------------//
 
@@ -686,6 +691,7 @@ const totalInWords = numberToWords(roundedTotal);
                   { id: "add-item", label: "Add Item" },
                   { id: "add-receipt", label: "Tax Invoice" },
                   { id: "notax-receipt", label: "NoTax Invoice" },
+                  { id: "solar-invoice", label: "Solar Invoice" },
                   { id: "add-sales", label: "Add Sales" },
                   { id: "add-purchase", label: "Add Purchase" },
                   { id: "stock-status", label: "Stock Status" },
@@ -711,12 +717,6 @@ const totalInWords = numberToWords(roundedTotal);
                 </a>
               </div>
               <div className="sales-purchase-main-content">
-                {activeItem === "help" && (
-                  <div className="content-box">
-                    <h2>Help</h2>
-                    <p>This is the content for help</p>
-                  </div>
-                )}
 
                 {activeItem === "add-account" && (
                   <div className="content-box">
@@ -1278,73 +1278,6 @@ const totalInWords = numberToWords(roundedTotal);
                   </div>
                 )}
 
-                {activeItem === "add-master" && (
-                  <div className="content-box">
-                    <div className="superuser-container1">
-                      <h2>Company - New Company</h2>
-                      <form onSubmit={handleSave}>
-                        <div className="form-group1">
-                          <label htmlFor="superuser-name">
-                            SuperUser Name:
-                          </label>
-                          <input
-                            type="text"
-                            id="superuser-name"
-                            name="superuser-name"
-                            required
-                          />
-                        </div>
-                        <div className="form-group1">
-                          <label htmlFor="password">Password:</label>
-                          <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            required
-                          />
-                        </div>
-                        <div className="form-group1">
-                          <label htmlFor="recheck-password">
-                            Recheck Password:
-                          </label>
-                          <input
-                            type="password"
-                            id="recheck-password"
-                            name="recheck-password"
-                            required
-                          />
-                        </div>
-                        <div className="button-group1">
-                          <button type="submit" className="btn-save1">
-                            Save
-                          </button>
-                          <button
-                            type="button"
-                            className="btn-quit1"
-                            onClick={handleQuit}
-                          >
-                            Quit
-                          </button>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                )}
-
-                {activeItem === "add-voucher" && (
-                  <div className="content-box">
-                    <h2>Add Voucher</h2>
-                    <p>This is the content for Add Voucher</p>
-                  </div>
-                )}
-
-                {activeItem === "add-payment" && (
-                  <div className="content-box">
-                    <h2>Add Payment</h2>
-                    <p>This is the content for Add Payment</p>
-                  </div>
-                )}
-
                 {activeItem === "add-receipt" && (
                   <div className="content-box">
                     {/* <h2>Add-Reciept</h2> */}
@@ -1829,10 +1762,111 @@ const totalInWords = numberToWords(roundedTotal);
                   </div>
                 )}
 
-                {activeItem === "add-journal" && (
+                {activeItem === "solar-invoice" && (
                   <div className="content-box">
-                    <h2>Add Journal</h2>
-                    <p>This is the content for Add Journal</p>
+                    <div>
+                    <button
+                        style={{ marginBottom: "10px"}}
+                        className="print-button-invoice"
+                        onClick={handlePrint2}
+                      >
+                        Print Invoice
+                      </button>
+                    <div  ref={printRef} className="solar-invoice-container">
+                      <div className="solar-invoice-header">
+                        <div>
+                          <h1>TECHKISAN AUTOMATION</h1>
+                          <p>Ambule Building, Shrinagar, Near Murri Chawky, Gondia - 441601</p>
+                          <p>Tel. No.: +91-7972025213 / +91-9511831914</p>
+                          <p>GSTN: 27AAQFT9534N1Z5 | PAN: AAQFT9534N</p>
+                        </div>
+                        <div>
+                        <img src={logo} alt="Company Logo" className="logoin" style={{marginTop: "5px", height: "85px", width: "360px" }} />
+                        </div>
+                      </div>
+                      <div style={{marginTop: "0px", fontSize: "18px", fontWeight: "bold" }}>Tax Invoice</div>
+                      <div className="solar-invoice-details">
+                        <div><strong>Invoice No:</strong> TKN/2024-25/636/G</div>
+                        <div><strong>Invoice Date:</strong> 21/03/2025</div>
+                        <div><strong>Transport Mode:</strong> ROAD</div>
+                        <div><strong>Vehicle Number:</strong> __________</div>
+                        <div><strong>Reverse Charge (Y/N):</strong> N</div>
+                        <div><strong>Date of Visit:</strong> __________</div>
+                        <div><strong>State:</strong> Maharashtra (Code 27)</div>
+                        <div><strong>Place of Supply:</strong> Gondia (MH)</div>
+                      </div>
+                      
+                      <div className="solar-customer-details">
+                        <div>
+                          <h3>Quote To Party</h3>
+                          <p><strong>Name:</strong> Mahesh Prithyani Sir</p>
+                          <p><strong>Address:</strong> Gondia, Maharashtra</p>
+                          <p><strong>GSTIN:</strong> 27AAQFT9534N1Z5</p>
+                        </div>
+                        <div>
+                          <h3>Ship To Party</h3>
+                          <p><strong>Name:</strong> Mahesh Prithyani Sir</p>
+                          <p><strong>Address:</strong> Gondia, Maharashtra</p>
+                          <p><strong>GSTIN:</strong> 27AAQFT9534N1Z5</p>
+                        </div>
+                      </div>
+                      
+                      <table className="solar-invoice-table">
+                        <thead>
+                          <tr>
+                            <th>Sr. No</th>
+                            <th>Description</th>
+                            <th>UOM</th>
+                            <th>Qty</th>
+                            <th>Rate</th>
+                            <th>Taxable Amount</th>
+                            <th>CGST</th>
+                            <th>SGST</th>
+                            <th>Total</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>1</td>
+                            <td>4KW Adani PV Panels Bifacial</td>
+                            <td>pcs</td>
+                            <td>1</td>
+                            <td>₹1,47,627</td>
+                            <td>₹1,47,627</td>
+                            <td>6% (₹8,857.64)</td>
+                            <td>6% (₹8,857.64)</td>
+                            <td>₹1,77,152.76</td>
+                          </tr>
+                          <tr>
+                            <td>2</td>
+                            <td>Solar 4KVA Inverter + Accessories</td>
+                            <td>pcs</td>
+                            <td>1</td>
+                            <td>₹63,269</td>
+                            <td>₹63,269</td>
+                            <td>9% (₹5,694.21)</td>
+                            <td>9% (₹5,694.21)</td>
+                            <td>₹1,13,884.20</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      
+                      <div className="solar-invoice-summary">
+                        <p><strong>Total Amount Before Tax:</strong> ₹2,10,896.30</p>
+                        <p><strong>Total Tax Amount:</strong> ₹29,103.70</p>
+                        <p><strong>Total Payable Amount:</strong> ₹2,40,000.00</p>
+                      </div>
+                      
+                      <div className="solar-invoice-footer">
+                        <p><strong>Bank Details:</strong></p>
+                        <p>A/C No.: 50200063151545</p>
+                        <p>Bank Name: HDFC BANK</p>
+                        <p>IFSC Code: HDFC0000963</p>
+                        <p><strong>Authorized Signatory:</strong> TechKisan Automation</p>
+                        <p>Certified that the particulars given above are true and correct</p>
+                      </div>
+                    </div>
+                    </div>
                   </div>
                 )}
 
@@ -2200,20 +2234,6 @@ const totalInWords = numberToWords(roundedTotal);
                   </div>
                 )}
 
-                {activeItem === "balance-sheet" && (
-                  <div className="content-box">
-                    <h2>Balance Sheet</h2>
-                    <p>This is the content for Balance Sheet</p>
-                  </div>
-                )}
-
-                {activeItem === "trial-balance" && (
-                  <div className="content-box">
-                    <h2>Trial Balance</h2>
-                    <p>This is the content for Trial Balance</p>
-                  </div>
-                )}
-
                 {activeItem === "stock-status" && (
                   <div className="content-box">
                     <div className="stockstatus-container">
@@ -2255,549 +2275,6 @@ const totalInWords = numberToWords(roundedTotal);
                         <input type="text" />
                       </div>
                       <button className="stockstatus-button">OK</button>
-                    </div>
-                  </div>
-                )}
-
-                {activeItem === "acc-summary" && (
-                  <div className="content-box">
-                    <div className="inventory-container">
-                      <div className="inventory-header">
-                        <h2>Inventory</h2>
-                      </div>
-                      <div className="i-merged-top-sections">
-                        <div className="merged-inventory-container">
-                          {/* Company information fields */}
-                          <div className="z-inventory-row">
-                            <label>Qty. Decimal Places:</label>
-                            <div className="i-input-button">
-                              <input type="text" />
-                              <button className="i-help-button">?</button>
-                            </div>
-                          </div>
-                          <div className="z-inventory-row">
-                            <label>Item-wise Discount Decimal Places:</label>
-                            <div className="i-input-button">
-                              <input type="text" />
-                              <button className="i-help-button">?</button>
-                            </div>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Packaging Unit of Items
-                            </label>
-                            <label className="i-extra-label-1">
-                              (eg. Pcs. & Box, Pcs. & Carton)
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Alternate Unit of Items
-                            </label>
-                            <label className="i-extra-label-2">
-                              (eg. Pcs. & Kgs, Pcs. & Lts.)
-                            </label>
-                            <button>Configure</button>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="z-inventory-row">
-                            <label>Alt. Qty. Con. Decimal Places:</label>
-                            <div className="i-input-button">
-                              <input type="text" />
-                              <button className="i-help-button">?</button>
-                            </div>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Enable Multi-Godown Inventory
-                            </label>
-                            <div className="i-input-button">
-                              <button>Configure</button>
-                              <button className="i-help-button-extra">?</button>
-                            </div>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Enable Manufacturing Features
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Enable Sale Quotation
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Enable Purchase Quotation
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Enable Order Processing
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Enable Sale/Purchase Challan
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Carry Pending Material Issued/Receipt to next F.Y.
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Pick Items Sizing Information from Item
-                              Description
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Seperate Stock Updation Date in Dual Vouchers
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Seperate Stock Valuation Method fo Items
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Accounting in Pure inventory Voucher
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Enable Party-wise Item Codes
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Allow Sales Return in Sales Voucher
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Allow Purchas Return in Purchase Voucher
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Validate Sales Return with Original Sales
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Validate Purchase Return with Original Purchase
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Enable Bill Sundry Narration
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Invoice Bar Code Printing (2D)
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="z-inventory-row">
-                            <label>Item-wise Discount Type:</label>
-                            <div className="i-input-button">
-                              <input
-                                type="text"
-                                defaultValue="Simple Discount"
-                              />
-                              <button className="i-help-button">?</button>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="merged-inventory-container">
-                          <div className="z-inventory-row">
-                            <label>Stock Value Method:</label>
-                            <div className="i-input-button">
-                              <input
-                                type="text"
-                                defaultValue="Weighted Average"
-                              />
-                              <button className="i-help-button">?</button>
-                            </div>
-                          </div>
-                          <div className="z-inventory-row">
-                            <label>Tag Sale/Puc Acc. with:</label>
-                            <div className="i-input-button">
-                              <input
-                                type="text"
-                                defaultValue="Sale/Purc Type"
-                              />
-                              <button className="i-help-button">?</button>
-                            </div>
-                          </div>
-                          <div className="z-inventory-row">
-                            <label>Tag Stock Acc. with:</label>
-                            <div className="i-input-button">
-                              <input
-                                type="text"
-                                defaultValue="Material Centre"
-                              />
-                              <button className="i-help-button">?</button>
-                            </div>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Enable Scheme
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Enable Job Work
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Parameterized Detials
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Batch-wise Details
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Serial No.-wise Details
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              MRP-wise Details
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Skip Items Default Price during Voucher
-                              Modification
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Enable Free Quantity in Vouchers
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Show Last Transactions during Sales
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Show Last Transactions during Purchase
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Allocate Additional Expenses Voucher-wise
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Allocate Expense/Purc. to Items
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Maintain Images/Notes with Masters/Vouchers
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Show Items Current Balance During Voucher Entry
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Maintain Drug Licence
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Enable Date-wise Item Pricing
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Calculate Item Sale Price from Purchase Price
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Update Item Prices from Vouchers
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="inventory-row">
-                            <label>
-                              <input
-                                type="checkbox"
-                                className="i-checkbox"
-                                name="option1"
-                              ></input>
-                              Enable Packing Detials in Vouchers
-                            </label>
-                            <button className="i-help-button-extra">?</button>
-                          </div>
-                          <div className="zx-inventory-row">
-                            <label>Do Not Maintain Stock Bal:</label>
-                            <div className="i-input-button-double">
-                              <input
-                                rows
-                                type="text"
-                                defaultValue="At Item Level"
-                              />
-                              <button>Update Def. Value</button>
-                              <button className="i-help-button">?</button>
-                            </div>
-                          </div>
-                          <div className="z-inventory-row">
-                            <label>Item-wise Markup Type:</label>
-                            <div className="i-input-button">
-                              <input type="text" defaultValue="Not Required" />
-                              <button className="i-help-button">?</button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="button-row right-buttons">
-                        <button>Save</button>
-                        <button>Quit</button>
-                      </div>
                     </div>
                   </div>
                 )}
@@ -2962,157 +2439,10 @@ const totalInWords = numberToWords(roundedTotal);
                   </div>
                 )}
 
-                {activeItem === "item-ledger" && (
-                  <div className="content-box">
-                    <h2>Item Ledger</h2>
-                    <p>This is the content for Item Ledger</p>
-                  </div>
-                )}
-
                 {activeItem === "gst-summary" && (
                   <div className="content-box">
                     <h2>GST Summary</h2>
                     <p>This is the content for GST Summary</p>
-                  </div>
-                )}
-
-                {activeItem === "query-system" && (
-                  <div className="content-box">
-                    <div className="sidebar-container">
-                      <div className="chart-menu">
-                        {[
-                          {
-                            title: "Purchase",
-                            subItems: ["Add", "Modify", "List"],
-                          },
-                          {
-                            title: "Sales Return (Cr. Note)",
-                            subItems: ["Option 1", "Option 2", "Option 3"],
-                          },
-                          {
-                            title: "Purchase Return (Dr. Note)",
-                            subItems: ["Option 1", "Option 2", "Option 3"],
-                          },
-                          {
-                            title: "Payment",
-                            subItems: ["Option 1", "Option 2", "Option 3"],
-                          },
-                          {
-                            title: "Receipt",
-                            subItems: ["Option 1", "Option 2", "Option 3"],
-                          },
-                          {
-                            title: "Journal",
-                            subItems: ["Option 1", "Option 2", "Option 3"],
-                          },
-                          {
-                            title: "Contra",
-                            subItems: ["Option 1", "Option 2", "Option 3"],
-                          },
-                          {
-                            title: "Dr. Note (w/o Items)",
-                            subItems: ["Option 1", "Option 2", "Option 3"],
-                          },
-                          {
-                            title: "Cr. Note (w/o Items)",
-                            subItems: ["Option 1", "Option 2", "Option 3"],
-                          },
-                          {
-                            title: "Stock Transfer",
-                            subItems: ["Option 1", "Option 2", "Option 3"],
-                          },
-                          {
-                            title: "Production",
-                            subItems: ["Option 1", "Option 2", "Option 3"],
-                          },
-                          {
-                            title: "Unassemble",
-                            subItems: ["Option 1", "Option 2", "Option 3"],
-                          },
-                          {
-                            title: "Stock Journal",
-                            subItems: ["Option 1", "Option 2", "Option 3"],
-                          },
-                          {
-                            title: "Mat. Issued to Party",
-                            subItems: ["Option 1", "Option 2", "Option 3"],
-                          },
-                          {
-                            title: "Mat. Rcvd. from Party",
-                            subItems: ["Option 1", "Option 2", "Option 3"],
-                          },
-                          {
-                            title: "Physical Stock",
-                            subItems: ["Option 1", "Option 2", "Option 3"],
-                          },
-                          {
-                            title: "GST Misc. Utilities",
-                            subItems: ["Option 1", "Option 2", "Option 3"],
-                          },
-                        ].map((menu, index) => (
-                          <div className="menu-item" key={index}>
-                            <div
-                              className="menu-title"
-                              onClick={() => toggleMenu(menu.title)}
-                            >
-                              <span
-                                className={`arrow ${
-                                  openMenu === menu.title ? "open" : ""
-                                }`}
-                              >
-                                &#9658;
-                              </span>
-                              {menu.title}
-                            </div>
-                            {openMenu === menu.title && (
-                              <ul className="sub-menu">
-                                {menu.subItems.map((subItem, subIndex) => (
-                                  <li className="sub-item" key={subIndex}>
-                                    {subItem}
-                                  </li>
-                                ))}
-                              </ul>
-                            )}
-                          </div>
-                        ))}
-                        <div className="footer-buttons1">
-                          <button className="footer-button1">
-                            Add To Favourites
-                          </button>
-                          <button className="footer-button1">
-                            Create Shortcut
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {activeItem === "switch-user" && (
-                  <div className="content-box">
-                    <h2>Switch User</h2>
-                    <p>This is the content for Switch User</p>
-                  </div>
-                )}
-
-                {activeItem === "configuration" && (
-                  <div className="content-box">
-                    <h2>Configuration</h2>
-                    <p>This is the content for Configuration</p>
-                  </div>
-                )}
-
-                {activeItem === "lock-program" && (
-                  <div className="content-box">
-                    <h2>Lock Program</h2>
-                    <p>This is the content for Lock Program</p>
-                  </div>
-                )}
-
-                {activeItem === "gst-portal" && (
-                  <div className="content-box">
-                    <h2>GST Portal</h2>
-                    <p>This is the content for GST Portal</p>
                   </div>
                 )}
               </div>
