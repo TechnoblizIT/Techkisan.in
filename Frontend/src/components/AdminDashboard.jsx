@@ -37,13 +37,47 @@ const AdminDashboard = ({ handleMenuClick }) => {
   const [allUsers, setAllUsers] = useState([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null); // Track active button
-  const [rows, setRows] = useState(
-    Array(4).fill({ desc: "", hsn: "", qty: "", rate: "", amount: "" })
-  );
+ 
   //-------------------------------------start-invoice setup---------------------------------------------//
+
   const componentRef = useRef();
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [isSaved, setIsSaved] = useState(false);
+  const [taxType, setTaxType] = useState("GST");
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [noTaxRows, setNoTaxRows] = useState(
+    Array(4).fill({ desc: "", hsn: "", qty: "", rate: "", amount: "" })
+  );
+  const [taxRows, setTaxRows] = useState(
+    Array(3).fill({ desc: "", hsn: "", qty: "", rate: "", amount: "" })
+  );
+  
+  // Handle changes in the No-Tax Invoice Table
+  const handleNoTaxChange = (index, field, value) => {
+    const updatedRows = [...noTaxRows];
+    updatedRows[index] = { ...updatedRows[index], [field]: value };
+  
+    const qty = parseFloat(updatedRows[index].qty);
+    const rate = parseFloat(updatedRows[index].rate);
+  
+    updatedRows[index].amount = !qty || !rate ? "" : (qty * rate).toFixed(2);
+  
+    setNoTaxRows(updatedRows);
+  };
+  
+  // Handle changes in the Tax Invoice Table
+  const handleTaxChange = (index, field, value) => {
+    const updatedRows = [...taxRows];
+    updatedRows[index] = { ...updatedRows[index], [field]: value };
+  
+    const qty = parseFloat(updatedRows[index].qty);
+    const rate = parseFloat(updatedRows[index].rate);
+  
+    updatedRows[index].amount = !qty || !rate ? "" : (qty * rate).toFixed(2);
+  
+    setTaxRows(updatedRows);
+  };
+  
   useEffect(() => {
     const fetchInvoiceNumber = async () => {
       try {
@@ -57,25 +91,192 @@ const AdminDashboard = ({ handleMenuClick }) => {
     fetchInvoiceNumber();
   }, []);
 
-  // Function to generate the next invoice number
-  const generateNextInvoiceNumber = (currentNumber) => {
-    const match = currentNumber.match(/TKN-INV-(\d+)/);
-    if (match) {
-      const nextNumber = String(parseInt(match[1]) + 1).padStart(2, "0");
-      return `TKN-INV-${nextNumber}`;
+
+  const handleNoTaxKeyPress = (index, field, event) => {
+    if (event.key === "Enter" && field === "rate") {
+      event.preventDefault(); // Prevents default Enter key action
+  
+      setNoTaxRows((prevRows) => {
+        const newRows = [
+          ...prevRows,
+          { desc: "", hsn: "", qty: "", rate: "", amount: "" },
+        ];
+  
+        // Ensure React updates first
+        setTimeout(() => {
+          requestAnimationFrame(() => {
+            const nextRowInput = document.querySelector(
+              `textarea[data-no-tax-index="${index + 1}"]`
+            );
+            if (nextRowInput) nextRowInput.focus();
+          });
+        }, 50);
+  
+        return newRows;
+      });
     }
-    return "TKN-INV-01";
+  
+    if (event.key === "Backspace" && field === "desc" && index !== 0) {
+      if (
+        !noTaxRows[index].desc &&
+        !noTaxRows[index].hsn &&
+        !noTaxRows[index].qty &&
+        !noTaxRows[index].rate
+      ) {
+        setNoTaxRows((prevRows) => {
+          const updatedRows = prevRows.filter((_, i) => i !== index);
+    
+          // Focus on the previous row's desc textarea
+          setTimeout(() => {
+            const prevRowInput = document.querySelector(
+              `textarea[data-no-tax-index="${index - 1}"]`
+            );
+            if (prevRowInput) prevRowInput.focus();
+          }, 100);
+    
+          return updatedRows;
+        });
+      }
+    }
+    
+  };
+  
+  
+  const handleTaxKeyPress = (index, field, event) => {
+    if (event.key === "Enter" && field === "rate") {
+      event.preventDefault(); // Prevent default enter key action
+  
+      setTaxRows((prevRows) => {
+        const newRows = [
+          ...prevRows,
+          { desc: "", hsn: "", qty: "", rate: "", amount: "" },
+        ];
+  
+        // Wait for React to render and then focus
+        setTimeout(() => {
+          requestAnimationFrame(() => {
+            const nextRowInput = document.querySelector(
+              `textarea[data-tax-index="${index + 1}"]`
+            );
+            if (nextRowInput) nextRowInput.focus();
+          });
+        }, 50);
+  
+        return newRows;
+      });
+    }
+  
+    if (event.key === "Backspace" && field === "desc" && index !== 0) {
+      if (
+        !taxRows[index].desc &&
+        !taxRows[index].hsn &&
+        !taxRows[index].qty &&
+        !taxRows[index].rate
+      ) {
+        setTaxRows((prevRows) => {
+          const updatedRows = prevRows.filter((_, i) => i !== index);
+    
+          // Focus on the previous row's desc textarea
+          setTimeout(() => {
+            const prevRowInput = document.querySelector(
+              `textarea[data-tax-index="${index - 1}"]`
+            );
+            if (prevRowInput) prevRowInput.focus();
+          }, 100);
+    
+          return updatedRows;
+        });
+      }
+    }    
+  };
+  
+
+  const numberToWords = (num) => {
+    const a = [
+      "",
+      "One",
+      "Two",
+      "Three",
+      "Four",
+      "Five",
+      "Six",
+      "Seven",
+      "Eight",
+      "Nine",
+      "Ten",
+      "Eleven",
+      "Twelve",
+      "Thirteen",
+      "Fourteen",
+      "Fifteen",
+      "Sixteen",
+      "Seventeen",
+      "Eighteen",
+      "Nineteen",
+    ];
+    const b = [
+      "",
+      "",
+      "Twenty",
+      "Thirty",
+      "Forty",
+      "Fifty",
+      "Sixty",
+      "Seventy",
+      "Eighty",
+      "Ninety",
+    ];
+
+    const convertToWords = (n) => {
+      if (n === 0) return "Zero";
+      if (n < 20) return a[n];
+      if (n < 100) return b[Math.floor(n / 10)] + " " + a[n % 10];
+      if (n < 1000)
+        return a[Math.floor(n / 100)] + " Hundred " + convertToWords(n % 100);
+      if (n < 100000)
+        return (
+          convertToWords(Math.floor(n / 1000)) +
+          " Thousand " +
+          convertToWords(n % 1000)
+        );
+      if (n < 10000000)
+        return (
+          convertToWords(Math.floor(n / 100000)) +
+          " Lakh " +
+          convertToWords(n % 100000)
+        );
+      return (
+        convertToWords(Math.floor(n / 10000000)) +
+        " Crore " +
+        convertToWords(n % 10000000)
+      );
+    };
+
+    return convertToWords(num).trim();
   };
 
-  // Function to save invoice before printing
+  const noTaxTotalAmount = noTaxRows.reduce(
+    (sum, row) => sum + parseFloat(row.amount || 0),
+    0
+  );
+  
+  const taxTotalAmount = taxRows.reduce(
+    (sum, row) => sum + parseFloat(row.amount || 0),
+    0
+  );
+  
 
+  //------Tax--------//
+  const gstAmount = taxTotalAmount * 0.18;
+  const cgstSgstAmount = taxTotalAmount * 0.09;
+  const taxRoundedTotal = Math.floor(taxTotalAmount + gstAmount);
+  const taxRoundOff = taxRoundedTotal - (taxTotalAmount + gstAmount);
+  const taxTotalInWords =numberToWords(taxRoundedTotal);
+  //------NoTax--------//
+  const noTaxFinalTotal = Math.floor(noTaxTotalAmount);
+  const noTaxRoundOff = noTaxFinalTotal - noTaxTotalAmount;
+  const noTaxTotalInWords = numberToWords(noTaxFinalTotal);
 
-  // Function to print the invoice
-  const handlePrint = useReactToPrint({
-    content: () => componentRef.current,
-    documentTitle: invoiceNumber,
-    onAfterPrint: () =>{window.location.reload();}
-  });
   //---------------------------------------end-invoice setup----------------------------------------------//
 
   const handleItemClick = (item) => {
@@ -162,127 +363,9 @@ const AdminDashboard = ({ handleMenuClick }) => {
       year: "numeric",
     });
   };
+
   //---------------------------------------------------------------------------------------------//
-  const handleChange = (index, field, value) => {
-    const updatedRows = [...rows];
-    updatedRows[index] = { ...updatedRows[index], [field]: value };
 
-    const qty = parseFloat(updatedRows[index].qty);
-    const rate = parseFloat(updatedRows[index].rate);
-
-    // Ensure Amount is empty if either Qty or Rate is missing
-    if (!qty || !rate) {
-      updatedRows[index].amount = "";
-    } else {
-      updatedRows[index].amount = (qty * rate).toFixed(2);
-    }
-
-    setRows(updatedRows);
-  };
-
-  const handleKeyPress = (index, field, event) => {
-    if (event.key === "Enter" && field === "rate") {
-      event.preventDefault(); // Prevents any default form submission or behavior
-
-      setRows((prevRows) => [
-        ...prevRows,
-        { desc: "", hsn: "", qty: "", rate: "", amount: "" },
-      ]);
-
-      // Wait for the state update and focus on the next row's first input
-      setTimeout(() => {
-        const nextRowInput = document.querySelector(
-          `textarea[data-index="${index + 1}"]`
-        );
-        if (nextRowInput) nextRowInput.focus();
-      }, 100);
-    }
-
-    if (event.key === "Backspace" && field === "desc" && index !== 0) {
-      if (
-        !rows[index].desc &&
-        !rows[index].hsn &&
-        !rows[index].qty &&
-        !rows[index].rate
-      ) {
-        setRows((prevRows) => prevRows.filter((_, i) => i !== index));
-      }
-    }
-  };
-
-  const numberToWords = (num) => {
-    const a = [
-      "",
-      "One",
-      "Two",
-      "Three",
-      "Four",
-      "Five",
-      "Six",
-      "Seven",
-      "Eight",
-      "Nine",
-      "Ten",
-      "Eleven",
-      "Twelve",
-      "Thirteen",
-      "Fourteen",
-      "Fifteen",
-      "Sixteen",
-      "Seventeen",
-      "Eighteen",
-      "Nineteen",
-    ];
-    const b = [
-      "",
-      "",
-      "Twenty",
-      "Thirty",
-      "Forty",
-      "Fifty",
-      "Sixty",
-      "Seventy",
-      "Eighty",
-      "Ninety",
-    ];
-
-    const convertToWords = (n) => {
-      if (n === 0) return "Zero";
-      if (n < 20) return a[n];
-      if (n < 100) return b[Math.floor(n / 10)] + " " + a[n % 10];
-      if (n < 1000)
-        return a[Math.floor(n / 100)] + " Hundred " + convertToWords(n % 100);
-      if (n < 100000)
-        return (
-          convertToWords(Math.floor(n / 1000)) +
-          " Thousand " +
-          convertToWords(n % 1000)
-        );
-      if (n < 10000000)
-        return (
-          convertToWords(Math.floor(n / 100000)) +
-          " Lakh " +
-          convertToWords(n % 100000)
-        );
-      return (
-        convertToWords(Math.floor(n / 10000000)) +
-        " Crore " +
-        convertToWords(n % 10000000)
-      );
-    };
-
-    return convertToWords(num).trim();
-  };
-
-  const totalAmount = rows.reduce(
-    (sum, row) => sum + parseFloat(row.amount || 0),
-    0
-  );
-  const roundedTotal = Math.floor(totalAmount);
-  const roundOff = (roundedTotal - totalAmount).toFixed(2);
-  const totalInWords = numberToWords(roundedTotal);
-
-  //------------------------------------------------------------------------------------------//
   useEffect(() => {
     let isMounted = true; // Prevent state updates on unmounted components
 
@@ -347,6 +430,14 @@ const AdminDashboard = ({ handleMenuClick }) => {
   };
 
 
+    // Function to print the invoice
+    const handlePrint = useReactToPrint({
+      content: () => componentRef.current,
+      documentTitle: invoiceNumber,
+      onAfterPrint: () =>{window.location.reload();}
+    });
+
+    
   const handleSave = async (event) => {
     event.preventDefault();
     const invoiceElement = componentRef.current;
@@ -1398,246 +1489,284 @@ const AdminDashboard = ({ handleMenuClick }) => {
 
                 {activeItem === "add-receipt" && (
                   <div className="content-box">
-                    {/* <h2>Add-Reciept</h2> */}
-                    <div>
+                  {/* <h2>Add-Reciept</h2> */}
+                  <div>
+                    <div className="button-container-invoice">
+                      {/* Save Button */}
+                      <button
+                        className="save-button-invoice"
+                        onClick={handleSave}
+                        disabled={isSaved}
+                      >
+                        Save
+                      </button>
+
+                      {/* Print Button */}
                       <button
                         className="print-button-invoice"
                         onClick={handlePrint}
+                        disabled={!isSaved}
                       >
-                        Print Invoice
+                        Print
                       </button>
-                      <div className="invoice-container" ref={componentRef}>
-                        <div>
-                          <h2
-                            style={{
-                              color: "black",
-                              marginBottom: "10px",
-                              marginLeft: "300px",
-                            }}
-                          >
-                            Tax Invoice
-                          </h2>
+                    </div>
+
+                    <div className="invoice-container" ref={componentRef}>
+                      <div>
+                        <h2
+                          style={{
+                            color: "black",
+                            marginBottom: "10px",
+                            marginLeft: "300px",
+                          }}
+                        >
+                          Tax Invoice
+                        </h2>
+                      </div>
+                      <div className="invoice-header">
+                        <div className="logo-sectionlogoin">
+                          <img
+                            src={logo}
+                            alt="Company Logo"
+                            className="logoin"
+                            style={{ height: "50px", width: "200px" }}
+                          />
                         </div>
-                        <div className="invoice-header">
-                          <div className="logo-sectionlogoin">
-                            <img
-                              src={logo}
-                              alt="Company Logo"
-                              className="logoin"
-                              style={{ height: "50px", width: "200px" }}
+                        <div className="invoice-info">
+                          <div className="invoice-info-row">
+                            <label htmlFor="invoice-no">Invoice No.:</label>
+                            <input
+                              type="text"
+                              id="invoice-no"
+                              name="invoice-no"
+                              // value={invoiceNumber}
+                              readOnly
                             />
                           </div>
-                          <div className="invoice-info">
-                            <div className="invoice-info-row">
-                              <label htmlFor="invoice-no.">Invoice No.:</label>
-                              <input
-                                type="text"
-                                id="invoice-no."
-                                name="invoice-no."
-                              />
-                            </div>
-                            <div className="invoice-info-row">
-                              <label htmlFor="date-of-issue">
-                                Date of Issue:
-                              </label>
-                              <input
-                                type="text"
-                                id="date-of-issue"
-                                name="date-of-issue"
-                              />
-                            </div>
+                          <div className="invoice-info-row">
+                            <label htmlFor="date-of-issue">
+                              Date of Issue:
+                            </label>
+                            <input
+                              type="text"
+                              id="date-of-issue"
+                              name="date-of-issue"
+                            />
                           </div>
                         </div>
-                        <div className="invoice-fromto">
-                          <div className="from-section">
-                            <h3>From</h3>
-                            <p>Techkisan Automation,</p>
-                            <p>1st Floor, House No. 399, Ambule House,</p>
-                            <p>Murri, Gondia, Maharashtra, India.</p>
-                            <p>
-                              <strong>Pin code :</strong>
-                              <span style={{ margin: "0px 9px" }}></span>441601
-                            </p>
-                            <p>
-                              <strong>Mobile No. :</strong>
-                              <span style={{ margin: "0 3px" }}></span>
-                              7972021213 | 9511831914
-                            </p>
-                            <p>
-                              <strong>GSTN :</strong>
-                              <span style={{ margin: "0 18px" }}></span>
-                              27AAQFT9534N1Z5
-                            </p>
-                            <p>
-                              <strong>PAN No.:</strong>
-                              <span style={{ margin: "0 12px" }}></span>
-                              AAQFT9534N
-                            </p>
+                      </div>
+                      <div className="invoice-fromto">
+                        <div className="from-section">
+                          <h3>From</h3>
+                          <p>Techkisan Automation,</p>
+                          <p>Nakade Complex, Mama Chawk, Civil Line</p>
+                          <p>Gondia, Maharashtra, India - 441601</p>
+                          <p>
+                            <strong>Mobile No. :</strong>
+                            <span style={{ margin: "0 3px" }}></span>
+                            7972021213 | 9511831914
+                          </p>
+                          <p>
+                            <strong>Email I'd :</strong>
+                            <span style={{ margin: "0px 9px" }}></span>
+                            tkn.automation@gmail.com
+                          </p>
+                        </div>
+                        <div className="to-section">
+                          <h3>Bill To</h3>
+                          <div className="to-section-row">
+                            <label>M/s </label>
+                            <input type="text" />
                           </div>
-                          <div className="to-section">
-                            <h3>Bill To</h3>
-                            <div className="to-section-row">
-                              <label>M/s </label>
-                              <input type="text" />
-                            </div>
-                            <div className="to-section-row">
-                              <label>Address:</label>
-                              <input type="text" />
-                            </div>
-                            <div className="to-section-row">
-                              <label></label>
-                              <input type="text" />
-                            </div>
-                            <div className="to-section-row">
-                              <label></label>
-                              <input type="text" />
-                            </div>
-                            <div className="to-section-row">
-                              <label>Mobile No.: </label>
-                              <input type="text" />
-                            </div>
-                            <div className="to-section-row">
-                              <label>GSTN: </label>
-                              <input type="text" />
-                            </div>
-                            <div className="to-section-row">
-                              <label>PAN No.: </label>
-                              <input type="text" />
-                            </div>
+                          <div className="to-section-row">
+                            <label>Address:</label>
+                            <input type="text" />
+                          </div>
+                          <div className="to-section-row">
+                            <label></label>
+                            <input type="text" />
+                          </div>
+                          <div className="to-section-row">
+                            <label></label>
+                            <input type="text" />
+                          </div>
+                          <div className="to-section-row">
+                            <label>Mobile No.: </label>
+                            <input type="text" />
                           </div>
                         </div>
+                      </div>
 
-                        <div className="invoice-table">
-                          <table>
-                            <thead>
-                              <tr>
-                                <th>Sr.</th>
-                                <th>Product Description</th>
-                                <th>HSN</th>
-                                <th>Qty</th>
-                                <th>Rate</th>
-                                <th>TaxRate</th>
-                                <th>TaxAmt</th>
-                                <th>Amount</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {[...Array(10)].map((_, index) => (
-                                <tr
-                                  key={index}
-                                  className={index >= 5 ? "hidden-row" : ""}
-                                >
-                                  <td>
-                                    <input type="text" />
-                                  </td>
-                                  <td>
-                                    <textarea
-                                      rows="3"
-                                      style={{ width: "100%" }}
-                                    />
-                                  </td>
-                                  <td>
-                                    <input type="text" />
-                                  </td>
-                                  <td>
-                                    <input type="text" />
-                                  </td>
-                                  <td>
-                                    <input type="text" />
-                                  </td>
-                                  <td>
-                                    <input type="text" />
-                                  </td>
-                                  <td>
-                                    <input type="text" />
-                                  </td>
-                                  <td>
-                                    <input type="text" />
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
+                      <div className="invoice-table">
+                      <table>
+  <thead>
+    <tr>
+      <th>S.N.</th>
+      <th>Product Description</th>
+      <th>HSN</th>
+      <th>Qty(N)</th>
+      <th>Rate(₹)</th>
+      <th>Amount(₹)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {taxRows.map((row, index) => (
+      <tr key={index}>
+        <td>{index + 1}</td>
+        <td>
+          <textarea
+            rows="3"
+            style={{ width: "100%" }}
+            value={row.desc}
+            data-tax-index={index} // Add this
+            onChange={(e) => handleTaxChange(index, "desc", e.target.value)}
+            onKeyDown={(e) => handleTaxKeyPress(index, "desc", e)}
+          />
+        </td>
+        <td>
+          <input
+            type="text"
+            value={row.hsn}
+            onChange={(e) => handleTaxChange(index, "hsn", e.target.value)}
+          />
+        </td>
+        <td>
+          <input
+            type="number"
+            value={row.qty}
+            onChange={(e) => handleTaxChange(index, "qty", e.target.value)}
+          />
+        </td>
+        <td>
+          <input
+            type="number"
+            value={row.rate}
+            onChange={(e) => handleTaxChange(index, "rate", e.target.value)}
+            onKeyDown={(e) => handleTaxKeyPress(index, "rate", e)} // Key press for rate
+          />
+        </td>
+        <td>
+          <input type="text" value={row.amount} readOnly />
+        </td>
+      </tr>
+    ))}
+    <tr>
+      <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold" }}>Total (₹):</td>
+      <td><input type="text" value={taxTotalAmount.toFixed(2)} readOnly /></td>
+    </tr>
+    <tr>
+      <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold", position: "relative" }}
+          onClick={() => setShowDropdown(true)}
+          onBlur={() => setTimeout(() => setShowDropdown(false), 200)}>
+        {showDropdown ? (
+          <select 
+            value={taxType} 
+            onChange={(e) => setTaxType(e.target.value)} 
+            autoFocus 
+            style={{ width: "110px", fontSize: "12px" }}>
+            <option value="GST">GST @18%</option>
+            <option value="IGST">IGST @18%</option>
+          </select>
+        ) : (
+          ` ${taxType === "GST" ? "GST @18%" : "IGST @18%"}`
+        )}
+      </td>
+      <td><input type="text" value={gstAmount.toFixed(2)} readOnly /></td>
+    </tr>
+    {taxType === "GST" && (
+      <>
+        <tr>
+          <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold" }}>-CGST 9%</td>
+          <td><input type="text" value={cgstSgstAmount.toFixed(2)} readOnly /></td>
+        </tr>
+        <tr>
+          <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold" }}>-SGST 9%</td>
+          <td><input type="text" value={cgstSgstAmount.toFixed(2)} readOnly /></td>
+        </tr>
+      </>
+    )}
+    <tr>
+      <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold" }}>Round Off (₹):</td>
+      <td><input type="text" value={taxRoundOff.toFixed(2)} readOnly /></td>
+    </tr>
+    <tr>
+      <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold" }}>Final Total (₹):</td>
+      <td><input type="text" value={taxRoundedTotal.toFixed(2)} readOnly /></td>
+    </tr>
+    <tr>
+      <td colSpan="6" style={{ textAlign: "right" }}>
+        <b>Amount in Words: </b>
+        <p>{taxTotalInWords} Rupees Only</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
-                        <div className="tax-section">
-                          <div className="tax-row">
-                            <label>Round Off:</label>
-                            <input type="text" style={{ width: "100px" }} />
-                          </div>
-                          <div className="tax-row">
-                            <label>Total:</label>
-                            <input type="text" style={{ width: "100px" }} />
-                          </div>
-                          <div className="tax-row">
-                            <label>In words:</label>
-                            <input type="text" style={{ width: "350px" }} />
-                          </div>
-                        </div>
+                      </div>
 
-                        <div className="footer-section">
-                          <div className="payment-section">
-                            <h4>BANK DETAILS</h4>
-                            <div className="payment-section-row">
-                              <p>Bank Name:</p>
-                              <p>HDFC Bank</p>
-                            </div>
-                            <div className="payment-section-row">
-                              <p>A/c Holder Name:</p>
-                              <p>TechKisan Automation</p>
-                            </div>
-                            <div className="payment-section-row">
-                              <p>Account No.:</p>
-                              <p>50200063151545</p>
-                            </div>
-                            <div className="payment-section-row">
-                              <p>IFSC Code:</p>
-                              <p>HDFC000963</p>
-                            </div>
-                            <div className="UPI-section-main">
-                              <h4>PAYMENT VIA QR CODE</h4>
-                              <div className="UPI-section">
-                                <div>
-                                  <p>
-                                    <strong>UPI ID:</strong>
-                                  </p>
-                                  <p>9511831914@hdfcbank</p>
-                                  <p>8698105221@hdfcbank</p>
-                                  <div>
-                                    <img
-                                      src={paymenticons}
-                                      alt="payment icons"
-                                      style={{
-                                        height: "30px",
-                                        width: "145px",
-                                        marginTop: "5px",
-                                      }}
-                                    />
-                                  </div>
-                                </div>
+                      <div className="footer-section">
+                        <div className="payment-section">
+                          <h4>BANK DETAILS</h4>
+                          <div className="payment-section-row">
+                            <p>Bank Name:</p>
+                            <p>HDFC Bank</p>
+                          </div>
+                          <div className="payment-section-row">
+                            <p>A/c Holder Name:</p>
+                            <p>TechKisan Automation</p>
+                          </div>
+                          <div className="payment-section-row">
+                            <p>Account No.:</p>
+                            <p>50200063151545</p>
+                          </div>
+                          <div className="payment-section-row">
+                            <p>IFSC Code:</p>
+                            <p>HDFC000963</p>
+                          </div>
+                          <div className="UPI-section-main">
+                            <h4>PAYMENT VIA QR CODE</h4>
+                            <div className="UPI-section">
+                              <div>
+                                <p>
+                                  <strong>UPI ID:</strong>
+                                </p>
+                                <p>9511831914@hdfcbank</p>
+                                <p>8698105221@hdfcbank</p>
                                 <div>
                                   <img
-                                    src={barcode}
-                                    alt="QR code"
-                                    style={{ height: "78px", width: "78px" }}
+                                    src={paymenticons}
+                                    alt="payment icons"
+                                    style={{
+                                      height: "30px",
+                                      width: "145px",
+                                      marginTop: "5px",
+                                    }}
                                   />
                                 </div>
                               </div>
+                              <div>
+                                <img
+                                  src={barcode}
+                                  alt="QR code"
+                                  style={{ height: "78px", width: "78px" }}
+                                />
+                              </div>
                             </div>
                           </div>
-                          <div className="signature-section">
-                            <p>
-                              <strong>For Techkisan Automation</strong>
-                            </p>
-                            <img src={signature} alt="Signature" />
-                            <p style={{ fontSize: "10px", marginLeft: "25px" }}>
-                              <i>Computer Generated Invoice</i>
-                            </p>
-                          </div>
+                        </div>
+                        <div className="signature-section">
+                          <p>
+                            <strong>For Techkisan Automation</strong>
+                          </p>
+                          <img src={signature} alt="Signature" />
+                          <p style={{ fontSize: "10px", marginLeft: "25px" }}>
+                            <i>Computer Generated Invoice</i>
+                          </p>
                         </div>
                       </div>
                     </div>
                   </div>
+                </div>
                 )}
               {/* NO TAX INVOICE  */}
                 {activeItem === "notax-receipt" && (
@@ -1751,154 +1880,78 @@ const AdminDashboard = ({ handleMenuClick }) => {
                         </div>
 
                         <div className="invoice-table">
-                          <table>
-                            <thead>
-                              <tr>
-                                <th>S.N.</th>
-                                <th>Product Description</th>
-                                <th>HSN</th>
-                                <th>Qty(N)</th>
-                                <th>Rate(₹)</th>
-                                <th>Amount(₹)</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {rows.map((row, index) => (
-                                <tr key={index}>
-                                  <td>{index + 1}</td>
-                                  <td>
-                                    <textarea
-                                      rows="3"
-                                      style={{ width: "100%" }}
-                                      value={row.desc}
-                                      onChange={(e) =>
-                                        handleChange(
-                                          index,
-                                          "desc",
-                                          e.target.value
-                                        )
-                                      }
-                                      onKeyDown={(e) =>
-                                        handleKeyPress(index, "desc", e)
-                                      }
-                                    />
-                                  </td>
-                                  <td>
-                                    <input
-                                      type="text"
-                                      value={row.hsn}
-                                      onChange={(e) =>
-                                        handleChange(
-                                          index,
-                                          "hsn",
-                                          e.target.value
-                                        )
-                                      }
-                                    />
-                                  </td>
-                                  <td>
-                                    <input
-                                      type="number"
-                                      value={row.qty}
-                                      onChange={(e) =>
-                                        handleChange(
-                                          index,
-                                          "qty",
-                                          e.target.value
-                                        )
-                                      }
-                                    />
-                                  </td>
-                                  <td>
-                                    <input
-                                      type="number"
-                                      value={row.rate}
-                                      onChange={(e) =>
-                                        handleChange(
-                                          index,
-                                          "rate",
-                                          e.target.value
-                                        )
-                                      }
-                                      onKeyDown={(e) =>
-                                        handleKeyPress(index, "rate", e)
-                                      }
-                                    />
-                                  </td>
-                                  <td>
-                                    <input
-                                      type="text"
-                                      value={row.amount}
-                                      readOnly
-                                      onKeyDown={(e) =>
-                                        handleKeyPress(index, "amount", e)
-                                      }
-                                    />
-                                  </td>
-                                </tr>
-                              ))}
-                              <tr>
-                                <td
-                                  colSpan="5"
-                                  style={{
-                                    textAlign: "right",
-                                    fontWeight: "bold",
-                                  }}
-                                >
-                                  Total (₹):
-                                </td>
-                                <td>
-                                  <input
-                                    type="text"
-                                    value={totalAmount.toFixed(2)}
-                                    readOnly
-                                  />
-                                </td>
-                              </tr>
-                              <tr>
-                                <td
-                                  colSpan="5"
-                                  style={{
-                                    textAlign: "right",
-                                    fontWeight: "bold",
-                                  }}
-                                >
-                                  Round Off (₹):
-                                </td>
-                                <td>
-                                  <input
-                                    type="text"
-                                    value={roundOff}
-                                    readOnly
-                                  />
-                                </td>
-                              </tr>
-                              <tr>
-                                <td
-                                  colSpan="5"
-                                  style={{
-                                    textAlign: "right",
-                                    fontWeight: "bold",
-                                  }}
-                                >
-                                  Final Total (₹):
-                                </td>
-                                <td>
-                                  <input
-                                    type="text"
-                                    value={roundedTotal}
-                                    readOnly
-                                  />
-                                </td>
-                              </tr>
-                              <tr>
-                                <td colSpan="6" style={{ textAlign: "right" }}>
-                                  <b>Amount in Words: </b>
-                                  <p>{totalInWords} Rupees Only</p>
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
+                        <table>
+  <thead>
+    <tr>
+      <th>S.N.</th>
+      <th>Product Description</th>
+      <th>HSN</th>
+      <th>Qty(N)</th>
+      <th>Rate(₹)</th>
+      <th>Amount(₹)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {noTaxRows.map((row, index) => (
+      <tr key={index}>
+        <td>{index + 1}</td>
+        <td>
+          <textarea
+            rows="3"
+            style={{ width: "100%" }}
+            value={row.desc}
+            data-no-tax-index={index} // Add this
+            onChange={(e) => handleNoTaxChange(index, "desc", e.target.value)}
+            onKeyDown={(e) => handleNoTaxKeyPress(index, "desc", e)}
+          />
+        </td>
+        <td>
+          <input
+            type="text"
+            value={row.hsn}
+            onChange={(e) => handleNoTaxChange(index, "hsn", e.target.value)}
+          />
+        </td>
+        <td>
+          <input
+            type="number"
+            value={row.qty}
+            onChange={(e) => handleNoTaxChange(index, "qty", e.target.value)}
+          />
+        </td>
+        <td>
+          <input
+            type="number"
+            value={row.rate}
+            onChange={(e) => handleNoTaxChange(index, "rate", e.target.value)}
+            onKeyDown={(e) => handleNoTaxKeyPress(index, "rate", e)} // Key press for rate
+          />
+        </td>
+        <td>
+          <input type="text" value={row.amount} readOnly />
+        </td>
+      </tr>
+    ))}
+    <tr>
+      <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold" }}>Total (₹):</td>
+      <td><input type="text" value={noTaxTotalAmount.toFixed(2)} readOnly /></td>
+    </tr>
+    <tr>
+      <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold" }}>Round Off (₹):</td>
+      <td><input type="text" value={noTaxRoundOff.toFixed(2)} readOnly /></td>
+    </tr>
+    <tr>
+      <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold" }}>Final Total (₹):</td>
+      <td><input type="text" value={noTaxFinalTotal} readOnly /></td>
+    </tr>
+    <tr>
+      <td colSpan="6" style={{ textAlign: "right" }}>
+        <b>Amount in Words: </b>
+        <p>{noTaxTotalInWords} Rupees Only</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
                         </div>
 
                         <div className="footer-section">
