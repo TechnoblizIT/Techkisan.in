@@ -42,6 +42,7 @@ const AdminDashboard = ({ handleMenuClick }) => {
 
   const componentRef = useRef();
   const [invoiceNumber, setInvoiceNumber] = useState("");
+  const [taxInvoiceNumber, setTaxInvoiceNumber] = useState("")
   const [isSaved, setIsSaved] = useState(false);
   const [taxType, setTaxType] = useState("GST");
   const [showDropdown, setShowDropdown] = useState(false);
@@ -87,8 +88,17 @@ const AdminDashboard = ({ handleMenuClick }) => {
         console.error("Error fetching invoice number:", error);
       }
     };
+    const fetchTaxInvoiceNumber = async () => {
+      try {
+        const response = await axios.get(Endpoints.ADMIN_FETCH_LATEST_TAXINVOICE_ID);
+        setTaxInvoiceNumber(response.data.invoiceNumber || "TKN-TI-00");
+      } catch (error) {
+        console.error("Error fetching tax invoice number:", error);
+      }
+    };
 
     fetchInvoiceNumber();
+    fetchTaxInvoiceNumber();
   }, []);
 
 
@@ -433,10 +443,45 @@ const AdminDashboard = ({ handleMenuClick }) => {
     // Function to print the invoice
     const handlePrint = useReactToPrint({
       content: () => componentRef.current,
-      documentTitle: invoiceNumber,
+      
       onAfterPrint: () =>{window.location.reload();}
     });
 
+    const handleSaveTax = async (event) => {
+      event.preventDefault();
+      const invoiceElement = componentRef.current;
+      const newInvoiceNumber = taxInvoiceNumber    
+      try {
+        // Convert HTML to PDF
+        const pdfBlob = await html2pdf()
+          .from(invoiceElement)
+          .set({
+            margin: 10,
+            filename: `Invoice_${newInvoiceNumber}.pdf`,
+            image: { type: "jpeg", quality: 1 },
+            html2canvas: { scale: 3, useCORS: true, letterRendering: true, scrollY: 0 },
+            jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+          })
+          .outputPdf("blob");
+    
+        // Create FormData to send the PDF file
+        const formData = new FormData();
+        formData.append("invoiceNumber", newInvoiceNumber);
+        formData.append("invoicePDF", pdfBlob, `Invoice_${newInvoiceNumber}.pdf`);
+    
+        // Send PDF to backend
+        const response = await axios.post(Endpoints.ADMIN_SAVE_TAXINVOICE, formData, {
+          headers: { "Content-Type": "multipart/form-data" }, // Important for sending files
+        });
+    
+        if (response.data.message === "Invoice saved successfully") {
+          setInvoiceNumber(newInvoiceNumber);
+          setIsSaved(true);
+        }
+      } catch (error) {
+        console.error("Error saving invoice:", error);
+      }
+    };
     
   const handleSave = async (event) => {
     event.preventDefault();
@@ -1495,7 +1540,7 @@ const AdminDashboard = ({ handleMenuClick }) => {
                       {/* Save Button */}
                       <button
                         className="save-button-invoice"
-                        onClick={handleSave}
+                        onClick={handleSaveTax}
                         disabled={isSaved}
                       >
                         Save
@@ -1539,7 +1584,7 @@ const AdminDashboard = ({ handleMenuClick }) => {
                               type="text"
                               id="invoice-no"
                               name="invoice-no"
-                              // value={invoiceNumber}
+                              value={taxInvoiceNumber}
                               readOnly
                             />
                           </div>

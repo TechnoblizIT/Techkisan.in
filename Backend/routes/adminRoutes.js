@@ -10,6 +10,7 @@ const announcementModel=require("../models/Announcement-model");
 const AnnouncementModel = require('../models/Announcement-model');
 const upload=require("../configs/mutler-setup")
 const noTaxinvoiceModel = require('../models/no-taxinvoice-model');
+const taxInvoiceModel=require("../models/taxinvoice-model")
 router.post('/create', async(req, res) => {
     try{ bcrypt.genSalt("admin123", async function (err, salt) {
      const hashedPassword = await bcrypt.hash("admin123", 10);
@@ -19,7 +20,6 @@ router.post('/create', async(req, res) => {
        Password: hashedPassword
       })
       await newadmin.save()
-      console.log(newadmin)
      res.send("Successfully created Admin")
      })}catch(err){ console.log(err) }
      });
@@ -140,7 +140,66 @@ router.get('/admindata',async function (req, res){
           res.status(500).json({ error: "Error fetching invoice number" });
         }
       });
+    router.get("/taxinvoice/latest",async(req,res)=>{
+      try {
+        const lastInvoice = await taxInvoiceModel.findOne().sort({ _id: -1 }); // Fetch the latest inserted invoice
     
+        let nextInvoiceNumber = "TKN-TI-01"; // Default for the first invoice
+    
+        if (lastInvoice && lastInvoice.invoiceNumber) {
+          const match = lastInvoice.invoiceNumber.match(/TKN-TI-(\d+)/);
+          if (match) {
+            const nextNumber = String(parseInt(match[1]) + 1).padStart(2, "0");
+            nextInvoiceNumber = `TKN-TI-${nextNumber}`;
+          }
+        }
+    
+        res.json({ invoiceNumber: nextInvoiceNumber });
+      } catch (error) {
+        res.status(500).json({ error: "Error fetching invoice number" });
+      }
+    });
+    router.post("/save_taxinvoice", upload.single("invoicePDF"), async (req, res) => {
+      try {
+        const { invoiceNumber } = req.body;
+        
+        // Validate file
+        if (!req.file) {
+          return res.status(400).json({ message: "No PDF uploaded" });
+        }
+    
+        // Create new invoice entry
+        const newInvoice = new taxInvoiceModel({
+          invoiceNumber,
+          invoicePDF: req.file.buffer, // Store as Buffer
+        });
+    
+        await newInvoice.save();
+        res.json({ message: "Invoice saved successfully" });
+      } catch (error) {
+        console.error("Error saving invoice:", error);
+        res.status(500).json({ message: "Failed to save invoice" });
+      }
+    });
+
+    router.delete("/delete_employee/:id", async (req, res) => {
+      try {
+        const { id } = req.params;
+    
+        let deletedUser = await employeeModel.findByIdAndDelete(id);
+        if (!deletedUser) deletedUser = await managerModel.findByIdAndDelete(id);
+        if (!deletedUser) deletedUser = await internModel.findByIdAndDelete(id);
+    
+        if (deletedUser) {
+          return res.json({ success: true, message: "User deleted successfully!" });
+        } else {
+          return res.status(404).json({ success: false, message: "User not found!" });
+        }
+      } catch (error) {
+        res.status(500).json({ error: error.message });
+      }
+    });
+
 
 
    

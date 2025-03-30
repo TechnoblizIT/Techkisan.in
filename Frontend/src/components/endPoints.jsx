@@ -11,6 +11,9 @@ class APIEndpoints {
       this.ADMIN_DELETE_ANNOUNCEMENT = `${this.BASE_URL}/admin/delete_announcement`;
       this.ADMIN_SAVE_NOTAXINVOICE = `${this.BASE_URL}/admin/save_notaxinvoice`;
       this.ADMIN_FETCH_LATEST_NOTAXINVOICE_ID = `${this.BASE_URL}/admin/invoice/latest`;
+      this.ADMIN_FETCH_LATEST_TAXINVOICE_ID = `${this.BASE_URL}/admin/taxinvoice/latest`;
+      this.ADMIN_SAVE_TAXINVOICE = `${this.BASE_URL}/admin/save_taxinvoice`;
+      this.ADMIN_DELETE_EMPLOYEE=`${this.BASE_URL}/admin/delete_employee`;
 
 
   
