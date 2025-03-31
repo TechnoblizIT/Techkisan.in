@@ -2,7 +2,7 @@ class APIEndpoints {
     constructor() {
       this.BASE_URL ="http://localhost:8000";
       
-     
+      this.DOWNLOAD_INVOICE=`${this.BASE_URL}/download_invoice`
      this.GET_MESSAGES=`${this.BASE_URL}/messages`
       // Admin Endpoints
       this.ADMIN_LOGIN = `${this.BASE_URL}/admin/login`;
@@ -14,6 +14,7 @@ class APIEndpoints {
       this.ADMIN_FETCH_LATEST_TAXINVOICE_ID = `${this.BASE_URL}/admin/taxinvoice/latest`;
       this.ADMIN_SAVE_TAXINVOICE = `${this.BASE_URL}/admin/save_taxinvoice`;
       this.ADMIN_DELETE_EMPLOYEE=`${this.BASE_URL}/admin/delete_employee`;
+   
 
 
   

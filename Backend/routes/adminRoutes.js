@@ -10,7 +10,8 @@ const announcementModel=require("../models/Announcement-model");
 const AnnouncementModel = require('../models/Announcement-model');
 const upload=require("../configs/mutler-setup")
 const noTaxinvoiceModel = require('../models/no-taxinvoice-model');
-const taxInvoiceModel=require("../models/taxinvoice-model")
+const taxInvoiceModel=require("../models/taxinvoice-model");
+const taxinvoiceModel = require('../models/taxinvoice-model');
 router.post('/create', async(req, res) => {
     try{ bcrypt.genSalt("admin123", async function (err, salt) {
      const hashedPassword = await bcrypt.hash("admin123", 10);
@@ -45,12 +46,21 @@ router.get('/admindata',async function (req, res){
         const employee = await employeeModel.find()
         const manager = await managerModel.find()
         const intern = await internModel.find()
+        const taxinvoice=await taxinvoiceModel.find()
+        const noTaxinvoice=await noTaxinvoiceModel.find()
         const Announcement=await announcementModel.find()
         const [employeeData, managerData, internData] = await Promise.all([
             employee,
             manager,
-            intern
+            intern,
+            taxinvoice,
+            noTaxinvoice
         ]);
+        const [taxinvoiceData, noTaxinvoiceData] = await Promise.all([
+          taxinvoice,
+          noTaxinvoice
+      ]);
+      const allInvoices=[...taxinvoiceData,...noTaxinvoiceData]
         const allUsers = [...employeeData, ...managerData, ...internData];
         const employeeCount = await employeeModel.countDocuments()
         const managerCount=await managerModel.countDocuments()
@@ -69,7 +79,8 @@ router.get('/admindata',async function (req, res){
             employeeCount: totalsEmployess,
             internCount: internCount,
             employee: allUsers,
-            Announcement:Announcement
+            Announcement:Announcement,
+            allInvoices: allInvoices
 
         })
     } catch (error) {
@@ -97,10 +108,10 @@ router.get('/admindata',async function (req, res){
             res.status(500).json({ error: error.message });
         }
     });
-
+  //  no tax invoice 
     router.post("/save_notaxinvoice", upload.single("invoicePDF"), async (req, res) => {
         try {
-          const { invoiceNumber } = req.body;
+          const { invoiceNumber , PartyName,DateofIssue} = req.body;
           
           // Validate file
           if (!req.file) {
@@ -110,7 +121,9 @@ router.get('/admindata',async function (req, res){
           // Create new invoice entry
           const newInvoice = new noTaxinvoiceModel({
             invoiceNumber,
-            invoicePDF: req.file.buffer, // Store as Buffer
+            invoicePDF: req.file.buffer,
+            partyName:PartyName,
+            DateOfIssue: DateofIssue,
           });
       
           await newInvoice.save();
@@ -159,9 +172,11 @@ router.get('/admindata',async function (req, res){
         res.status(500).json({ error: "Error fetching invoice number" });
       }
     });
+    // tax invoice 
     router.post("/save_taxinvoice", upload.single("invoicePDF"), async (req, res) => {
       try {
-        const { invoiceNumber } = req.body;
+        const { invoiceNumber,PartyName,DateofIssue } = req.body;
+        
         
         // Validate file
         if (!req.file) {
@@ -171,7 +186,10 @@ router.get('/admindata',async function (req, res){
         // Create new invoice entry
         const newInvoice = new taxInvoiceModel({
           invoiceNumber,
-          invoicePDF: req.file.buffer, // Store as Buffer
+          invoicePDF: req.file.buffer,
+          partyName:PartyName,
+          DateOfIssue:DateofIssue
+
         });
     
         await newInvoice.save();
@@ -199,7 +217,7 @@ router.get('/admindata',async function (req, res){
         res.status(500).json({ error: error.message });
       }
     });
-
+  
 
 
    

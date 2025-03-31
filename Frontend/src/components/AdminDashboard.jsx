@@ -27,10 +27,23 @@ const AdminDashboard = ({ handleMenuClick }) => {
   const [activeSection, setActiveSection] = useState("HR");
   const [message, setMessage] = useState("");
   const [announcements, setAnnouncements] = useState([]);
+  const formatDate = (date) => {
+    if (!date) return "-";
+    return new Date(date).toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  };
   const [activePage, setActivePage] = useState("Overview");
+   const[allInvoices, setAllInvoices] = useState([])
   const [menuOpen, setMenuOpen] = useState(false);
   const [topMenuOpen, setTopMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [partyName, setPartyName] = useState("")
+  const [issueDate, setIssueDate] = useState(formatDate(new Date()))
+  const [partyName2, setPartyName2] = useState("")
+  const [issueDate2, setIssueDate2] = useState(formatDate(new Date()))
   const [employeecount, setEmployeecount] = useState(0);
   const [internCount, setInternCount] = useState(0);
   const navigate = useNavigate();
@@ -84,6 +97,14 @@ const AdminDashboard = ({ handleMenuClick }) => {
 ;
   
   useEffect(() => {
+    const fetchAllIvoices = async() =>{
+      try {
+        const response = await axios.get(Endpoints.ADMIN_FETCH_ALL_INVOICES);
+        setAllInvoices(response.data);
+      } catch (error) {
+        console.error("Error fetching all invoices:", error);
+      }
+    }
     const fetchInvoiceNumber = async () => {
       try {
         const response = await axios.get(Endpoints.ADMIN_FETCH_LATEST_NOTAXINVOICE_ID);
@@ -100,7 +121,7 @@ const AdminDashboard = ({ handleMenuClick }) => {
         console.error("Error fetching tax invoice number:", error);
       }
     };
-    console.log(currentDate)
+    fetchAllIvoices()
     fetchInvoiceNumber();
     fetchTaxInvoiceNumber();
   }, []);
@@ -129,14 +150,7 @@ const AdminDashboard = ({ handleMenuClick }) => {
         return newRows;
       });
     }
-    const formatDate = (date) => {
-      if (!date) return "-";
-      return new Date(date).toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      });
-    }
+  
   
     if (event.key === "Backspace" && field === "desc" && index !== 0) {
       if (
@@ -377,14 +391,7 @@ const AdminDashboard = ({ handleMenuClick }) => {
     setTopMenuOpen(false);
   };
 
-  const formatDate = (date) => {
-    if (!date) return "-";
-    return new Date(date).toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  };
+
 
   //---------------------------------------------------------------------------------------------//
 
@@ -420,6 +427,7 @@ const AdminDashboard = ({ handleMenuClick }) => {
           setInternCount(response.data.internCount);
           setEmployees(response.data.employee);
           setAnnouncements(response.data.Announcement);
+          setAllInvoices(response.data.allInvoices);
         }
       } catch (err) {
         console.error(
@@ -458,7 +466,7 @@ const AdminDashboard = ({ handleMenuClick }) => {
       
       onAfterPrint: () =>{window.location.reload();}
     });
-
+//  tax invoice handler 
     const handleSaveTax = async (event) => {
       event.preventDefault();
       const invoiceElement = componentRef.current;
@@ -480,6 +488,8 @@ const AdminDashboard = ({ handleMenuClick }) => {
         const formData = new FormData();
         formData.append("invoiceNumber", newInvoiceNumber);
         formData.append("invoicePDF", pdfBlob, `Invoice_${newInvoiceNumber}.pdf`);
+        formData.append("PartyName",partyName)
+        formData.append("DateofIssue", issueDate)
     
         // Send PDF to backend
         const response = await axios.post(Endpoints.ADMIN_SAVE_TAXINVOICE, formData, {
@@ -495,7 +505,7 @@ const AdminDashboard = ({ handleMenuClick }) => {
         console.error("Error saving invoice:", error);
       }
     };
-    
+    //  No tax invoice handler
   const handleSave = async (event) => {
     event.preventDefault();
     const invoiceElement = componentRef.current;
@@ -518,6 +528,8 @@ const AdminDashboard = ({ handleMenuClick }) => {
       const formData = new FormData();
       formData.append("invoiceNumber", newInvoiceNumber);
       formData.append("invoicePDF", pdfBlob, `Invoice_${newInvoiceNumber}.pdf`);
+      formData.append("PartyName",partyName2)
+      formData.append("DateofIssue", issueDate2)
   
       // Send PDF to backend
       const response = await axios.post(Endpoints.ADMIN_SAVE_NOTAXINVOICE, formData, {
@@ -538,6 +550,29 @@ const AdminDashboard = ({ handleMenuClick }) => {
     // Logic to handle quit action
     console.log("Quit action triggered");
   };
+
+  const handleDownload = async (invoiceId, invoiceNumber) => {
+    try {
+      const response = await fetch(`${Endpoints.DOWNLOAD_INVOICE}/${invoiceId}`);
+  
+      if (!response.ok) {
+        throw new Error("Failed to download invoice");
+      }
+  
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+  
+      a.href = url;
+      a.download = `Invoice_${invoiceNumber}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Error downloading invoice:", error);
+    }
+  };
+  
 
   // State to track the active item
   const [activeItem, setActiveItem] = useState("add-account");
@@ -1555,7 +1590,7 @@ const AdminDashboard = ({ handleMenuClick }) => {
                       {/* Save Button */}
                       <button
                         className="save-button-invoice"
-                        onClick={handleSaveTax}
+                        onClick={handleSaveTax}//dad
                         disabled={isSaved}
                       >
                         Save
@@ -1612,6 +1647,7 @@ const AdminDashboard = ({ handleMenuClick }) => {
                               type="text"
                               id="date-of-issue"
                               name="date-of-issue"
+                              onChange={(e)=>{setIssueDate(e.target.value)}}
                               value={formatDate(new Date())}
                             />
                           </div>
@@ -1638,7 +1674,10 @@ const AdminDashboard = ({ handleMenuClick }) => {
                           <h3>Bill To</h3>
                           <div className="to-section-row">
                             <label>M/s </label>
-                            <input type="text" />
+                            <input type="text" name="partyName"
+                            onChange={(e) => setPartyName(e.target.value)}
+                            value={partyName}
+                            />
                           </div>
                           <div className="to-section-row">
                             <label>Address:</label>
@@ -1895,7 +1934,8 @@ const AdminDashboard = ({ handleMenuClick }) => {
                                 type="text"
                                 id="date-of-issue"
                                 name="date-of-issue"
-                                value={formatDate(new Date())}
+                                value={issueDate2}
+                                onChange={(e)=>{setIssueDate2(e.target.value)}}
                               />
                             </div>
                           </div>
@@ -1921,7 +1961,10 @@ const AdminDashboard = ({ handleMenuClick }) => {
                             <h3>Bill To</h3>
                             <div className="to-section-row">
                               <label>M/s </label>
-                              <input type="text" />
+                              <input type="text"
+                              value={partyName2}
+                              onChange={(e)=>{setPartyName2(e.target.value)}} 
+                              />
                             </div>
                             <div className="to-section-row">
                               <label>Address:</label>
@@ -2774,41 +2817,30 @@ const AdminDashboard = ({ handleMenuClick }) => {
                       </tr>
                     </thead>
                     <tbody>
-                      {employees.length > 0 ? (
-                        employees.map((emp, index) => (
-                          <tr key={emp.id}>
-                            <td>{index + 1}</td>
+                      {allInvoices.length > 0 ? (
+                        allInvoices.map((invoice) => (
+                          <tr key={invoice.id}>
+                            <td>{invoice?invoice.invoiceNumber:"NA"}</td>
                             <td>
-                              {emp ? emp.firstName + " " + emp.lastName : "NA"}
+                              {invoice ? invoice.partyName: "NA"}
                             </td>
-                            <td>{emp.email ? emp.email : "NA"}</td>
-                            <td>{emp.mobile ? emp.mobile : "NA"}</td>
-                         
-                   
-                            
-                         
+                            <td>{invoice ? invoice.DateOfIssue : "NA"}</td>
+                            <td>{invoice ? invoice.invoiceNumber+".pdf" : "NA"}</td>
                             <td>
-                              <div
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: "10px",
-                                }}
-                              >
-                                <Link to="/update-employee">
-                                  <button style={{color:"white"}} className="search-update-btn">
-                                    Download
-                                  </button>
-                                </Link>
-                             
-                              </div>
-                            </td>
-                          </tr>
+                            <button
+                              style={{ color: "white" }}
+                              className="search-update-btn"
+                              onClick={() => handleDownload(invoice._id, invoice.invoiceNumber)}
+                            >
+                              Download
+                            </button>
+                          </td>
+                      </tr>
                         ))
                       ) : (
                         <tr>
                           <td colSpan="8" className="no-data">
-                            No employees found
+                            No Invoices  found
                           </td>
                         </tr>
                       )}
