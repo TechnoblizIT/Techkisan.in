@@ -33,6 +33,15 @@ const AddEmployee = () => {
     } catch (err) {
       console.error('Error in admin dashboard:', err.message || 'Server error');
     }
+    const fetchManager=(req,res)=>{
+      axios.get(Endpoints.GET_ALL_MANAGERS)
+       .then(response => {
+          console.log(response.data);
+       })
+       .catch(error => {
+          console.log(error);
+       });
+    }
     
   }, [navigate]);
 

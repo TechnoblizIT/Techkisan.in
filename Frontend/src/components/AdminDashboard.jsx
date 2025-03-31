@@ -37,7 +37,9 @@ const AdminDashboard = ({ handleMenuClick }) => {
   const [allUsers, setAllUsers] = useState([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null); // Track active button
- 
+  const currentDate=new Date(Date.now);
+  const[success,setSuccess] = useState("")
+  
   //-------------------------------------start-invoice setup---------------------------------------------//
 
   const componentRef = useRef();
@@ -65,6 +67,7 @@ const AdminDashboard = ({ handleMenuClick }) => {
   
     setNoTaxRows(updatedRows);
   };
+
   
   // Handle changes in the Tax Invoice Table
   const handleTaxChange = (index, field, value) => {
@@ -78,6 +81,7 @@ const AdminDashboard = ({ handleMenuClick }) => {
   
     setTaxRows(updatedRows);
   };
+;
   
   useEffect(() => {
     const fetchInvoiceNumber = async () => {
@@ -96,7 +100,7 @@ const AdminDashboard = ({ handleMenuClick }) => {
         console.error("Error fetching tax invoice number:", error);
       }
     };
-
+    console.log(currentDate)
     fetchInvoiceNumber();
     fetchTaxInvoiceNumber();
   }, []);
@@ -123,6 +127,14 @@ const AdminDashboard = ({ handleMenuClick }) => {
         }, 50);
   
         return newRows;
+      });
+    }
+    const formatDate = (date) => {
+      if (!date) return "-";
+      return new Date(date).toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
       });
     }
   
@@ -476,6 +488,7 @@ const AdminDashboard = ({ handleMenuClick }) => {
     
         if (response.data.message === "Invoice saved successfully") {
           setInvoiceNumber(newInvoiceNumber);
+          setSuccess(response.data.message)
           setIsSaved(true);
         }
       } catch (error) {
@@ -797,6 +810,7 @@ const AdminDashboard = ({ handleMenuClick }) => {
                         <th>ID</th>
                         <th>Name</th>
                         <th>EMAIL</th>
+                        <th>EMAIL</th>
                         <th>Mobile No.</th>
                         <th>Department</th>
                         <th>Designation</th>
@@ -951,6 +965,7 @@ const AdminDashboard = ({ handleMenuClick }) => {
                   { id: "stock-status", label: "Stock Status" },
                   { id: "acc-ledger", label: "Acc. Ledger" },
                   { id: "item-summary", label: "Item Summary" },
+                  { id: "all-invoices", label: "All Invoices" },
                   { id: "gst-summary", label: "GST Summary" },
                 ].map((btn) => (
                   <button
@@ -1531,7 +1546,7 @@ const AdminDashboard = ({ handleMenuClick }) => {
                     </div>
                   </div>
                 )}
-
+                 {/* tax invoices */}
                 {activeItem === "add-receipt" && (
                   <div className="content-box">
                   {/* <h2>Add-Reciept</h2> */}
@@ -1555,6 +1570,7 @@ const AdminDashboard = ({ handleMenuClick }) => {
                         Print
                       </button>
                     </div>
+                    <p style={{color:"green"}}>{success?success:""}</p>
 
                     <div className="invoice-container" ref={componentRef}>
                       <div>
@@ -1596,6 +1612,7 @@ const AdminDashboard = ({ handleMenuClick }) => {
                               type="text"
                               id="date-of-issue"
                               name="date-of-issue"
+                              value={formatDate(new Date())}
                             />
                           </div>
                         </div>
@@ -1878,6 +1895,7 @@ const AdminDashboard = ({ handleMenuClick }) => {
                                 type="text"
                                 id="date-of-issue"
                                 name="date-of-issue"
+                                value={formatDate(new Date())}
                               />
                             </div>
                           </div>
@@ -2741,12 +2759,71 @@ const AdminDashboard = ({ handleMenuClick }) => {
                   </div>
                 )}
 
-                {activeItem === "gst-summary" && (
+                {activeItem === "all-invoices" && (
                   <div className="content-box">
-                    <h2>GST Summary</h2>
-                    <p>This is the content for GST Summary</p>
+                    
+                    <div className="admin-table-container">
+                  <table className="employee-table">
+                    <thead>
+                      <tr>
+                        <th>INVOICE NO</th>
+                        <th>PARTY NAME</th>
+                        <th>DATE OF ISSUE</th>
+                        <th>FILE NAME</th>
+                        <th>DOWNLOAD</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {employees.length > 0 ? (
+                        employees.map((emp, index) => (
+                          <tr key={emp.id}>
+                            <td>{index + 1}</td>
+                            <td>
+                              {emp ? emp.firstName + " " + emp.lastName : "NA"}
+                            </td>
+                            <td>{emp.email ? emp.email : "NA"}</td>
+                            <td>{emp.mobile ? emp.mobile : "NA"}</td>
+                         
+                   
+                            
+                         
+                            <td>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "10px",
+                                }}
+                              >
+                                <Link to="/update-employee">
+                                  <button style={{color:"white"}} className="search-update-btn">
+                                    Download
+                                  </button>
+                                </Link>
+                             
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="8" className="no-data">
+                            No employees found
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
                   </div>
                 )}
+
+            {activeItem === "gst-summary" && (
+                              <div className="content-box">
+                                <h2>GST Summary</h2>
+                                <p>This is the content for GST Summary</p>
+                              </div>
+                            )}
               </div>
             </div>
           )}
