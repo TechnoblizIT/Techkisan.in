@@ -217,6 +217,22 @@ router.get('/admindata',async function (req, res){
         res.status(500).json({ error: error.message });
       }
     });
+
+    router.delete("/delete_invoice/:id",async(req,res)=>{
+      const { id } = req.params;
+      try{
+      let deletedInvoice = await noTaxinvoiceModel.findByIdAndDelete(id);
+      if (!deletedInvoice) deletedInvoice = await taxInvoiceModel.findByIdAndDelete(id);
+  
+      if (deletedInvoice) {
+        return res.json({ success: true, message: "Invoice deleted successfully!" });
+      } else {
+        return res.status(404).json({ success: false, message: "Ivoice not found!" });
+      }
+    }catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+    })
   
 
 

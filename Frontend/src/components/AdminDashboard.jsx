@@ -67,6 +67,14 @@ const AdminDashboard = ({ handleMenuClick }) => {
   const [taxRows, setTaxRows] = useState(
     Array(3).fill({ desc: "", hsn: "", qty: "", rate: "", amount: "" })
   );
+  const handleDeleteInvoives=async(Invoice_id)=>{
+    try{
+    await axios.delete(`${Endpoints.ADMIN_DELETE_INVOICE}/${Invoice_id}`);
+    setAllInvoices(allInvoices.filter((invoice) => invoice._id !== Invoice_id));
+  } catch (error) {
+    console.error("Error deleting Invoice:", error.message);
+  }
+  }
   
   // Handle changes in the No-Tax Invoice Table
   const handleNoTaxChange = (index, field, value) => {
@@ -729,15 +737,17 @@ const AdminDashboard = ({ handleMenuClick }) => {
                       Announcement
                     </h3>
                     <hr />
-                    <div className="announcement-content">
+                    <div className="announcements">
+                  {announcements.map((announcement, index) => (
+                    <div key={index} className="announcement-content">
                       <h1>
-                        Merry Christmas <span className="vertical-line"></span>
-                        <span className="announcement-date">10-18-2018</span>
+                        {announcement.Announcement} <span className="vertical-line"></span>
+                        <span className="announcement-date">{formatDate(announcement.Date)}</span>
                       </h1>
-                      <p>
-                        The office will remain closed on 25th December, Tuesday.
-                      </p>
+                    
                     </div>
+                  ))}
+                </div>
                   </div>
                   {/* My Leave Calendar Section */}
                   <div className="leave-calendar">
@@ -844,7 +854,6 @@ const AdminDashboard = ({ handleMenuClick }) => {
                       <tr>
                         <th>ID</th>
                         <th>Name</th>
-                        <th>EMAIL</th>
                         <th>EMAIL</th>
                         <th>Mobile No.</th>
                         <th>Department</th>
@@ -2829,6 +2838,12 @@ const AdminDashboard = ({ handleMenuClick }) => {
                             >
                               Download
                             </button>
+                            <button
+                                  style={{ color: "#dc3545" }}
+                                  onClick={() => handleDeleteInvoives(invoice._id)}
+                                >
+                                  <i className="fa-solid fa-trash"></i>
+                                </button>
                           </td>
                       </tr>
                         ))
