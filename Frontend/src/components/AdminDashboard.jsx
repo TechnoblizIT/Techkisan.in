@@ -1661,109 +1661,108 @@ const AdminDashboard = ({ handleMenuClick }) => {
 
                       <div className="invoice-table">
                       <table>
-  <thead>
-    <tr>
-      <th>S.N.</th>
-      <th>Product Description</th>
-      <th>HSN</th>
-      <th>Qty(N)</th>
-      <th>Rate(₹)</th>
-      <th>Amount(₹)</th>
-    </tr>
-  </thead>
-  <tbody>
-    {taxRows.map((row, index) => (
-      <tr key={index}>
-        <td>{index + 1}</td>
-        <td>
-          <textarea
-            rows="3"
-            style={{ width: "100%" }}
-            value={row.desc}
-            data-tax-index={index} // Add this
-            onChange={(e) => handleTaxChange(index, "desc", e.target.value)}
-            onKeyDown={(e) => handleTaxKeyPress(index, "desc", e)}
-          />
-        </td>
-        <td>
-          <input
-            type="text"
-            value={row.hsn}
-            onChange={(e) => handleTaxChange(index, "hsn", e.target.value)}
-          />
-        </td>
-        <td>
-          <input
-            type="number"
-            value={row.qty}
-            onChange={(e) => handleTaxChange(index, "qty", e.target.value)}
-          />
-        </td>
-        <td>
-          <input
-            type="number"
-            value={row.rate}
-            onChange={(e) => handleTaxChange(index, "rate", e.target.value)}
-            onKeyDown={(e) => handleTaxKeyPress(index, "rate", e)} // Key press for rate
-          />
-        </td>
-        <td>
-          <input type="text" value={row.amount} readOnly />
-        </td>
-      </tr>
-    ))}
-    <tr>
-      <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold" }}>Total (₹):</td>
-      <td><input type="text" value={taxTotalAmount.toFixed(2)} readOnly /></td>
-    </tr>
-    <tr>
-      <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold", position: "relative" }}
-          onClick={() => setShowDropdown(true)}
-          onBlur={() => setTimeout(() => setShowDropdown(false), 200)}>
-        {showDropdown ? (
-          <select 
-            value={taxType} 
-            onChange={(e) => setTaxType(e.target.value)} 
-            autoFocus 
-            style={{ width: "110px", fontSize: "12px" }}>
-            <option value="GST">GST @18%</option>
-            <option value="IGST">IGST @18%</option>
-          </select>
-        ) : (
-          ` ${taxType === "GST" ? "GST @18%" : "IGST @18%"}`
-        )}
-      </td>
-      <td><input type="text" value={gstAmount.toFixed(2)} readOnly /></td>
-    </tr>
-    {taxType === "GST" && (
-      <>
-        <tr>
-          <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold" }}>-CGST 9%</td>
-          <td><input type="text" value={cgstSgstAmount.toFixed(2)} readOnly /></td>
-        </tr>
-        <tr>
-          <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold" }}>-SGST 9%</td>
-          <td><input type="text" value={cgstSgstAmount.toFixed(2)} readOnly /></td>
-        </tr>
-      </>
-    )}
-    <tr>
-      <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold" }}>Round Off (₹):</td>
-      <td><input type="text" value={taxRoundOff.toFixed(2)} readOnly /></td>
-    </tr>
-    <tr>
-      <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold" }}>Final Total (₹):</td>
-      <td><input type="text" value={taxRoundedTotal.toFixed(2)} readOnly /></td>
-    </tr>
-    <tr>
-      <td colSpan="6" style={{ textAlign: "right" }}>
-        <b>Amount in Words: </b>
-        <p>{taxTotalInWords} Rupees Only</p>
-      </td>
-    </tr>
-  </tbody>
-</table>
-
+                          <thead>
+                            <tr>
+                              <th>S.N.</th>
+                              <th>Product Description</th>
+                              <th>HSN</th>
+                              <th>Qty(N)</th>
+                              <th>Rate(₹)</th>
+                              <th>Amount(₹)</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {taxRows.map((row, index) => (
+                              <tr key={index}>
+                                <td>{index + 1}</td>
+                                <td>
+                                  <textarea
+                                    rows="3"
+                                    style={{ width: "100%" }}
+                                    value={row.desc}
+                                    data-tax-index={index} // Add this
+                                    onChange={(e) => handleTaxChange(index, "desc", e.target.value)}
+                                    onKeyDown={(e) => handleTaxKeyPress(index, "desc", e)}
+                                  />
+                                </td>
+                                <td>
+                                  <input
+                                    type="text"
+                                    value={row.hsn}
+                                    onChange={(e) => handleTaxChange(index, "hsn", e.target.value)}
+                                  />
+                                </td>
+                                <td>
+                                  <input
+                                    type="number"
+                                    value={row.qty}
+                                    onChange={(e) => handleTaxChange(index, "qty", e.target.value)}
+                                  />
+                                </td>
+                                <td>
+                                  <input
+                                    type="number"
+                                    value={row.rate}
+                                    onChange={(e) => handleTaxChange(index, "rate", e.target.value)}
+                                    onKeyDown={(e) => handleTaxKeyPress(index, "rate", e)} // Key press for rate
+                                  />
+                                </td>
+                                <td>
+                                  <input type="text" value={row.amount} readOnly />
+                                </td>
+                              </tr>
+                            ))}
+                            <tr>
+                              <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold" }}>Total (₹):</td>
+                              <td><input type="text" value={taxTotalAmount.toFixed(2)} readOnly /></td>
+                            </tr>
+                            <tr>
+                              <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold", position: "relative" }}
+                                  onClick={() => setShowDropdown(true)}
+                                  onBlur={() => setTimeout(() => setShowDropdown(false), 200)}>
+                                {showDropdown ? (
+                                  <select 
+                                    value={taxType} 
+                                    onChange={(e) => setTaxType(e.target.value)} 
+                                    autoFocus 
+                                    style={{ width: "110px", fontSize: "12px" }}>
+                                    <option value="GST">GST @18%</option>
+                                    <option value="IGST">IGST @18%</option>
+                                  </select>
+                                ) : (
+                                  ` ${taxType === "GST" ? "GST @18%" : "IGST @18%"}`
+                                )}
+                              </td>
+                              <td><input type="text" value={gstAmount.toFixed(2)} readOnly /></td>
+                            </tr>
+                            {taxType === "GST" && (
+                              <>
+                                <tr>
+                                  <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold" }}>-CGST 9%</td>
+                                  <td><input type="text" value={cgstSgstAmount.toFixed(2)} readOnly /></td>
+                                </tr>
+                                <tr>
+                                  <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold" }}>-SGST 9%</td>
+                                  <td><input type="text" value={cgstSgstAmount.toFixed(2)} readOnly /></td>
+                                </tr>
+                              </>
+                            )}
+                            <tr>
+                              <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold" }}>Round Off (₹):</td>
+                              <td><input type="text" value={taxRoundOff.toFixed(2)} readOnly /></td>
+                            </tr>
+                            <tr>
+                              <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold" }}>Final Total (₹):</td>
+                              <td><input type="text" value={taxRoundedTotal.toFixed(2)} readOnly /></td>
+                            </tr>
+                            <tr>
+                              <td colSpan="6" style={{ textAlign: "right" }}>
+                                <b>Amount in Words: </b>
+                                <p>{taxTotalInWords} Rupees Only</p>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
 
                       <div className="footer-section">
@@ -1943,78 +1942,78 @@ const AdminDashboard = ({ handleMenuClick }) => {
                         </div>
 
                         <div className="invoice-table">
-                        <table>
-  <thead>
-    <tr>
-      <th>S.N.</th>
-      <th>Product Description</th>
-      <th>HSN</th>
-      <th>Qty(N)</th>
-      <th>Rate(₹)</th>
-      <th>Amount(₹)</th>
-    </tr>
-  </thead>
-  <tbody>
-    {noTaxRows.map((row, index) => (
-      <tr key={index}>
-        <td>{index + 1}</td>
-        <td>
-          <textarea
-            rows="3"
-            style={{ width: "100%" }}
-            value={row.desc}
-            data-no-tax-index={index} // Add this
-            onChange={(e) => handleNoTaxChange(index, "desc", e.target.value)}
-            onKeyDown={(e) => handleNoTaxKeyPress(index, "desc", e)}
-          />
-        </td>
-        <td>
-          <input
-            type="text"
-            value={row.hsn}
-            onChange={(e) => handleNoTaxChange(index, "hsn", e.target.value)}
-          />
-        </td>
-        <td>
-          <input
-            type="number"
-            value={row.qty}
-            onChange={(e) => handleNoTaxChange(index, "qty", e.target.value)}
-          />
-        </td>
-        <td>
-          <input
-            type="number"
-            value={row.rate}
-            onChange={(e) => handleNoTaxChange(index, "rate", e.target.value)}
-            onKeyDown={(e) => handleNoTaxKeyPress(index, "rate", e)} // Key press for rate
-          />
-        </td>
-        <td>
-          <input type="text" value={row.amount} readOnly />
-        </td>
-      </tr>
-    ))}
-    <tr>
-      <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold" }}>Total (₹):</td>
-      <td><input type="text" value={noTaxTotalAmount.toFixed(2)} readOnly /></td>
-    </tr>
-    <tr>
-      <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold" }}>Round Off (₹):</td>
-      <td><input type="text" value={noTaxRoundOff.toFixed(2)} readOnly /></td>
-    </tr>
-    <tr>
-      <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold" }}>Final Total (₹):</td>
-      <td><input type="text" value={noTaxFinalTotal} readOnly /></td>
-    </tr>
-    <tr>
-      <td colSpan="6" style={{ textAlign: "right" }}>
-        <b>Amount in Words: </b>
-        <p>{noTaxTotalInWords} Rupees Only</p>
-      </td>
-    </tr>
-  </tbody>
-</table>
+                          <table>
+                            <thead>
+                              <tr>
+                                <th>S.N.</th>
+                                <th>Product Description</th>
+                                <th>HSN</th>
+                                <th>Qty(N)</th>
+                                <th>Rate(₹)</th>
+                                <th>Amount(₹)</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {noTaxRows.map((row, index) => (
+                                <tr key={index}>
+                                  <td>{index + 1}</td>
+                                  <td>
+                                    <textarea
+                                      rows="3"
+                                      style={{ width: "100%" }}
+                                      value={row.desc}
+                                      data-no-tax-index={index} // Add this
+                                      onChange={(e) => handleNoTaxChange(index, "desc", e.target.value)}
+                                      onKeyDown={(e) => handleNoTaxKeyPress(index, "desc", e)}
+                                    />
+                                  </td>
+                                  <td>
+                                    <input
+                                      type="text"
+                                      value={row.hsn}
+                                      onChange={(e) => handleNoTaxChange(index, "hsn", e.target.value)}
+                                    />
+                                  </td>
+                                  <td>
+                                    <input
+                                      type="number"
+                                      value={row.qty}
+                                      onChange={(e) => handleNoTaxChange(index, "qty", e.target.value)}
+                                    />
+                                  </td>
+                                  <td>
+                                    <input
+                                      type="number"
+                                      value={row.rate}
+                                      onChange={(e) => handleNoTaxChange(index, "rate", e.target.value)}
+                                      onKeyDown={(e) => handleNoTaxKeyPress(index, "rate", e)} // Key press for rate
+                                    />
+                                  </td>
+                                  <td>
+                                    <input type="text" value={row.amount} readOnly />
+                                  </td>
+                                </tr>
+                              ))}
+                              <tr>
+                                <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold" }}>Total (₹):</td>
+                                <td><input type="text" value={noTaxTotalAmount.toFixed(2)} readOnly /></td>
+                              </tr>
+                              <tr>
+                                <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold" }}>Round Off (₹):</td>
+                                <td><input type="text" value={noTaxRoundOff.toFixed(2)} readOnly /></td>
+                              </tr>
+                              <tr>
+                                <td colSpan="5" style={{ textAlign: "right", fontWeight: "bold" }}>Final Total (₹):</td>
+                                <td><input type="text" value={noTaxFinalTotal} readOnly /></td>
+                              </tr>
+                              <tr>
+                                <td colSpan="6" style={{ textAlign: "right" }}>
+                                  <b>Amount in Words: </b>
+                                  <p>{noTaxTotalInWords} Rupees Only</p>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
                         </div>
 
                         <div className="footer-section">
@@ -2092,100 +2091,96 @@ const AdminDashboard = ({ handleMenuClick }) => {
                       >
                         Print Invoice
                       </button>
-                    <div  ref={printRef} className="solar-invoice-container">
-                      <div className="solar-invoice-header">
-                        <div>
-                          <h1>TECHKISAN AUTOMATION</h1>
+                      <div ref={printRef} className="solar-invoice-container">
+                        <div className="solar-header">
+                          <h1>Tax Invoice</h1>
+                          <div className="solar-invoice-info">
+                            <p>Invoice No: TKN/2024-25/636/G</p>
+                            <p>Invoice Date: 21/03/2025</p>
+                            <p>Transport Mode: ROAD</p>
+                          </div>
+                        </div>
+                        <div className="solar-company-details">
+                          <h2>Techkisan Automation</h2>
                           <p>Ambule Building, Shrinagar, Near Murri Chawky, Gondia - 441601</p>
                           <p>Tel. No.: +91-7972025213 / +91-9511831914</p>
-                          <p>GSTN: 27AAQFT9534N1Z5 | PAN: AAQFT9534N</p>
+                          <p>GSTN: 27AAQFT9534N1Z5</p>
+                          <p>PAN No.: AAQFT9534N</p>
                         </div>
-                        <div>
-                        <img src={logo} alt="Company Logo" className="logoin" style={{marginTop: "5px", height: "85px", width: "360px" }} />
+                        <section className="solar-billing">
+                          <div className="solar-party-info">
+                            <h3>Quote To Party</h3>
+                            <p>Name: Mahesh Prithyani Sir</p>
+                            <p>Address: Gondia</p>
+                            <p>State: Maharashtra</p>
+                            <p>GSTIN: 27AAQFT9534N1Z5</p>
+                          </div>
+                          <div className="solar-party-info">
+                            <h3>Ship To Party</h3>
+                            <p>Name: Mahesh Prithyani Sir</p>
+                            <p>Address: Gondia</p>
+                            <p>State: Maharashtra</p>
+                          </div>
+                        </section>
+                        <table className="solar-invoice-table">
+                          <thead>
+                            <tr>
+                              <th>Sr. No</th>
+                              <th>Description</th>
+                              <th>UOM</th>
+                              <th>Qty</th>
+                              <th>Rate</th>
+                              <th>Taxable Amount</th>
+                              <th>CGST</th>
+                              <th>SGST</th>
+                              <th>Total</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>1</td>
+                              <td>4KW Adani PV Panels Bifacial</td>
+                              <td>pcs</td>
+                              <td>1</td>
+                              <td>1,47,627</td>
+                              <td>1,47,627</td>
+                              <td>6% (8857.64)</td>
+                              <td>6% (8857.64)</td>
+                              <td>1,77,715.28</td>
+                            </tr>
+                            <tr>
+                              <td>2</td>
+                              <td>Solar 4KVA Inverter</td>
+                              <td>pcs</td>
+                              <td>1</td>
+                              <td>63,269</td>
+                              <td>63,269</td>
+                              <td>9% (5694.21)</td>
+                              <td>9% (5694.21)</td>
+                              <td>75,657.42</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <div className="solar-totals">
+                          <p>Total Amount Before Tax: ₹2,10,896.30</p>
+                          <p>Total GST Amount: ₹29,103.70</p>
+                          <p><strong>Total Payable Amount With Tax: ₹2,40,000.00</strong></p>
                         </div>
+                        <section className="solar-bank-details">
+                          <h3>Bank Details</h3>
+                          <p>Bank Name: HDFC BANK</p>
+                          <p>A/C No.: 50200063151545</p>
+                          <p>IFSC Code: HDFC0000963</p>
+                        </section>
+                        <section className="terms">
+                          <h3>Terms & Conditions</h3>
+                          <p>All Disputes are Subject to Home Jurisdiction</p>
+                          <p>Warranty: Panels - 25 years, Inverter - 10 years</p>
+                        </section>
+                        <footer>
+                          <p>Authorized Signatory</p>
+                        </footer>
                       </div>
-                      <div style={{marginTop: "0px", fontSize: "18px", fontWeight: "bold" }}>Tax Invoice</div>
-                      <div className="solar-invoice-details">
-                        <div><strong>Invoice No:</strong> TKN/2024-25/636/G</div>
-                        <div><strong>Invoice Date:</strong> 21/03/2025</div>
-                        <div><strong>Transport Mode:</strong> ROAD</div>
-                        <div><strong>Vehicle Number:</strong> __________</div>
-                        <div><strong>Reverse Charge (Y/N):</strong> N</div>
-                        <div><strong>Date of Visit:</strong> __________</div>
-                        <div><strong>State:</strong> Maharashtra (Code 27)</div>
-                        <div><strong>Place of Supply:</strong> Gondia (MH)</div>
-                      </div>
-                      
-                      <div className="solar-customer-details">
-                        <div>
-                          <h3>Quote To Party</h3>
-                          <p><strong>Name:</strong> Mahesh Prithyani Sir</p>
-                          <p><strong>Address:</strong> Gondia, Maharashtra</p>
-                          <p><strong>GSTIN:</strong> 27AAQFT9534N1Z5</p>
-                        </div>
-                        <div>
-                          <h3>Ship To Party</h3>
-                          <p><strong>Name:</strong> Mahesh Prithyani Sir</p>
-                          <p><strong>Address:</strong> Gondia, Maharashtra</p>
-                          <p><strong>GSTIN:</strong> 27AAQFT9534N1Z5</p>
-                        </div>
-                      </div>
-                      
-                      <table className="solar-invoice-table">
-                        <thead>
-                          <tr>
-                            <th>Sr. No</th>
-                            <th>Description</th>
-                            <th>UOM</th>
-                            <th>Qty</th>
-                            <th>Rate</th>
-                            <th>Taxable Amount</th>
-                            <th>CGST</th>
-                            <th>SGST</th>
-                            <th>Total</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td>1</td>
-                            <td>4KW Adani PV Panels Bifacial</td>
-                            <td>pcs</td>
-                            <td>1</td>
-                            <td>₹1,47,627</td>
-                            <td>₹1,47,627</td>
-                            <td>6% (₹8,857.64)</td>
-                            <td>6% (₹8,857.64)</td>
-                            <td>₹1,77,152.76</td>
-                          </tr>
-                          <tr>
-                            <td>2</td>
-                            <td>Solar 4KVA Inverter + Accessories</td>
-                            <td>pcs</td>
-                            <td>1</td>
-                            <td>₹63,269</td>
-                            <td>₹63,269</td>
-                            <td>9% (₹5,694.21)</td>
-                            <td>9% (₹5,694.21)</td>
-                            <td>₹1,13,884.20</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                      
-                      <div className="solar-invoice-summary">
-                        <p><strong>Total Amount Before Tax:</strong> ₹2,10,896.30</p>
-                        <p><strong>Total Tax Amount:</strong> ₹29,103.70</p>
-                        <p><strong>Total Payable Amount:</strong> ₹2,40,000.00</p>
-                      </div>
-                      
-                      <div className="solar-invoice-footer">
-                        <p><strong>Bank Details:</strong></p>
-                        <p>A/C No.: 50200063151545</p>
-                        <p>Bank Name: HDFC BANK</p>
-                        <p>IFSC Code: HDFC0000963</p>
-                        <p><strong>Authorized Signatory:</strong> TechKisan Automation</p>
-                        <p>Certified that the particulars given above are true and correct</p>
-                      </div>
-                    </div>
                     </div>
                   </div>
                 )}

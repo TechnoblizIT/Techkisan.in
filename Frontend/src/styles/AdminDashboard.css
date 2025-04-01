@@ -2417,89 +2417,118 @@ h4 {
 
 /* ------------------------------------solar-invoice---------------------------------------------- */
 
+/* Invoice Container */
 .solar-invoice-container {
-  width: 766px;
+  width: 80%;
   margin: auto;
-  padding: 10px;
+  padding: 20px;
   border: 1px solid #000;
-  background-color: #fff;
   font-family: Arial, sans-serif;
-  overflow: auto;
-  font-size: smaller;
+  background: #fff;
 }
 
-.solar-invoice-header {
-  text-align: left;
-  border-bottom: 1px solid #000;
+/* Header */
+solar-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+solar-header h1 {
+  font-size: 24px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.solar-invoice-info p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+/* Company Details */
+.solar-company-details {
+  text-align: center;
+  border-bottom: 2px solid #000;
   padding-bottom: 10px;
-  margin-bottom: 5px;
-  display: flex;
-  justify-content: space-between;
-}
-
-.solar-invoice-header h1 {
-  font-size: 20px;
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.solar-invoice-header p {
-  font-size: 12px;
-  margin: 2px 0;
-}
-
-.solar-invoice-details {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  font-size: 14px;
   margin-bottom: 20px;
 }
 
-.solar-customer-details {
+.solar-company-details h2 {
+  font-size: 18px;
+  text-transform: uppercase;
+}
+
+/* Billing Section */
+.solar-billing {
   display: flex;
   justify-content: space-between;
-  border: 1px solid #000;
-  padding: 10px;
-  font-size: 14px;
+  border-bottom: 2px solid #000;
+  padding-bottom: 10px;
   margin-bottom: 20px;
 }
 
-.solar-customer-details h3 {
+.solar-party-info h3 {
   font-size: 16px;
   text-decoration: underline;
-  margin-bottom: 5px;
 }
 
+.solar-party-info p {
+  font-size: 14px;
+  margin: 3px 0;
+}
+
+/* Invoice Table */
 .solar-invoice-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
   margin-bottom: 20px;
 }
 
 .solar-invoice-table th, .solar-invoice-table td {
-  border: 2px solid #000;
+  border: 1px solid #000;
   padding: 8px;
   text-align: center;
+  font-size: 14px;
 }
 
 .solar-invoice-table th {
-  background: #ddd;
-  font-weight: bold;
+  background-color: #f2f2f2;
 }
 
-.solar-invoice-summary {
-  font-size: 14px;
+/* Totals Section */
+.solar-totals {
   text-align: right;
+  font-size: 16px;
+  font-weight: bold;
   margin-bottom: 20px;
-  border-top: 2px solid #000;
-  padding-top: 10px;
 }
 
-.solar-invoice-footer {
+/* Bank Details */
+.solar-bank-details {
   font-size: 14px;
-  text-align: center;
   border-top: 2px solid #000;
   padding-top: 10px;
+  margin-bottom: 20px;
+}
+
+.solar-bank-details h3 {
+  text-decoration: underline;
+}
+
+/* Terms & Conditions */
+.solar-terms {
+  font-size: 14px;
+  border-top: 2px solid #000;
+  padding-top: 10px;
+  margin-bottom: 20px;
+}
+
+.solar-terms h3 {
+  text-decoration: underline;
+}
+
+/* Footer */
+solar-footer {
+  text-align: right;
+  font-size: 16px;
+  font-weight: bold;
 }
